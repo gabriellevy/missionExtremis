@@ -1,0 +1,17 @@
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/MissionExtremisApplication.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/catalog/Missions.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/Character.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/ConsulState.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/Joker.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/Mission.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/MissionEvent.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/MissionEventType.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/MissionReport.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/MissionRunner.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/RandomSource.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/SeededRandom.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/SimpleTest.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/Skill.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/SkillTest.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/core/Trait.java
+/workspace/github__gabriellevy__missionExtremis/src/main/java/com/extremis/web/GameController.java
