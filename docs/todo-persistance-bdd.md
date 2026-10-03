@@ -2,14 +2,15 @@
 
 Objectif : faire survivre l'état du jeu (roster, exécutions de missions, journal) entre les redémarrages de l'application. Aujourd'hui tout est en mémoire : `ConsulState` et le champ `activeExecution` de `GameController` sont perdus à chaque arrêt.
 
-## 1. Choix technique : PostgreSQL en prod, H2 en mémoire pour les tests
+## 1. Choix technique : PostgreSQL embarqué (Zonky), H2 pour les tests
 
-Système retenu : **PostgreSQL** via **Spring Data JPA** (Hibernate).
+> **Statut : implémenté** (voir `EmbeddedPostgresConfig`, paquet `com.extremis.db`, `GameService`).
+
+Système retenu : **PostgreSQL embarqué via les binaires Zonky** (`io.zonky.test:embedded-postgres`), piloté par **Spring Data JPA** (Hibernate).
 
 Pourquoi :
-- Spring Boot 3 / Java 21 s'intègre nativement avec PostgreSQL (`spring-boot-starter-data-jpa` + driver `org.postgresql`).
-- Pour les **tests locaux** (et CI) : **base H2 en mémoire** (`jdbc:h2:mem: extremis-test`) — aucun service externe à installer, tests rapides et reproductibles. Les entités doivent rester compatibles H2 (pas de types PostgreSQL spécifiques).
-- Alternative possible si l'on veut zéro infra même en local : H2 fichier (`jdbc:h2:file:./data/extremis`). À documenter dans `README.md` mais PostgreSQL reste la cible de production.
+- Aucun Docker ni installation : les binaires PostgreSQL sont téléchargés par Maven et la base démarre in-process (`EmbeddedPostgresConfig`, profil par défaut). La base persiste sur disque dans `./data/postgres` (`setCleanDataDirectory(false)`).
+- Pour les **tests** (profil `test-rapide`) : **H2 en mémoire** — aucun service externe, tests rapides. Les entités restent compatibles H2 (attention aux mots réservés : la colonne `value` de `character_skills` s'appelle `skill_value`).
 
 Dépendances à ajouter dans `pom.xml` :
 - `spring-boot-starter-data-jpa`
