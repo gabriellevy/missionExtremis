@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,15 @@ public class GameController {
     private final ConsulState consul = new ConsulState();
     private final List<String> eventLog = new ArrayList<>();
     private MissionExecution activeExecution;
+    private Duration timeOffset = Duration.ZERO;
+    private int flushedLines = 0;
 
     public GameController() {
         consul.offerMission(com.extremis.catalog.Missions.foolsOfGotheim());
+    }
+
+    private Instant now() {
+        return Instant.now().plus(timeOffset);
     }
 
     @GetMapping
@@ -37,6 +44,7 @@ public class GameController {
         model.addAttribute("simulations", consul.simulationsLeft());
         model.addAttribute("missionInProgress", activeExecution != null && !activeExecution.isFinished());
         model.addAttribute("nextEventTime", activeExecution == null ? null : activeExecution.nextEventTime());
+        model.addAttribute("virtualNow", activeExecution == null ? null : now());
         model.addAttribute("log", String.join("\n", eventLog));
         return "home";
     }
@@ -74,17 +82,22 @@ public class GameController {
             eventLog.add("Aucun arrangeur selectionne pour " + mission.title());
             return "redirect:/";
         }
-        activeExecution = MissionExecution.start(mission, team, new SeededRandom(42L), Instant.now());
+        timeOffset = Duration.ZERO;
+        activeExecution = MissionExecution.start(mission, team, new SeededRandom(42L), now());
         eventLog.add("=== " + mission.title() + " ===");
-        eventLog.add("Mission lancee. Les evenements se derouleront selon leur delai prevu.");
+        eventLog.add("Mission lancee a " + now() + ". Les evenements suivront leur delai prevu.");
         tick();
         return "redirect:/";
     }
 
     @PostMapping("/mission/advance")
     public String advanceMission() {
-        if (activeExecution == null) {
+        if (activeExecution == null || activeExecution.isFinished()) {
             return "redirect:/";
+        }
+        Instant next = activeExecution.nextEventTime();
+        if (next != null && next.isAfter(now())) {
+            timeOffset = Duration.between(Instant.now(), next);
         }
         tick();
         return "redirect:/";
@@ -95,10 +108,11 @@ public class GameController {
         if (activeExecution == null || activeExecution.isFinished()) {
             return;
         }
-        int before = activeExecution.eventsResolved();
-        boolean finished = activeExecution.advance(Instant.now());
-        if (activeExecution.eventsResolved() > before) {
-            eventLog.addAll(activeExecution.logLines().subList(before, activeExecution.eventsResolved()));
+        boolean finished = activeExecution.advance(now());
+        List<String> lines = activeExecution.logLines();
+        if (lines.size() > flushedLines) {
+            eventLog.addAll(lines.subList(flushedLines, lines.size()));
+            flushedLines = lines.size();
         }
         if (finished) {
             MissionReport report = activeExecution.report();

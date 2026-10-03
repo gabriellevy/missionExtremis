@@ -24,9 +24,10 @@
   <h2>Missions</h2>
   <p>Jetons : <span th:text="${jokers}"/> — Simulations restantes : <span th:text="${simulations}"/></p>
   <p th:if="${missionInProgress}">
-    Mission en cours — prochain événement : <span th:text="${nextEventTime}"/>
+    Mission en cours — heure virtuelle : <span th:text="${virtualNow}"/> —
+    prochain événement : <span th:text="${nextEventTime}"/>
     <form method="post" action="/mission/advance" style="display:inline">
-      <button type="submit">Avancer le temps (test)</button>
+      <button type="submit">Avancer jusqu'au prochain événement (test)</button>
     </form>
   </p>
   <div th:each="m : ${missions}">
