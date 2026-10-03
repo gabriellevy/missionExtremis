@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Mission Extremis</title>
+  <meta http-equiv="refresh" content="30"/>
+</head>
+<body>
+<h1>Mission Extremis — Console du Consul</h1>
+
+<section>
+  <h2>Variables d'ajustement disponibles</h2>
+  <ul>
+    <li th:each="c : ${roster}">
+      <span th:text="${c.name()}"/> — <span th:text="${c.health()}"/> pv
+    </li>
+  </ul>
+  <form method="post" action="/recruit">
+    <input type="text" name="name" placeholder="Nom du citoyen"/>
+    <button type="submit">Recruter (1 / 24h)</button>
+  </form>
+</section>
+
+<section>
+  <h2>Missions</h2>
+  <p>Jetons : <span th:text="${jokers}"/> — Simulations restantes : <span th:text="${simulations}"/></p>
+  <p th:if="${missionInProgress}">
+    Mission en cours — heure virtuelle : <span th:text="${virtualNow}"/> —
+    prochain événement : <span th:text="${nextEventTime}"/>
+    <form method="post" action="/mission/advance" style="display:inline">
+      <button type="submit">Avancer jusqu'au prochain événement (test)</button>
+    </form>
+  </p>
+  <div th:each="m : ${missions}">
+    <h3 th:text="${m.title()}"/>
+    <p th:text="${m.brief()}"/>
+    <form method="post" action="/mission/run">
+      <input type="hidden" name="missionId" th:value="${m.id()}"/>
+      <th:block th:each="c : ${roster}">
+        <label>
+          <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
+          <span th:text="${c.name()}"/>
+        </label>
+      </th:block>
+      <button type="submit">Lancer la mission</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <h2>Journal</h2>
+  <pre th:text="${log}"/>
+</section>
+</body>
+</html>
