@@ -12,6 +12,14 @@ public final class Missions {
     private Missions() {}
 
     public static Mission foolsOfGotheim() {
+        return build(Duration.ofHours(4), Duration.ofHours(6));
+    }
+
+    public static Mission foolsOfGotheimRapide() {
+        return build(Duration.ofSeconds(1), Duration.ofSeconds(1));
+    }
+
+    private static Mission build(Duration delay2, Duration delay3) {
         return new Mission(
                 "gotheim",
                 "Les fous de Gotheim",
@@ -25,12 +33,12 @@ public final class Missions {
                                 .test(new SimpleTest(Skill.DISCRETION, 60))
                                 .damageOnFailure(2)
                                 .rewardOnSuccess("Toge de sectateur")
-                                .delayFromPrevious(Duration.ofHours(4))
+                                .delayFromPrevious(delay2)
                                 .build(),
                         MissionEvent.builder("e3", "Confrontation avec les meneurs.")
                                 .test(new SimpleTest(Skill.COMBAT, 70))
                                 .damageOnFailure(4)
-                                .delayFromPrevious(Duration.ofHours(6))
+                                .delayFromPrevious(delay3)
                                 .build()));
     }
 }

@@ -6,6 +6,8 @@ import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
 import com.extremis.core.SeededRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,14 +24,16 @@ import java.util.List;
 @Controller
 @RequestMapping("/")
 public class GameController {
+    private static final Logger log = LoggerFactory.getLogger(GameController.class);
+
     private final ConsulState consul = new ConsulState();
     private final List<String> eventLog = new ArrayList<>();
     private MissionExecution activeExecution;
     private Duration timeOffset = Duration.ZERO;
     private int flushedLines = 0;
 
-    public GameController() {
-        consul.offerMission(com.extremis.catalog.Missions.foolsOfGotheim());
+    public GameController(List<Mission> missions) {
+        missions.forEach(consul::offerMission);
     }
 
     private Instant now() {
@@ -83,6 +87,7 @@ public class GameController {
             return "redirect:/";
         }
         timeOffset = Duration.ZERO;
+        flushedLines = 0;
         activeExecution = MissionExecution.start(mission, team, new SeededRandom(42L), now());
         eventLog.add("=== " + mission.title() + " ===");
         eventLog.add("Mission lancee a " + now() + ". Les evenements suivront leur delai prevu.");
@@ -103,7 +108,7 @@ public class GameController {
         return "redirect:/";
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRateString = "${mission.tick-rate-ms:60000}")
     public void tick() {
         if (activeExecution == null || activeExecution.isFinished()) {
             return;
@@ -112,6 +117,7 @@ public class GameController {
         List<String> lines = activeExecution.logLines();
         if (lines.size() > flushedLines) {
             eventLog.addAll(lines.subList(flushedLines, lines.size()));
+            log.info("Tick : {} evenement(s) resolu(s)", lines.size() - flushedLines);
             flushedLines = lines.size();
         }
         if (finished) {
@@ -120,5 +126,27 @@ public class GameController {
                     ? "Equipe eliminee. Mission echouee."
                     : "Mission terminee. Survivants : " + report.survivors());
         }
+    }
+
+    void recrutementRapide(String name) {
+        consul.roster().clear();
+        consul.roster().add(new Character("test-" + name, name)
+                .withSkill(com.extremis.core.Skill.DISCRETION, 80)
+                .withSkill(com.extremis.core.Skill.COMBAT, 80));
+        eventLog.clear();
+    }
+
+    void lancementRapide() {
+        activeExecution = MissionExecution.start(
+                consul.missions().get(0),
+                List.copyOf(consul.roster()),
+                new SeededRandom(42L),
+                Instant.now());
+        flushedLines = 0;
+        tick();
+    }
+
+    String journal() {
+        return String.join("\n", eventLog);
     }
 }
