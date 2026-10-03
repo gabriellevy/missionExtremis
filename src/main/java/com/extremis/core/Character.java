@@ -59,6 +59,14 @@ public final class Character {
         inventory.add(item);
     }
 
+    public java.util.Map<Skill, Integer> skillsSnapshot() {
+        return java.util.Map.copyOf(skills);
+    }
+
+    public void setHealth(int value) {
+        health = Math.max(0, Math.min(10, value));
+    }
+
     public void kill() {
         health = 0;
         alive = false;

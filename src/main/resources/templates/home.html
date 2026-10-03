@@ -16,7 +16,9 @@
     </li>
   </ul>
   <form method="post" action="/recruit">
-    <input type="text" name="name" placeholder="Nom du citoyen"/>
+    <select name="characterId">
+      <option th:each="c : ${available}" th:value="${c.getId()}" th:text="${c.getName()} + ' (' + ${c.getCoterie()} + ')'"/>
+    </select>
     <button type="submit">Recruter (1 / 24h)</button>
   </form>
 </section>

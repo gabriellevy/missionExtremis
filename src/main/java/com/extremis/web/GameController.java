@@ -1,15 +1,17 @@
 package com.extremis.web;
 
 import com.extremis.core.Character;
-import com.extremis.core.ConsulState;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
 import com.extremis.core.SeededRandom;
+import com.extremis.db.CharacterEntity;
+import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,14 +28,17 @@ import java.util.List;
 public class GameController {
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
 
-    private final ConsulState consul = new ConsulState();
+    private final GameService game;
+    private final List<Mission> missions;
     private final List<String> eventLog = new ArrayList<>();
     private MissionExecution activeExecution;
+    private MissionExecutionEntity activeEntity;
     private Duration timeOffset = Duration.ZERO;
     private int flushedLines = 0;
 
-    public GameController(List<Mission> missions) {
-        missions.forEach(consul::offerMission);
+    public GameController(GameService game, List<Mission> missions) {
+        this.game = game;
+        this.missions = missions;
     }
 
     private Instant now() {
@@ -41,11 +46,14 @@ public class GameController {
     }
 
     @GetMapping
+    @Transactional
     public String home(Model model) {
-        model.addAttribute("roster", consul.roster());
-        model.addAttribute("missions", consul.missions());
-        model.addAttribute("jokers", consul.jokers());
-        model.addAttribute("simulations", consul.simulationsLeft());
+        List<Character> roster = game.roster();
+        model.addAttribute("roster", roster);
+        model.addAttribute("available", game.availableCharacters());
+        model.addAttribute("missions", missions);
+        model.addAttribute("jokers", game.jokers());
+        model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("missionInProgress", activeExecution != null && !activeExecution.isFinished());
         model.addAttribute("nextEventTime", activeExecution == null ? null : activeExecution.nextEventTime());
         model.addAttribute("virtualNow", activeExecution == null ? null : now());
@@ -54,12 +62,15 @@ public class GameController {
     }
 
     @PostMapping("/recruit")
-    public String recruit(@RequestParam String name) {
-        Character recruit = new Character("c" + System.nanoTime(), name)
-                .withSkill(com.extremis.core.Skill.COMBAT, 40);
+    public String recruit(@RequestParam String characterId) {
+        Character recruit = game.characterById(characterId).orElse(null);
+        if (recruit == null) {
+            eventLog.add("Personnage inconnu : " + characterId);
+            return "redirect:/";
+        }
         try {
-            consul.recruit(recruit, Instant.now());
-            eventLog.add("Recrutement de " + name);
+            game.recruit(recruit, Instant.now());
+            eventLog.add("Recrutement de " + recruit.name());
         } catch (IllegalStateException e) {
             eventLog.add(e.getMessage());
         }
@@ -72,14 +83,14 @@ public class GameController {
             eventLog.add("Une mission est deja en cours.");
             return "redirect:/";
         }
-        Mission mission = consul.missionById(missionId).orElse(null);
+        Mission mission = missions.stream().filter(m -> m.id().equals(missionId)).findFirst().orElse(null);
         if (mission == null) {
             return "redirect:/";
         }
         List<Character> team = new ArrayList<>();
         if (teamIds != null) {
             for (String id : teamIds) {
-                consul.characterById(id).ifPresent(team::add);
+                game.characterById(id).ifPresent(team::add);
             }
         }
         if (team.isEmpty()) {
@@ -88,7 +99,8 @@ public class GameController {
         }
         timeOffset = Duration.ZERO;
         flushedLines = 0;
-        activeExecution = MissionExecution.start(mission, team, new SeededRandom(42L), now());
+        activeEntity = game.startMission(mission, team, now());
+        activeExecution = game.rebuild(activeEntity).orElse(null);
         eventLog.add("=== " + mission.title() + " ===");
         eventLog.add("Mission lancee a " + now() + ". Les evenements suivront leur delai prevu.");
         tick();
@@ -109,8 +121,15 @@ public class GameController {
     }
 
     @Scheduled(fixedRateString = "${mission.tick-rate-ms:60000}")
+    @Transactional
     public void tick() {
-        if (activeExecution == null || activeExecution.isFinished()) {
+        if (activeExecution == null) {
+            reloadActiveExecution();
+            if (activeExecution == null) {
+                return;
+            }
+        }
+        if (activeExecution.isFinished()) {
             return;
         }
         boolean finished = activeExecution.advance(now());
@@ -120,30 +139,48 @@ public class GameController {
             log.info("Tick : {} evenement(s) resolu(s)", lines.size() - flushedLines);
             flushedLines = lines.size();
         }
+        game.saveProgress(activeEntity, activeExecution, now());
         if (finished) {
             MissionReport report = activeExecution.report();
             eventLog.add(report.teamWiped()
                     ? "Equipe eliminee. Mission echouee."
                     : "Mission terminee. Survivants : " + report.survivors());
+            game.finish(activeEntity, report, now());
+            activeExecution = null;
+            activeEntity = null;
         }
     }
 
+    private void reloadActiveExecution() {
+        MissionExecutionEntity entity = game.activeExecutionEntity();
+        if (entity == null) {
+            return;
+        }
+        activeEntity = entity;
+        game.rebuild(entity).ifPresentOrElse(
+                execution -> {
+                    activeExecution = execution;
+                    flushedLines = entity.getLogLines().size();
+                    eventLog.clear();
+                    eventLog.addAll(entity.getLogLines().stream().map(com.extremis.db.ExecutionLogLineEntity::getLine).toList());
+                },
+                () -> {
+                    activeEntity = null;
+                });
+    }
+
     void recrutementRapide(String name) {
-        consul.roster().clear();
-        consul.roster().add(new Character("test-" + name, name)
+        game.clearRoster();
+        game.saveQuickRecruit(new Character("test-" + name, name)
                 .withSkill(com.extremis.core.Skill.DISCRETION, 80)
                 .withSkill(com.extremis.core.Skill.COMBAT, 80));
         eventLog.clear();
+        activeExecution = null;
+        activeEntity = null;
     }
 
     void lancementRapide() {
-        activeExecution = MissionExecution.start(
-                consul.missions().get(0),
-                List.copyOf(consul.roster()),
-                new SeededRandom(42L),
-                Instant.now());
-        flushedLines = 0;
-        tick();
+        runMission(missions.get(0).id(), List.of("test-" + game.roster().get(0).name()));
     }
 
     String journal() {

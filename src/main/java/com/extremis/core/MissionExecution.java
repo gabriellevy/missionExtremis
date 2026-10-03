@@ -77,6 +77,20 @@ public final class MissionExecution {
         return List.copyOf(logLines);
     }
 
+    public void skipEvent() {
+        if (nextEvent < mission.events().size()) {
+            nextEvent++;
+        }
+    }
+
+    public void markDead(String characterId) {
+        team.stream().filter(c -> c.id().equals(characterId)).findFirst().ifPresent(Character::kill);
+    }
+
+    public List<Character> teamSnapshot() {
+        return List.copyOf(team);
+    }
+
     public MissionReport report() {
         return new MissionReport(
                 mission.id(),
