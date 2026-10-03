@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/")
@@ -30,15 +32,17 @@ public class GameController {
 
     private final GameService game;
     private final List<Mission> missions;
+    private final PortraitService portraits;
     private final List<String> eventLog = new ArrayList<>();
     private MissionExecution activeExecution;
     private MissionExecutionEntity activeEntity;
     private Duration timeOffset = Duration.ZERO;
     private int flushedLines = 0;
 
-    public GameController(GameService game, List<Mission> missions) {
+    public GameController(GameService game, List<Mission> missions, PortraitService portraits) {
         this.game = game;
         this.missions = missions;
+        this.portraits = portraits;
     }
 
     private Instant now() {
@@ -57,8 +61,58 @@ public class GameController {
         model.addAttribute("missionInProgress", activeExecution != null && !activeExecution.isFinished());
         model.addAttribute("nextEventTime", activeExecution == null ? null : activeExecution.nextEventTime());
         model.addAttribute("virtualNow", activeExecution == null ? null : now());
+        model.addAttribute("portraitService", portraits);
         model.addAttribute("log", String.join("\n", eventLog));
+        model.addAttribute("missionTeam", missionTeam());
+        model.addAttribute("timeToNextEvent", timeToNextEvent());
         return "home";
+    }
+
+    private List<TeamMemberView> missionTeam() {
+        if (activeExecution == null) {
+            return List.of();
+        }
+        List<Character> snapshot = activeExecution.teamSnapshot();
+        List<Character> roster = game.roster();
+        List<TeamMemberView> views = new ArrayList<>();
+        for (Character c : snapshot) {
+            Character rosterEntry = roster.stream()
+                    .filter(r -> r.id().equals(c.id()) || r.name().equals(c.name()))
+                    .findFirst()
+                    .orElse(null);
+            Map<String, Integer> skills = new LinkedHashMap<>();
+            List<String> traits = new ArrayList<>();
+            if (rosterEntry != null) {
+                rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.name(), value));
+                rosterEntry.traits().forEach(t -> traits.add(t.name()));
+            }
+            views.add(new TeamMemberView(
+                    c.id(),
+                    c.name(),
+                    c.health(),
+                    c.isAlive(),
+                    skills,
+                    traits));
+        }
+        return views;
+    }
+
+    private String timeToNextEvent() {
+        if (activeExecution == null) {
+            return null;
+        }
+        Instant next = activeExecution.nextEventTime();
+        if (next == null) {
+            return null;
+        }
+        Duration remaining = Duration.between(now(), next);
+        if (remaining.isNegative()) {
+            remaining = Duration.ZERO;
+        }
+        return String.format("%02d:%02d:%02d",
+                remaining.toHours(),
+                remaining.toMinutesPart(),
+                remaining.toSecondsPart());
     }
 
     @PostMapping("/recruit")
