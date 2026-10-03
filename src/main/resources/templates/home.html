@@ -4,6 +4,29 @@
   <meta charset="UTF-8"/>
   <title>Mission Extremis</title>
   <meta http-equiv="refresh" content="30"/>
+  <style>
+    body { font-family: Georgia, serif; background: #14100c; color: #d8c7a8; margin: 0; padding: 1rem 2rem; }
+    h1 { font-variant: small-caps; letter-spacing: 1px; }
+    h2 { border-bottom: 1px solid #5a4a30; padding-bottom: 0.3rem; font-variant: small-caps; }
+    a { color: #e0c060; }
+    .mission-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .team-column { flex: 0 0 18.75%; max-width: 18.75%; display: flex; flex-direction: column; gap: 0.75rem; }
+    .log-column { flex: 1; min-width: 0; }
+    .portrait-wrap { position: relative; display: inline-block; }
+    .portrait { width: 100%; height: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; }
+    .portrait.dead { filter: grayscale(1); border-color: #7a1f1f; }
+    .portrait-name { text-align: center; font-size: 0.85rem; margin-top: 0.25rem; }
+    .portrait-tooltip { display: none; position: absolute; left: 105%; top: 0; z-index: 10; width: 240px; background: #241c12; border: 1px solid #8a744a; border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.8rem; color: #e8dcc0; box-shadow: 0 4px 12px rgba(0,0,0,0.7); }
+    .portrait-wrap:hover .portrait-tooltip { display: block; }
+    .portrait-tooltip h4 { margin: 0 0 0.3rem; font-size: 0.9rem; color: #e0c060; }
+    .portrait-tooltip ul { margin: 0.2rem 0 0.4rem; padding-left: 1rem; }
+    .portrait-tooltip .etat { font-weight: bold; }
+    .portrait-tooltip .etat.blesse { color: #e07040; }
+    .portrait-tooltip .etat.mort { color: #c04040; }
+    .mission-log { background: #1c1710; border: 1px solid #5a4a30; border-radius: 6px; padding: 1rem; min-height: 240px; white-space: pre-wrap; font-family: "Courier New", monospace; font-size: 0.9rem; }
+    .next-event { margin: 0.6rem 0 0; font-style: italic; }
+    .next-event strong { font-style: normal; color: #e0c060; }
+  </style>
 </head>
 <body>
 <h1>Mission Extremis — Console du Consul</h1>
@@ -17,7 +40,9 @@
   </ul>
   <form method="post" action="/recruit">
     <select name="characterId">
-      <option th:each="c : ${available}" th:value="${c.getId()}" th:text="${c.getName()} + ' (' + ${c.getCoterie()} + ')'"/>
+      <option th:each="c : ${available}"
+              th:value="${c.getId()}"
+              th:text="${c.getName()} + ' (' + ${c.getCoterie()} + ')'"/>
     </select>
     <button type="submit">Recruter (1 / 24h)</button>
   </form>
@@ -49,7 +74,46 @@
   </div>
 </section>
 
-<section>
+<section th:if="${missionInProgress}">
+  <h2>Exécution de la mission</h2>
+  <div class="mission-layout">
+    <div class="team-column">
+      <div class="portrait-wrap" th:each="m : ${missionTeam}">
+        <img th:src="${portraitService.dataUri(m.name(), m.alive())}"
+             th:alt="${m.name()}"
+             th:class="'portrait' + (${m.alive()} ? '' : ' dead')"/>
+        <div class="portrait-tooltip">
+          <h4 th:text="${m.name()}"/>
+          <div>État :
+            <span th:if="${!m.alive()}" class="etat mort">mort</span>
+            <span th:if="${m.alive() and m.health() < 10}" class="etat blesse"
+                  th:text="'blessé (' + ${m.health()} + '/10 pv)'"/>
+            <span th:if="${m.alive() and m.health() == 10}" class="etat">indemne</span>
+          </div>
+          <div th:if="${!m.traits().isEmpty()}">Vices / vertus :
+            <span th:text="${#strings.listJoin(m.traits(), ', ')}"/>
+          </div>
+          <div>Compétences :</div>
+          <ul>
+            <li th:each="e : ${m.skills()}">
+              <span th:text="${e.key}"/> : <span th:text="${e.value}"/>
+            </li>
+          </ul>
+        </div>
+        <div class="portrait-name" th:text="${m.name()}"/>
+      </div>
+    </div>
+    <div class="log-column">
+      <h3>Fenêtre d'exécution de la mission et donc affichage des logs</h3>
+      <div class="mission-log" th:text="${log}"/>
+      <p class="next-event">
+        Prochain événement aura lieu dans <strong th:text="${timeToNextEvent}"/>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section th:if="${!missionInProgress}">
   <h2>Journal</h2>
   <pre th:text="${log}"/>
 </section>
