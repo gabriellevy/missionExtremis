@@ -214,9 +214,9 @@ public class GameService {
     private void syncProgress(MissionExecutionEntity entity, MissionExecution execution) {
         entity.setNextEventIndex(execution.eventsResolved());
         entity.setLastEventTime(String.valueOf(execution.nextEventTime()));
-        entity.getLogLines().clear();
-        for (String line : execution.logLines()) {
-            entity.addLogLine(line);
+        List<String> lignes = execution.logLines();
+        while (entity.getLogLines().size() < lignes.size()) {
+            entity.addLogLine(lignes.get(entity.getLogLines().size()));
         }
         for (int i = 0; i < entity.getTeam().size() && i < execution.teamSnapshot().size(); i++) {
             ExecutionTeamMemberEntity m = entity.getTeam().get(i);
