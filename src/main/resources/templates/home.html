@@ -10,7 +10,10 @@
     h2 { border-bottom: 1px solid #5a4a30; padding-bottom: 0.3rem; font-variant: small-caps; }
     h3 { margin-bottom: 0.2rem; }
     a { color: #e0c060; text-decoration: none; }
+    .barre-onglets { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
     .tabs { display: flex; gap: 0.4rem; border-bottom: 1px solid #5a4a30; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .jetons-jokers { margin-bottom: 1.2rem; white-space: nowrap; color: #e0c060; font-weight: bold; }
+    .jetons-valeur { font-size: 1.1rem; }
     .tab { padding: 0.5rem 1rem; border: 1px solid #5a4a30; border-bottom: none; border-radius: 6px 6px 0 0; background: #1c1710; color: #d8c7a8; }
     .tab.active { background: #2a2114; color: #e0c060; font-weight: bold; }
     .mission-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
@@ -38,21 +41,25 @@
 <body>
 <h1>Mission Extremis &#8212; Console du Consul</h1>
 
-<nav class="tabs">
-  <a class="tab" th:classappend="${ongletPersonnages} ? active"
-     th:href="@{/(onglet='personnages')}">Personnages</a>
-  <a class="tab" th:classappend="${ongletMissions} ? active"
-     th:href="@{/(onglet='missions')}">Missions</a>
-  <a class="tab" th:each="m : ${missionsActives}"
-     th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
-     th:href="@{/(onglet=${m.id})}"
-     th:text="${m.titre}"/>
-</nav>
+<div class="barre-onglets">
+  <nav class="tabs">
+    <a class="tab" th:classappend="${ongletPersonnages} ? active"
+       th:href="@{/(onglet='personnages')}">Personnages</a>
+    <a class="tab" th:classappend="${ongletMissions} ? active"
+       th:href="@{/(onglet='missions')}">Missions</a>
+    <a class="tab" th:each="m : ${missionsActives}"
+       th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
+       th:href="@{/(onglet=${m.id})}"
+       th:text="${m.titre}"/>
+  </nav>
+  <div class="jetons-jokers">
+    Jetons jokers : <span class="jetons-valeur" th:text="${jokers}"/>
+  </div>
+</div>
 
 <section th:if="${ongletPersonnages}">
   <h2>Personnages recrut&#233;s</h2>
   <p>
-    Jetons : <span th:text="${jokers}"/> &#8212;
     Simulations restantes : <span th:text="${simulations}"/>
   </p>
   <ul>
