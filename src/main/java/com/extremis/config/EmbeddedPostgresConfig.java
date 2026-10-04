@@ -18,15 +18,19 @@ import java.io.IOException;
 @Profile("!test-rapide")
 public class EmbeddedPostgresConfig {
 
-    @Bean
-    public DataSource dataSource() throws IOException {
-        EmbeddedPostgres pg = EmbeddedPostgres.builder()
+    @Bean(destroyMethod = "close")
+    public EmbeddedPostgres postgresEmbarque() throws IOException {
+        return EmbeddedPostgres.builder()
                 .setDataDirectory("data/postgres")
                 .setCleanDataDirectory(false)
                 .setServerConfig("listen_addresses", "127.0.0.1")
                 .setPort(5433)
                 .start();
-        String url = pg.getJdbcUrl("postgres", "postgres");
+    }
+
+    @Bean
+    public DataSource dataSource(EmbeddedPostgres postgresEmbarque) {
+        String url = postgresEmbarque.getJdbcUrl("postgres", "postgres");
         DriverManagerDataSource ds = new DriverManagerDataSource(url);
         ds.setUsername("postgres");
         ds.setPassword("postgres");
