@@ -228,8 +228,12 @@ public class GameController {
     @PostMapping("/mission/{id}/advance")
     @Transactional
     public String avancerMission(@PathVariable Long id) {
+        if (!modeDebug) {
+            return "redirect:/";
+        }
+        rechargerMissionsActives();
         EtatMission etat = missionsActives.get(id);
-        if (etat == null || etat.execution.isFinished()) {
+        if (etat == null || etat.fini || etat.execution.isFinished()) {
             return "redirect:/";
         }
         Instant prochain = etat.execution.nextEventTime();
