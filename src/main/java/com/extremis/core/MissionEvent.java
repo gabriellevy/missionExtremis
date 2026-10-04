@@ -1,7 +1,6 @@
 package com.extremis.core;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -40,20 +39,20 @@ public final class MissionEvent {
         }
         Optional<Character> candidate = test.bestCandidate(team);
         if (candidate.isEmpty()) {
-            log.accept("Aucun membre de l'equipe n'est en etat de tenter le test de " + test.skill().label() + ".");
+            log.accept("Aucun membre de l'équipe n'est en état de tenter le test de " + test.skill().label() + ".");
             applyFailure(team, log);
             return;
         }
         Character performer = candidate.get();
         boolean success = test.attempt(performer, random);
         if (success) {
-            log.accept(performer.name() + " reussit le test de " + test.skill().label() + ".");
+            log.accept(performer.name() + " réussit le test de " + test.skill().label() + ".");
             if (rewardOnSuccess != null) {
                 performer.addItem(rewardOnSuccess);
                 log.accept(performer.name() + " obtient : " + rewardOnSuccess);
             }
         } else {
-            log.accept(performer.name() + " echoue le test de " + test.skill().label() + ".");
+            log.accept(performer.name() + " échoue au test de '" + test.skill().label() + "'.");
             applyFailure(team, log);
         }
     }
