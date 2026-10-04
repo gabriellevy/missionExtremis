@@ -12,10 +12,10 @@ public enum Skill {
     CHANCE("Chance"),
     CHARME("Charme"),
     COMMANDEMENT("Commandement"),
-    DISCRETION("Discretion"),
-    ELOQUENCE("Eloquence"),
+    DISCRETION("Discrétion"),
+    ELOQUENCE("Éloquence"),
     ENDURANCE("Endurance"),
-    EVALUATION("Evaluation"),
+    EVALUATION("Évaluation"),
     FORCE("Force"),
     HABILETE("Habilete"),
     INTELLIGENCE("Intelligence"),
@@ -25,14 +25,14 @@ public enum Skill {
     MARCHANDAGE("Marchandage"),
     MOUVEMENT("Mouvement"),
     PERCEPTION("Perception"),
-    PERIPLE("Periple"),
+    PERIPLE("Périple"),
     RAGOT("Ragot"),
-    REFLEXES("Reflexes"),
-    SURVIE_EXTERIEUR("Survie en exterieur"),
+    REFLEXES("Réflexes"),
+    SURVIE_EXTERIEUR("Survie en extérieur"),
     TIR("Tir"),
     TROMPERIE("Tromperie"),
     VIGILANCE("Vigilance"),
-    VOLONTE("Volonte");
+    VOLONTE("Volonté");
 
     private final String label;
 
