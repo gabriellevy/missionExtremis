@@ -28,6 +28,11 @@ public class CharacterSeeder implements ApplicationRunner {
         if (repository.count() > 0) {
             return;
         }
+        semerCatalogue();
+    }
+
+    @Transactional
+    public void semerCatalogue() {
         seed("seed-01", "Alphonse Hercule de Gascoigne", "performeur", "enqueteur",
                 new Skill[]{Skill.INTUITION, Skill.MOUVEMENT, Skill.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
                 new String[]{"Esthete", "Orgueilleux", "Chaste"});

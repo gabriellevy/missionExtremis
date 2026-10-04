@@ -9,6 +9,7 @@ import com.extremis.db.CharacterEntity;
 import com.extremis.db.CharacterRepository;
 import com.extremis.db.ConsulStateEntity;
 import com.extremis.db.ConsulStateRepository;
+import com.extremis.db.CharacterSeeder;
 import com.extremis.db.EntityMapper;
 import com.extremis.db.ExecutionTeamMemberEntity;
 import com.extremis.db.MissionExecutionEntity;
@@ -31,15 +32,18 @@ public class GameService {
     private final ConsulStateRepository consulState;
     private final MissionExecutionRepository executions;
     private final List<Mission> missionDefinitions;
+    private final CharacterSeeder seeder;
 
     public GameService(CharacterRepository characters,
                        ConsulStateRepository consulState,
                        MissionExecutionRepository executions,
-                       List<Mission> missionDefinitions) {
+                       List<Mission> missionDefinitions,
+                       CharacterSeeder seeder) {
         this.characters = characters;
         this.consulState = consulState;
         this.executions = executions;
         this.missionDefinitions = missionDefinitions;
+        this.seeder = seeder;
     }
 
     @Transactional(readOnly = true)
@@ -225,6 +229,15 @@ public class GameService {
     @Transactional
     public void clearRoster() {
         characters.deleteAll();
+    }
+
+    @Transactional
+    public void reinitialiserUsine() {
+        executions.deleteAll();
+        characters.deleteAll();
+        consulState.deleteAll();
+        consulState.save(new ConsulStateEntity());
+        seeder.semerCatalogue();
     }
 
     @Transactional
