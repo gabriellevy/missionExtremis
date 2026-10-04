@@ -112,10 +112,7 @@
   <p>
     Heure virtuelle : <span th:text="${m.heureVirtuelle}"/> &#8212;
     Prochain &#233;v&#233;nement : <span th:text="${m.heureProchainEvenement}"/>
-    <form th:if="${!m.terminee}" method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
-      <button type="submit">Avancer jusqu'au prochain &#233;v&#233;nement (test)</button>
-    </form>
-    <form method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
+    <form th:if="${modeDebug and !m.terminee}" method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
       <button type="submit">Avancer jusqu'au prochain &#233;v&#233;nement (test)</button>
     </form>
   </p>
