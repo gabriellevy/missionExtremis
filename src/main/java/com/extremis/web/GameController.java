@@ -53,9 +53,12 @@ public class GameController {
         return Instant.now().plus(etat.decalageTemps);
     }
 
+    public static final String ONGLET_PERSONNAGES = "personnages";
+    public static final String ONGLET_MISSIONS = "missions";
+
     @GetMapping
     @Transactional
-    public String accueil(Model model, @RequestParam(required = false) Long onglet) {
+    public String accueil(Model model, @RequestParam(required = false) String onglet) {
         rechargerMissionsActives();
         List<OngletMissionView> onglets = new ArrayList<>();
         for (Map.Entry<Long, EtatMission> e : missionsActives.entrySet()) {
@@ -70,15 +73,26 @@ public class GameController {
                     maintenant(etat),
                     etat.fini));
         }
-        OngletMissionView ongletActif = onglets.stream()
-                .filter(o -> onglet != null && o.id().equals(onglet))
-                .findFirst()
-                .orElse(onglets.isEmpty() ? null : onglets.get(0));
+        OngletMissionView ongletMission = null;
+        if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
+            try {
+                long id = Long.parseLong(onglet);
+                ongletMission = onglets.stream().filter(o -> o.id() == id).findFirst().orElse(null);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        boolean ongletPersonnages = ONGLET_PERSONNAGES.equals(onglet);
+        boolean ongletMissions = ONGLET_MISSIONS.equals(onglet);
+        if (!ongletPersonnages && !ongletMissions && ongletMission == null && onglet != null) {
+            ongletMissions = true;
+        }
+        model.addAttribute("ongletPersonnages", ongletPersonnages);
+        model.addAttribute("ongletMissions", ongletMissions);
         model.addAttribute("roster", game.roster());
         model.addAttribute("disponibles", game.availableCharacters());
         model.addAttribute("missions", missionsDisponibles());
         model.addAttribute("missionsActives", onglets);
-        model.addAttribute("ongletActif", ongletActif);
+        model.addAttribute("ongletActif", ongletMission);
         model.addAttribute("rosterAvecMission", rosterAvecMission());
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
