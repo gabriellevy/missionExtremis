@@ -29,34 +29,34 @@ public class CharacterSeeder implements ApplicationRunner {
             return;
         }
         seed("seed-01", "Alphonse Hercule de Gascoigne", "performeur", "enqueteur",
-                new Skill[]{Skill.ERUDITION, Skill.AGILITE, Skill.COMBAT}, new int[]{10, 5, 0},
+                new Skill[]{Skill.INTUITION, Skill.MOUVEMENT, Skill.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
                 new String[]{"Esthete", "Orgueilleux", "Chaste"});
         seed("seed-02", "Jean-Paul Marat", "jacobin", "enqueteur",
-                new Skill[]{Skill.DIPLOMATIE, Skill.ERUDITION}, new int[]{8, 6},
+                new Skill[]{Skill.ELOQUENCE, Skill.INTELLIGENCE}, new int[]{8, 6},
                 new String[]{"Radical"});
         seed("seed-03", "Voltaire", "lumieres", "specialiste-volonte",
-                new Skill[]{Skill.ERUDITION, Skill.DIPLOMATIE}, new int[]{9, 7},
+                new Skill[]{Skill.INTUITION, Skill.ELOQUENCE}, new int[]{9, 7},
                 new String[]{"Esprit"});
         seed("seed-04", "Rorschach", "khaos", "enqueteur",
-                new Skill[]{Skill.COMBAT, Skill.PERCEPTION, Skill.DISCRETION}, new int[]{7, 9, 6},
+                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.PERCEPTION, Skill.DISCRETION}, new int[]{7, 9, 6},
                 new String[]{"Implacable"});
         seed("seed-05", "Arsene Lupin", "esthete", "enqueteur",
-                new Skill[]{Skill.DISCRETION, Skill.AGILITE, Skill.TECHNIQUE}, new int[]{10, 8, 6},
+                new Skill[]{Skill.DISCRETION, Skill.MOUVEMENT, Skill.REFLEXES}, new int[]{10, 8, 6},
                 new String[]{"Cambrioleur"});
         seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
-                new Skill[]{Skill.DIPLOMATIE, Skill.ERUDITION}, new int[]{8, 5},
+                new Skill[]{Skill.ELOQUENCE, Skill.INTUITION}, new int[]{8, 5},
                 new String[]{"Barde"});
         seed("seed-07", "Mata-Hari", "lotus-blanc", "enqueteur",
-                new Skill[]{Skill.DISCRETION, Skill.DIPLOMATIE}, new int[]{9, 8},
+                new Skill[]{Skill.DISCRETION, Skill.TROMPERIE}, new int[]{9, 8},
                 new String[]{"Espionne"});
         seed("seed-08", "Odysseus", "demokratos", "voyageur",
-                new Skill[]{Skill.DIPLOMATIE, Skill.COMBAT, Skill.TECHNIQUE}, new int[]{7, 6, 9},
+                new Skill[]{Skill.COMMANDEMENT, Skill.ARMES_CORPS_A_CORPS, Skill.INTELLIGENCE}, new int[]{7, 6, 9},
                 new String[]{"Stratege"});
         seed("seed-09", "Vidocq", "citadin", "enqueteur",
-                new Skill[]{Skill.PERCEPTION, Skill.DISCRETION, Skill.COMBAT}, new int[]{8, 8, 5},
+                new Skill[]{Skill.PERCEPTION, Skill.DISCRETION, Skill.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
                 new String[]{"Inspecteur"});
         seed("seed-10", "Welf Schwarzschutze", "elfe", "voyageur",
-                new Skill[]{Skill.COMBAT, Skill.PERCEPTION, Skill.AGILITE}, new int[]{8, 7, 6},
+                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.PERCEPTION, Skill.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }

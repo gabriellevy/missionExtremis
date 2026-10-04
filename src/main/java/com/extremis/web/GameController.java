@@ -83,7 +83,7 @@ public class GameController {
             Map<String, Integer> skills = new LinkedHashMap<>();
             List<String> traits = new ArrayList<>();
             if (rosterEntry != null) {
-                rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.name(), value));
+                rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.label(), value));
                 rosterEntry.traits().forEach(t -> traits.add(t.name()));
             }
             views.add(new TeamMemberView(
@@ -91,6 +91,7 @@ public class GameController {
                     c.name(),
                     c.health(),
                     c.isAlive(),
+                    rosterEntry != null ? rosterEntry.skillBase() : com.extremis.core.Character.DEFAULT_SKILL_BASE,
                     skills,
                     traits));
         }
@@ -226,8 +227,8 @@ public class GameController {
     void recrutementRapide(String name) {
         game.clearRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
-                .withSkill(com.extremis.core.Skill.DISCRETION, 80)
-                .withSkill(com.extremis.core.Skill.COMBAT, 80));
+                .withSkill(com.extremis.core.Skill.DISCRETION, 30)
+                .withSkill(com.extremis.core.Skill.ARMES_CORPS_A_CORPS, 30));
         eventLog.clear();
         activeExecution = null;
         activeEntity = null;

@@ -11,7 +11,7 @@ public final class EntityMapper {
     private EntityMapper() {}
 
     public static Character toCore(CharacterEntity e) {
-        Character c = new Character(e.getId(), e.getName());
+        Character c = new Character(e.getId(), e.getName()); c.withSkillBase(e.getSkillBase());
         for (CharacterSkillEntity s : e.getSkills()) {
             c.withSkill(s.getSkill(), s.getValue());
         }
@@ -31,7 +31,7 @@ public final class EntityMapper {
     public static CharacterEntity toEntity(Character c, String coterie, String role) {
         CharacterEntity e = new CharacterEntity(c.id(), c.name());
         e.setCoterie(coterie);
-        e.setRole(role);
+        e.setRole(role); e.setSkillBase(c.skillBase());
         for (java.util.Map.Entry<Skill, Integer> entry : c.skillsSnapshot().entrySet()) {
             e.addSkill(entry.getKey(), entry.getValue());
         }

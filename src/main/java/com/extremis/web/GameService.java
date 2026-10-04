@@ -55,7 +55,7 @@ public class GameService {
     @Transactional
     public void recruit(Character recruit, Instant now) {
         Character copy = new Character("rec-" + recruit.id() + "-" + System.nanoTime(), recruit.name());
-        recruit.skillsSnapshot().forEach((skill, value) -> copy.withSkill(skill, value));
+        copy.withSkillBase(recruit.skillBase()); recruit.skillsSnapshot().forEach((skill, value) -> copy.withSkill(skill, value));
         CharacterEntity source = characters.findById(recruit.id()).orElse(null);
         CharacterEntity entity = EntityMapper.toEntity(copy,
                 source != null ? source.getCoterie() : null,

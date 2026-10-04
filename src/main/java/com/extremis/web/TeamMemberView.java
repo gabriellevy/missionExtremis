@@ -8,6 +8,7 @@ public record TeamMemberView(
         String name,
         int health,
         boolean alive,
+        int skillBase,
         Map<String, Integer> skills,
         List<String> traits) {
 }
