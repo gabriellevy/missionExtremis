@@ -9,8 +9,11 @@ public final class Character {
     private final List<Trait> traits = new ArrayList<>();
     private final java.util.EnumMap<Skill, Integer> skills = new java.util.EnumMap<>(Skill.class);
     private final List<String> inventory = new ArrayList<>();
+    private int skillBase = DEFAULT_SKILL_BASE;
     private int health = 10;
     private boolean alive = true;
+
+    public static final int DEFAULT_SKILL_BASE = 30;
 
     public Character(String id, String name) {
         this.id = java.util.Objects.requireNonNull(id);
@@ -23,6 +26,12 @@ public final class Character {
     public boolean isAlive() { return alive; }
     public List<Trait> traits() { return traits; }
     public List<String> inventory() { return inventory; }
+    public int skillBase() { return skillBase; }
+
+    public Character withSkillBase(int base) {
+        this.skillBase = base;
+        return this;
+    }
 
     public Character withSkill(Skill skill, int value) {
         skills.put(skill, value);
@@ -40,6 +49,14 @@ public final class Character {
 
     public int skillValue(Skill skill) {
         return skills.getOrDefault(skill, 0);
+    }
+
+    /**
+     * Cible effective d'un test de competence : base + valeur (wiki,
+     * page "Base de competences"). Utilisee telle quelle par les tests en D100.
+     */
+    public int skillTarget(Skill skill) {
+        return skillBase + skillValue(skill);
     }
 
     public void applyDamage(int amount) {

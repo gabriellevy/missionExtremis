@@ -40,20 +40,20 @@ public final class MissionEvent {
         }
         Optional<Character> candidate = test.bestCandidate(team);
         if (candidate.isEmpty()) {
-            log.accept("Aucun arrangeur ne maitrise " + test.skill() + " : echec automatique.");
+            log.accept("Aucun membre de l'equipe n'est en etat de tenter le test de " + test.skill().label() + ".");
             applyFailure(team, log);
             return;
         }
         Character performer = candidate.get();
         boolean success = test.attempt(performer, random);
         if (success) {
-            log.accept(performer.name() + " reussit le test de " + test.skill() + ".");
+            log.accept(performer.name() + " reussit le test de " + test.skill().label() + ".");
             if (rewardOnSuccess != null) {
                 performer.addItem(rewardOnSuccess);
                 log.accept(performer.name() + " obtient : " + rewardOnSuccess);
             }
         } else {
-            log.accept(performer.name() + " echoue le test de " + test.skill() + ".");
+            log.accept(performer.name() + " echoue le test de " + test.skill().label() + ".");
             applyFailure(team, log);
         }
     }

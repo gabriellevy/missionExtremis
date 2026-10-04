@@ -93,7 +93,7 @@
           <div th:if="${!m.traits().isEmpty()}">Vices / vertus :
             <span th:text="${#strings.listJoin(m.traits(), ', ')}"/>
           </div>
-          <div>Compétences :</div>
+          <div>Compétences (base <span th:text="${m.skillBase()}"/>) :</div>
           <ul>
             <li th:each="e : ${m.skills()}">
               <span th:text="${e.key}"/> : <span th:text="${e.value}"/>

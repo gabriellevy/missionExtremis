@@ -30,7 +30,7 @@ public class CharacterEntity {
     @Column(length = 64)
     private String role;
 
-    private int health = 10;
+    private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;    private int health = 10;
 
     private boolean alive = true;
 
@@ -53,7 +53,7 @@ public class CharacterEntity {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getCoterie() { return coterie; }
-    public String getRole() { return role; }
+    public String getRole() { return role; }    public int getSkillBase() { return skillBase; }
     public int getHealth() { return health; }
     public boolean isAlive() { return alive; }
     public List<CharacterSkillEntity> getSkills() { return skills; }
@@ -61,7 +61,7 @@ public class CharacterEntity {
     public List<CharacterItemEntity> getInventory() { return inventory; }
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
-    public void setRole(String role) { this.role = role; }
+    public void setRole(String role) { this.role = role; }    public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
     public void setHealth(int health) { this.health = health; }
     public void setAlive(boolean alive) { this.alive = alive; }
 
