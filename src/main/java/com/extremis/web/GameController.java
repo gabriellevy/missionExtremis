@@ -7,6 +7,7 @@ import com.extremis.core.MissionReport;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,12 +33,15 @@ public class GameController {
     private final GameService game;
     private final List<Mission> missions;
     private final PortraitService portraits;
+    private final boolean modeDebug;
     private final Map<Long, EtatMission> missionsActives = new LinkedHashMap<>();
 
-    public GameController(GameService game, List<Mission> missions, PortraitService portraits) {
+    public GameController(GameService game, List<Mission> missions, PortraitService portraits,
+                          @Value("${extremis.debug:false}") boolean modeDebug) {
         this.game = game;
         this.missions = missions;
         this.portraits = portraits;
+        this.modeDebug = modeDebug;
     }
 
     private static final class EtatMission {
@@ -96,6 +100,7 @@ public class GameController {
         model.addAttribute("rosterAvecMission", rosterAvecMission());
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
+        model.addAttribute("modeDebug", modeDebug);
         model.addAttribute("portraitService", portraits);
         return "home";
     }
@@ -159,6 +164,16 @@ public class GameController {
         }
         return String.format("%02d:%02d:%02d",
                 restant.toHours(), restant.toMinutesPart(), restant.toSecondsPart());
+    }
+
+    @PostMapping("/debug/reinitialiser-usine")
+    public String reinitialiserUsine() {
+        if (!modeDebug) {
+            return "redirect:/";
+        }
+        game.reinitialiserUsine();
+        missionsActives.clear();
+        return "redirect:/";
     }
 
     @PostMapping("/recruter")

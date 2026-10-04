@@ -54,6 +54,9 @@
   </nav>
   <div class="jetons-jokers">
     Jetons jokers : <span class="jetons-valeur" th:text="${jokers}"/>
+    <form th:if="${modeDebug}" method="post" action="/debug/reinitialiser-usine" style="display:inline">
+      <button type="submit">R&#233;initialiser (usine)</button>
+    </form>
   </div>
 </div>
 
