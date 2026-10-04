@@ -2,7 +2,6 @@ package com.extremis.db;
 
 import com.extremis.core.Skill;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,7 +26,6 @@ public class CharacterSkillEntity {
     private CharacterEntity owner;
 
     @Enumerated(EnumType.STRING)
-    @Convert(converter = SkillConverter.class)
     private Skill skill;
 
     @Column(name = "skill_value")
