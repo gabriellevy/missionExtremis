@@ -8,7 +8,11 @@
     body { font-family: Georgia, serif; background: #14100c; color: #d8c7a8; margin: 0; padding: 1rem 2rem; }
     h1 { font-variant: small-caps; letter-spacing: 1px; }
     h2 { border-bottom: 1px solid #5a4a30; padding-bottom: 0.3rem; font-variant: small-caps; }
-    a { color: #e0c060; }
+    h3 { margin-bottom: 0.2rem; }
+    a { color: #e0c060; text-decoration: none; }
+    .tabs { display: flex; gap: 0.4rem; border-bottom: 1px solid #5a4a30; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .tab { padding: 0.5rem 1rem; border: 1px solid #5a4a30; border-bottom: none; border-radius: 6px 6px 0 0; background: #1c1710; color: #d8c7a8; }
+    .tab.active { background: #2a2114; color: #e0c060; font-weight: bold; }
     .mission-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
     .team-column { flex: 0 0 18.75%; max-width: 18.75%; display: flex; flex-direction: column; gap: 0.75rem; }
     .log-column { flex: 1; min-width: 0; }
@@ -26,21 +30,43 @@
     .mission-log { background: #1c1710; border: 1px solid #5a4a30; border-radius: 6px; padding: 1rem; min-height: 240px; white-space: pre-wrap; font-family: "Courier New", monospace; font-size: 0.9rem; }
     .next-event { margin: 0.6rem 0 0; font-style: italic; }
     .next-event strong { font-style: normal; color: #e0c060; }
+    .en-mission { color: #e07040; font-style: italic; }
+    .mission-carte { border: 1px solid #5a4a30; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 1rem; background: #1c1710; }
+    .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
   </style>
 </head>
 <body>
-<h1>Mission Extremis — Console du Consul</h1>
+<h1>Mission Extremis &#8212; Console du Consul</h1>
 
-<section>
-  <h2>Variables d'ajustement disponibles</h2>
+<nav class="tabs">
+  <a class="tab" th:classappend="${ongletActif == null} ? active"
+     th:href="@{/}">Personnages</a>
+  <a class="tab" th:classappend="${ongletActif == null} ? active"
+     th:href="@{/(onglet='missions')}">Missions</a>
+  <a class="tab" th:each="m : ${missionsActives}"
+     th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
+     th:href="@{/(onglet=${m.id})}"
+     th:text="${m.titre}"/>
+</nav>
+
+<section th:if="${ongletActif == null}">
+  <h2>Personnages recrut&#233;s</h2>
+  <p>
+    Jetons : <span th:text="${jokers}"/> &#8212;
+    Simulations restantes : <span th:text="${simulations}"/>
+  </p>
   <ul>
     <li th:each="c : ${roster}">
-      <span th:text="${c.name()}"/> — <span th:text="${c.health()}"/> pv
+      <span th:text="${c.name()}"/>
+      &#8212; <span th:text="${c.health()}"/> pv
+      <span class="en-mission"
+            th:if="${rosterAvecMission.containsKey(c.name())}"
+            th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"/>
     </li>
   </ul>
-  <form method="post" action="/recruit">
+  <form method="post" action="/recruter">
     <select name="characterId">
-      <option th:each="c : ${available}"
+      <option th:each="c : ${disponibles}"
               th:value="${c.getId()}"
               th:text="${c.getName()} + ' (' + ${c.getCoterie()} + ')'"/>
     </select>
@@ -48,74 +74,75 @@
   </form>
 </section>
 
-<section>
-  <h2>Missions</h2>
-  <p>Jetons : <span th:text="${jokers}"/> — Simulations restantes : <span th:text="${simulations}"/></p>
-  <p th:if="${missionInProgress}">
-    Mission en cours — heure virtuelle : <span th:text="${virtualNow}"/> —
-    prochain événement : <span th:text="${nextEventTime}"/>
-    <form method="post" action="/mission/advance" style="display:inline">
-      <button type="submit">Avancer jusqu'au prochain événement (test)</button>
-    </form>
-  </p>
-  <div th:each="m : ${missions}">
+<section th:if="${ongletActif == null}">
+  <h2>Missions disponibles</h2>
+  <div th:if="${missions.isEmpty()}">
+    <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
+  </div>
+  <div class="mission-carte" th:each="m : ${missions}">
     <h3 th:text="${m.title()}"/>
     <p th:text="${m.brief()}"/>
     <form method="post" action="/mission/run">
       <input type="hidden" name="missionId" th:value="${m.id()}"/>
-      <th:block th:each="c : ${roster}">
-        <label>
-          <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
-          <span th:text="${c.name()}"/>
-        </label>
-      </th:block>
+      <div class="champs-equipes">
+        <th:block th:each="c : ${roster}">
+          <label>
+            <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
+            <span th:text="${c.name()}"/>
+          </label>
+        </th:block>
+      </div>
       <button type="submit">Lancer la mission</button>
     </form>
   </div>
 </section>
 
-<section th:if="${missionInProgress}">
-  <h2>Exécution de la mission</h2>
+<section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">
+  <h2 th:text="'Ex&#233;cution &#8212; ' + ${m.titre} + (${m.terminee} ? ' (termin&#233;e)' : '')"/>
+  <p>
+    Heure virtuelle : <span th:text="${m.heureVirtuelle}"/> &#8212;
+    Prochain &#233;v&#233;nement : <span th:text="${m.heureProchainEvenement}"/>
+    <form th:if="${!m.terminee}" method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
+      <button type="submit">Avancer jusqu'au prochain &#233;v&#233;nement (test)</button>
+    </form>
+    <form method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
+      <button type="submit">Avancer jusqu'au prochain &#233;v&#233;nement (test)</button>
+    </form>
+  </p>
   <div class="mission-layout">
     <div class="team-column">
-      <div class="portrait-wrap" th:each="m : ${missionTeam}">
-        <img th:src="${portraitService.dataUri(m.name(), m.alive())}"
-             th:alt="${m.name()}"
-             th:class="'portrait' + (${m.alive()} ? '' : ' dead')"/>
+      <div class="portrait-wrap" th:each="p : ${m.equipe}">
+        <img th:src="${portraitService.dataUri(p.name(), p.alive())}"
+             th:alt="${p.name()}"
+             th:class="'portrait' + (${p.alive()} ? '' : ' dead')"/>
         <div class="portrait-tooltip">
-          <h4 th:text="${m.name()}"/>
-          <div>État :
-            <span th:if="${!m.alive()}" class="etat mort">mort</span>
-            <span th:if="${m.alive() and m.health() < 10}" class="etat blesse"
-                  th:text="'blessé (' + ${m.health()} + '/10 pv)'"/>
-            <span th:if="${m.alive() and m.health() == 10}" class="etat">indemne</span>
+          <h4 th:text="${p.name()}"/>
+          <div>&#201;tat :
+            <span th:if="${!p.alive()}" class="etat mort">mort</span>
+            <span th:if="${p.alive() and p.health < 10}" class="etat blesse"
+                  th:text="'bless&#233; (' + ${p.health} + '/10 pv)'"/>
+            <span th:if="${p.alive() and p.health == 10}" class="etat">indemne</span>
           </div>
-          <div th:if="${!m.traits().isEmpty()}">Vices / vertus :
-            <span th:text="${#strings.listJoin(m.traits(), ', ')}"/>
+          <div th:if="${!p.traits.isEmpty()}">Vices / vertus :
+            <span th:text="${#strings.listJoin(p.traits, ', ')}"/>
           </div>
-          <div>Compétences (base <span th:text="${m.skillBase()}"/>) :</div>
+          <div>Comp&#233;tences (base <span th:text="${p.skillBase}"/>) :</div>
           <ul>
-            <li th:each="e : ${m.skills()}">
+            <li th:each="e : ${p.skills}">
               <span th:text="${e.key}"/> : <span th:text="${e.value}"/>
             </li>
           </ul>
         </div>
-        <div class="portrait-name" th:text="${m.name()}"/>
+        <div class="portrait-name" th:text="${p.name()}"/>
       </div>
     </div>
     <div class="log-column">
-      <h3>Fenêtre d'exécution de la mission et donc affichage des logs</h3>
-      <div class="mission-log" th:text="${log}"/>
-      <p class="next-event">
-        Prochain événement aura lieu dans <strong th:text="${timeToNextEvent}"/>
+      <div class="mission-log" th:text="${#strings.listJoin(m.journal, '&#10;')}"/>
+      <p class="next-event" th:if="${!m.terminee}">
+        Prochain &#233;v&#233;nement aura lieu dans <strong th:text="${m.tempsAvantProchainEvenement}"/>
       </p>
     </div>
   </div>
-</section>
-
-<section th:if="${!missionInProgress}">
-  <h2>Journal</h2>
-  <pre th:text="${log}"/>
 </section>
 </body>
 </html>

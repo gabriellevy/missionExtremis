@@ -4,8 +4,6 @@ import com.extremis.core.Character;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
-import com.extremis.core.SeededRandom;
-import com.extremis.db.CharacterEntity;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,11 +32,7 @@ public class GameController {
     private final GameService game;
     private final List<Mission> missions;
     private final PortraitService portraits;
-    private final List<String> eventLog = new ArrayList<>();
-    private MissionExecution activeExecution;
-    private MissionExecutionEntity activeEntity;
-    private Duration timeOffset = Duration.ZERO;
-    private int flushedLines = 0;
+    private final Map<Long, EtatMission> missionsActives = new LinkedHashMap<>();
 
     public GameController(GameService game, List<Mission> missions, PortraitService portraits) {
         this.game = game;
@@ -45,34 +40,75 @@ public class GameController {
         this.portraits = portraits;
     }
 
-    private Instant now() {
-        return Instant.now().plus(timeOffset);
+    private static final class EtatMission {
+        MissionExecution execution;
+        MissionExecutionEntity entity;
+        List<String> journal = new ArrayList<>();
+        int lignesPubliees = 0;
+        Duration decalageTemps = Duration.ZERO;
+        boolean fini = false;
+    }
+
+    private Instant maintenant(EtatMission etat) {
+        return Instant.now().plus(etat.decalageTemps);
     }
 
     @GetMapping
     @Transactional
-    public String home(Model model) {
-        List<Character> roster = game.roster();
-        model.addAttribute("roster", roster);
-        model.addAttribute("available", game.availableCharacters());
-        model.addAttribute("missions", missions);
+    public String accueil(Model model, @RequestParam(required = false) Long onglet) {
+        rechargerMissionsActives();
+        List<OngletMissionView> onglets = new ArrayList<>();
+        for (Map.Entry<Long, EtatMission> e : missionsActives.entrySet()) {
+            EtatMission etat = e.getValue();
+            onglets.add(new OngletMissionView(
+                    e.getKey(),
+                    etat.entity.getMissionTitle(),
+                    etat.journal,
+                    missionTeam(etat),
+                    etat.fini ? null : tempsAvantProchainEvenement(etat),
+                    etat.execution.nextEventTime(),
+                    maintenant(etat),
+                    etat.fini));
+        }
+        OngletMissionView ongletActif = onglets.stream()
+                .filter(o -> onglet != null && o.id().equals(onglet))
+                .findFirst()
+                .orElse(onglets.isEmpty() ? null : onglets.get(0));
+        model.addAttribute("roster", game.roster());
+        model.addAttribute("disponibles", game.availableCharacters());
+        model.addAttribute("missions", missionsDisponibles());
+        model.addAttribute("missionsActives", onglets);
+        model.addAttribute("ongletActif", ongletActif);
+        model.addAttribute("rosterAvecMission", rosterAvecMission());
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
-        model.addAttribute("missionInProgress", activeExecution != null && !activeExecution.isFinished());
-        model.addAttribute("nextEventTime", activeExecution == null ? null : activeExecution.nextEventTime());
-        model.addAttribute("virtualNow", activeExecution == null ? null : now());
         model.addAttribute("portraitService", portraits);
-        model.addAttribute("log", String.join("\n", eventLog));
-        model.addAttribute("missionTeam", missionTeam());
-        model.addAttribute("timeToNextEvent", timeToNextEvent());
         return "home";
     }
 
-    private List<TeamMemberView> missionTeam() {
-        if (activeExecution == null) {
-            return List.of();
+    private List<Mission> missionsDisponibles() {
+        List<String> enCours = missionsActives.values().stream()
+                .filter(e -> !e.fini)
+                .map(e -> e.entity.getMissionId())
+                .toList();
+        return missions.stream().filter(m -> !enCours.contains(m.id())).toList();
+    }
+
+    private Map<String, String> rosterAvecMission() {
+        Map<String, String> resultat = new LinkedHashMap<>();
+        for (EtatMission etat : missionsActives.values()) {
+            if (etat.fini) {
+                continue;
+            }
+            for (String nom : etat.execution.teamSnapshot().stream().map(Character::name).toList()) {
+                resultat.put(nom, etat.entity.getMissionTitle());
+            }
         }
-        List<Character> snapshot = activeExecution.teamSnapshot();
+        return resultat;
+    }
+
+    private List<TeamMemberView> missionTeam(EtatMission etat) {
+        List<Character> snapshot = etat.execution.teamSnapshot();
         List<Character> roster = game.roster();
         List<TeamMemberView> views = new ArrayList<>();
         for (Character c : snapshot) {
@@ -91,137 +127,147 @@ public class GameController {
                     c.name(),
                     c.health(),
                     c.isAlive(),
-                    rosterEntry != null ? rosterEntry.skillBase() : com.extremis.core.Character.DEFAULT_SKILL_BASE,
+                    rosterEntry != null ? rosterEntry.skillBase() : Character.DEFAULT_SKILL_BASE,
                     skills,
                     traits));
         }
         return views;
     }
 
-    private String timeToNextEvent() {
-        if (activeExecution == null) {
+    private String tempsAvantProchainEvenement(EtatMission etat) {
+        Instant prochain = etat.execution.nextEventTime();
+        if (prochain == null) {
             return null;
         }
-        Instant next = activeExecution.nextEventTime();
-        if (next == null) {
-            return null;
-        }
-        Duration remaining = Duration.between(now(), next);
-        if (remaining.isNegative()) {
-            remaining = Duration.ZERO;
+        Duration restant = Duration.between(maintenant(etat), prochain);
+        if (restant.isNegative()) {
+            restant = Duration.ZERO;
         }
         return String.format("%02d:%02d:%02d",
-                remaining.toHours(),
-                remaining.toMinutesPart(),
-                remaining.toSecondsPart());
+                restant.toHours(), restant.toMinutesPart(), restant.toSecondsPart());
     }
 
-    @PostMapping("/recruit")
-    public String recruit(@RequestParam String characterId) {
-        Character recruit = game.characterById(characterId).orElse(null);
-        if (recruit == null) {
-            eventLog.add("Personnage inconnu : " + characterId);
+    @PostMapping("/recruter")
+    public String recruter(@RequestParam String characterId) {
+        Character recrue = game.characterById(characterId).orElse(null);
+        if (recrue == null) {
             return "redirect:/";
         }
         try {
-            game.recruit(recruit, Instant.now());
-            eventLog.add("Recrutement de " + recruit.name());
+            game.recruit(recrue, Instant.now());
         } catch (IllegalStateException e) {
-            eventLog.add(e.getMessage());
+            log.info("Recrutement refuse : {}", e.getMessage());
         }
         return "redirect:/";
     }
 
     @PostMapping("/mission/run")
-    public String runMission(@RequestParam String missionId, @RequestParam(required = false) List<String> teamIds) {
-        if (activeExecution != null && !activeExecution.isFinished()) {
-            eventLog.add("Une mission est deja en cours.");
-            return "redirect:/";
-        }
+    @Transactional
+    public String lancerMission(@RequestParam String missionId, @RequestParam(required = false) List<String> teamIds) {
         Mission mission = missions.stream().filter(m -> m.id().equals(missionId)).findFirst().orElse(null);
         if (mission == null) {
             return "redirect:/";
         }
-        List<Character> team = new ArrayList<>();
+        rechargerMissionsActives();
+        if (missionsActives.values().stream().anyMatch(e -> e.entity.getMissionId().equals(missionId))) {
+            return "redirect:/";
+        }
+        List<Character> equipe = new ArrayList<>();
         if (teamIds != null) {
             for (String id : teamIds) {
-                game.characterById(id).ifPresent(team::add);
+                game.characterById(id).ifPresent(equipe::add);
             }
         }
-        if (team.isEmpty()) {
-            eventLog.add("Aucun arrangeur selectionne pour " + mission.title());
+        if (equipe.isEmpty()) {
             return "redirect:/";
         }
-        timeOffset = Duration.ZERO;
-        flushedLines = 0;
-        activeEntity = game.startMission(mission, team, now());
-        activeExecution = game.rebuild(activeEntity).orElse(null);
-        eventLog.add("=== " + mission.title() + " ===");
-        eventLog.add("Mission lancee a " + now() + ". Les evenements suivront leur delai prevu.");
+        MissionExecutionEntity entity = game.startMission(mission, equipe, Instant.now());
+        MissionExecution execution = game.rebuild(entity).orElse(null);
+        if (execution == null) {
+            return "redirect:/";
+        }
+        EtatMission etat = new EtatMission();
+        etat.entity = entity;
+        etat.execution = execution;
+        etat.journal.add("=== " + mission.title() + " ===");
+        etat.journal.add("Mission lancee a " + Instant.now() + ". Les evenements suivront leur delai prevu.");
+        missionsActives.put(entity.getId(), etat);
         tick();
-        return "redirect:/";
+        return "redirect:/?onglet=" + entity.getId();
     }
 
-    @PostMapping("/mission/advance")
-    public String advanceMission() {
-        if (activeExecution == null || activeExecution.isFinished()) {
+    @PostMapping("/mission/{id}/advance")
+    @Transactional
+    public String avancerMission(@PathVariable Long id) {
+        EtatMission etat = missionsActives.get(id);
+        if (etat == null || etat.execution.isFinished()) {
             return "redirect:/";
         }
-        Instant next = activeExecution.nextEventTime();
-        if (next != null && next.isAfter(now())) {
-            timeOffset = Duration.between(Instant.now(), next);
+        Instant prochain = etat.execution.nextEventTime();
+        if (prochain != null && prochain.isAfter(maintenant(etat))) {
+            etat.decalageTemps = Duration.between(Instant.now(), prochain);
         }
-        tick();
-        return "redirect:/";
+        tickMission(etat);
+        return "redirect:/?onglet=" + id;
     }
 
     @Scheduled(fixedRateString = "${mission.tick-rate-ms:60000}")
     @Transactional
     public void tick() {
-        if (activeExecution == null) {
-            reloadActiveExecution();
-            if (activeExecution == null) {
-                return;
-            }
-        }
-        if (activeExecution.isFinished()) {
+        rechargerMissionsActives();
+        if (missionsActives.isEmpty()) {
             return;
         }
-        boolean finished = activeExecution.advance(now());
-        List<String> lines = activeExecution.logLines();
-        if (lines.size() > flushedLines) {
-            eventLog.addAll(lines.subList(flushedLines, lines.size()));
-            log.info("Tick : {} evenement(s) resolu(s)", lines.size() - flushedLines);
-            flushedLines = lines.size();
-        }
-        game.saveProgress(activeEntity, activeExecution, now());
-        if (finished) {
-            MissionReport report = activeExecution.report();
-            eventLog.add(report.teamWiped()
-                    ? "Equipe eliminee. Mission echouee."
-                    : "Mission terminee. Survivants : " + report.survivors());
-            game.finish(activeEntity, report, now());
-            activeExecution = null;
-            activeEntity = null;
+        for (EtatMission etat : List.copyOf(missionsActives.values())) {
+            if (!etat.fini && !etat.execution.isFinished()) {
+                tickMission(etat);
+            }
         }
     }
 
-    private void reloadActiveExecution() {
-        MissionExecutionEntity entity = game.activeExecutionEntity();
-        if (entity == null) {
+    private void tickMission(EtatMission etat) {
+        if (etat.fini) {
             return;
         }
-        activeEntity = entity;
-        game.rebuild(entity).ifPresentOrElse(
-                execution -> {
-                    activeExecution = execution;
-                    flushedLines = entity.getLogLines().size();
-                    eventLog.clear();
-                    eventLog.addAll(entity.getLogLines().stream().map(com.extremis.db.ExecutionLogLineEntity::getLine).toList());
-                },
-                () -> {
-                    activeEntity = null;
-                });
+        boolean finished = etat.execution.advance(maintenant(etat));
+        List<String> lines = etat.execution.logLines();
+        if (lines.size() > etat.lignesPubliees) {
+            etat.journal.addAll(lines.subList(etat.lignesPubliees, lines.size()));
+            log.info("Tick : {} evenement(s) resolu(s)", lines.size() - etat.lignesPubliees);
+            etat.lignesPubliees = lines.size();
+        }
+        game.saveProgress(etat.entity, etat.execution, maintenant(etat));
+        if (finished) {
+            MissionReport report = etat.execution.report();
+            etat.journal.add(report.teamWiped()
+                    ? "Equipe eliminee. Mission echouee."
+                    : "Mission terminee. Survivants : " + report.survivors());
+            game.finish(etat.entity, report, Instant.now());
+            etat.fini = true;
+        }
+    }
+
+    private void rechargerMissionsActives() {
+        List<MissionExecutionEntity> entites = game.activeExecutionEntities();
+        missionsActives.keySet().removeIf(id -> {
+            EtatMission etat = missionsActives.get(id);
+            return !etat.fini && entites.stream().noneMatch(e -> id.equals(e.getId()));
+        });
+        for (MissionExecutionEntity entity : entites) {
+            if (missionsActives.containsKey(entity.getId())) {
+                continue;
+            }
+            MissionExecution execution = game.rebuild(entity).orElse(null);
+            if (execution == null) {
+                continue;
+            }
+            EtatMission etat = new EtatMission();
+            etat.entity = entity;
+            etat.execution = execution;
+            etat.lignesPubliees = entity.getLogLines().size();
+            entity.getLogLines().forEach(l -> etat.journal.add(l.getLine()));
+            missionsActives.put(entity.getId(), etat);
+        }
     }
 
     void recrutementRapide(String name) {
@@ -229,16 +275,18 @@ public class GameController {
         game.saveQuickRecruit(new Character("test-" + name, name)
                 .withSkill(com.extremis.core.Skill.DISCRETION, 30)
                 .withSkill(com.extremis.core.Skill.ARMES_CORPS_A_CORPS, 30));
-        eventLog.clear();
-        activeExecution = null;
-        activeEntity = null;
+        missionsActives.clear();
     }
 
     void lancementRapide() {
-        runMission(missions.get(0).id(), List.of("test-" + game.roster().get(0).name()));
+        lancerMission(missions.get(0).id(), List.of("test-" + game.roster().get(0).name()));
     }
 
     String journal() {
-        return String.join("\n", eventLog);
+        rechargerMissionsActives();
+        return missionsActives.values().stream()
+                .flatMap(e -> e.journal.stream())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
     }
 }
