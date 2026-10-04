@@ -159,9 +159,21 @@ public class GameService {
         executions.save(entity);
     }
 
-    public MissionExecutionEntity activeExecutionEntity() {
-        return executions.findFirstByStatusOrderByIdDesc(MissionExecutionEntity.Status.IN_PROGRESS)
-                .orElse(null);
+    @Transactional(readOnly = true)
+    public List<MissionExecutionEntity> activeExecutionEntities() {
+        return executions.findAllByStatusOrderByIdAsc(MissionExecutionEntity.Status.IN_PROGRESS);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<MissionExecutionEntity> activeExecutionEntity(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        MissionExecutionEntity entity = executions.findById(id).orElse(null);
+        if (entity == null || entity.getStatus() != MissionExecutionEntity.Status.IN_PROGRESS) {
+            return Optional.empty();
+        }
+        return Optional.of(entity);
     }
 
     @Transactional
