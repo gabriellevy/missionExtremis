@@ -30,7 +30,7 @@ public class CharacterEntity {
     @Column(length = 64)
     private String role;
 
-    private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;    private int health = 10;
+    @Column(name = "skill_base", nullable = false, columnDefinition = "integer default 30")    private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;    private int health = 10;
 
     private boolean alive = true;
 
