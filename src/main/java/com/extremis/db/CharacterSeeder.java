@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CharacterSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(CharacterSeeder.class);
 
-    private static final int VITALITE_PERE_DAMIAN_KARRAS = 9;
+    private static final int VITALITE_PERE_DAMIAN_KARRAS = 19;
     private static final int SANG_FROID_PERE_DAMIAN_KARRAS = 18;
 
     private final CharacterRepository repository;
@@ -38,21 +38,8 @@ public class CharacterSeeder implements ApplicationRunner {
     /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
     @Transactional
     public void semerNouveauxPersonnages() {
-        if (repository.existsById("seed-11")) {
-            miseAJourPereDamianKarras();
-            return;
-        }
         seedPereDamianKarras();
         log.info("Personnage seed-11 ajoute au catalogue");
-    }
-
-    /** Applique les caracs du wiki (vitalite, sang-froid) au Pere Damian Karras sur une base existante. */
-    private void miseAJourPereDamianKarras() {
-        repository.findById("seed-11").ifPresent(c -> {
-            c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
-            c.setSangFroid(SANG_FROID_PERE_DAMIAN_KARRAS);
-            repository.save(c);
-        });
     }
 
     private void seedPereDamianKarras() {
