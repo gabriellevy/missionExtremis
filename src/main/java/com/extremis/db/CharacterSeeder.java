@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
  * inspire des sous-pages "Persos - catalogue" du wiki. Idempotent.
  */
 @Component
+@Order(10)
 public class CharacterSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(CharacterSeeder.class);
 
