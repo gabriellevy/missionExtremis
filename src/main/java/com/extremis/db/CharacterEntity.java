@@ -27,7 +27,10 @@ public class CharacterEntity {
     @Column(length = 64)
     private String role;
 
-    @Column(name = "skill_base", nullable = false, columnDefinition = "integer default 30")    private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;    private int health = 10;
+    @Column(name = "skill_base", nullable = false, columnDefinition = "integer default 30")
+    private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;
+    private int vitalite = com.extremis.core.Character.VITALITE_DEFAUT;
+    private int sangFroid = com.extremis.core.Character.SANG_FROID_DEFAUT;
 
     private boolean alive = true;
 
@@ -50,16 +53,20 @@ public class CharacterEntity {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getCoterie() { return coterie; }
-    public String getRole() { return role; }    public int getSkillBase() { return skillBase; }
-    public int getHealth() { return health; }
+    public String getRole() { return role; }
+    public int getSkillBase() { return skillBase; }
+    public int getVitalite() { return vitalite; }
+    public int getSangFroid() { return sangFroid; }
     public boolean isAlive() { return alive; }
     public List<CharacterSkillEntity> getSkills() { return skills; }
     public List<CharacterTraitEntity> getTraits() { return traits; }
     public List<CharacterItemEntity> getInventory() { return inventory; }
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
-    public void setRole(String role) { this.role = role; }    public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
-    public void setHealth(int health) { this.health = health; }
+    public void setRole(String role) { this.role = role; }
+    public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
+    public void setVitalite(int vitalite) { this.vitalite = vitalite; }
+    public void setSangFroid(int sangFroid) { this.sangFroid = sangFroid; }
     public void setAlive(boolean alive) { this.alive = alive; }
 
     public void addSkill(Competence skill, int value) {

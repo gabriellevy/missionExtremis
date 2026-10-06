@@ -23,26 +23,26 @@ public class ExecutionTeamMemberEntity {
 
     private String name;
 
-    private int health;
+    private int vitalite;
 
     private boolean alive;
 
     public ExecutionTeamMemberEntity() {}
 
-    public ExecutionTeamMemberEntity(String characterId, String name, int health, boolean alive) {
+    public ExecutionTeamMemberEntity(String characterId, String name, int vitalite, boolean alive) {
         this.characterId = characterId;
         this.name = name;
-        this.health = health;
+        this.vitalite = vitalite;
         this.alive = alive;
     }
 
     public String getCharacterId() { return characterId; }
     public String getName() { return name; }
-    public int getHealth() { return health; }
+    public int getVitalite() { return vitalite; }
     public boolean isAlive() { return alive; }
     public MissionExecutionEntity getExecution() { return execution; }
 
     public void setExecution(MissionExecutionEntity execution) { this.execution = execution; }
-    public void setHealth(int health) { this.health = health; }
+    public void setVitalite(int vitalite) { this.vitalite = vitalite; }
     public void setAlive(boolean alive) { this.alive = alive; }
 }

@@ -68,7 +68,7 @@
   <ul>
     <li th:each="c : ${roster}">
       <span th:text="${c.name()}"/>
-      &#8212; <span th:text="${c.health()}"/> pv
+      &#8212; vitalit&#233; : <span th:text="${c.vitalite()}"/>
       <span class="en-mission"
             th:if="${rosterAvecMission.containsKey(c.name())}"
             th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"/>
@@ -126,9 +126,10 @@
           <h4 th:text="${p.name()}"/>
           <div>&#201;tat :
             <span th:if="${!p.alive()}" class="etat mort">mort</span>
-            <span th:if="${p.alive() and p.health < 10}" class="etat blesse"
-                  th:text="'bless&#233; (' + ${p.health} + '/10 pv)'"/>
-            <span th:if="${p.alive() and p.health == 10}" class="etat">indemne</span>
+            <span th:if="${p.alive() and p.vitalite < 10}" class="etat blesse"
+                  th:text="'bless&#233; (' + ${p.vitalite} + '/10)'"/>
+            <span th:if="${p.alive() and p.vitalite == 10}" class="etat">indemne</span>
+            <div>Sang-froid : <span th:text="${p.sangFroid}"/></div>
           </div>
           <div th:if="${!p.traits.isEmpty()}">Vices / vertus :
             <span th:text="${#strings.listJoin(p.traits, ', ')}"/>

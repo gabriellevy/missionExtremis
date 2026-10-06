@@ -21,7 +21,8 @@ public final class EntityMapper {
         for (CharacterItemEntity i : e.getInventory()) {
             c.addItem(i.getLabel());
         }
-        c.setHealth(e.getHealth());
+        c.setVitalite(e.getVitalite());
+        c.setSangFroid(e.getSangFroid());
         if (!e.isAlive()) {
             c.kill();
         }
@@ -41,7 +42,8 @@ public final class EntityMapper {
         for (String item : c.inventory()) {
             e.addItem(item);
         }
-        e.setHealth(c.health());
+        e.setVitalite(c.vitalite());
+        e.setSangFroid(c.sangFroid());
         e.setAlive(c.isAlive());
         return e;
     }

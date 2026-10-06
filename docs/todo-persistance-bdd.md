@@ -24,7 +24,7 @@ Dépendances à ajouter dans `pom.xml` :
 Le paquet `core` reste du pur code métier, les entités JPA sont des adaptateurs séparés.
 
 - `CharacterEntity` (table `characters`)
-  - `id` (VARCHAR, PK), `name`, `coterie`, `health` (défaut 10), `alive` (booléen)
+  - `id` (VARCHAR, PK), `name`, `coterie`, `vitalite` (défaut 10), `sang_froid` (défaut 10), `alive` (booléen)
   - relations : `traits` (1-N), `skills` (1-N), `inventory` (1-N)
 - `TraitEntity` (table `character_traits`) : `name`, `characterId`. Un trait porte un `Set<String> grants` aujourd'hui — sérialiser `grants` en colonne TEXT (séparateur `;` ou JSON) suffit.
 - `SkillEntity` (table `character_skills`) : `skill` (nom de l'enum `Skill`), `value` (int). Contrainte unique (`characterId`, `skill`).
@@ -46,7 +46,7 @@ Le wiki (Notion, « Jeu des tables aléatoires → Persos - catalogue → Par r�
 - `id` (PK), `name`, `coterie` (bastet, carthaginois, cathare, celte, conquistador, culte-du-plaisir, demokratos, elfe, esthete, feerique, jacobin, khaos, libertin, lotus-blanc, lumieres, ogre, performeur, romain, saabi, schweizer, skaven, templier, transhumaniste, tyranide, zaporogue, tzigane, ork, acheron), `role` (enqueteur, specialistes-volonte, voyageur, citadin, ennemis-acheron, saltimbanque, vilain, vauban)
 - compétences : comme `SkillEntity`
 - traits : comme `TraitEntity`
-- `health`, `alive`, `inventory`
+- `vitalite`, `sang_froid`, `alive`, `inventory`
 
 Le recrutement (`POST /recruit`) sélectionne alors un personnage dans `available_characters` (au lieu de créer un `Character` avec `COMBAT 40` en dur dans `GameController`) et copie ses données vers `characters`.
 

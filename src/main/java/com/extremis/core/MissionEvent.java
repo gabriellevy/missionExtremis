@@ -66,7 +66,7 @@ public final class MissionEvent {
             return;
         }
         victim.applyDamage(damageOnFailure);
-        log.accept(victim.name() + " subit " + damageOnFailure + " degats (sante restante : " + victim.health() + ").");
+        log.accept(victim.name() + " subit " + damageOnFailure + " degats (vitalite restante : " + victim.vitalite() + ").");
         if (!victim.isAlive()) {
             log.accept(victim.name() + " succombe.");
         }

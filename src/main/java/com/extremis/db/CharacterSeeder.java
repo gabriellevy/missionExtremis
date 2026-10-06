@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class CharacterSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(CharacterSeeder.class);
 
+    private static final int VITALITE_PERE_DAMIAN_KARRAS = 9;
+    private static final int SANG_FROID_PERE_DAMIAN_KARRAS = 18;
+
     private final CharacterRepository repository;
 
     public CharacterSeeder(CharacterRepository repository) {
@@ -36,10 +39,20 @@ public class CharacterSeeder implements ApplicationRunner {
     @Transactional
     public void semerNouveauxPersonnages() {
         if (repository.existsById("seed-11")) {
+            miseAJourPereDamianKarras();
             return;
         }
         seedPereDamianKarras();
         log.info("Personnage seed-11 ajoute au catalogue");
+    }
+
+    /** Applique les caracs du wiki (vitalite, sang-froid) au Pere Damian Karras sur une base existante. */
+    private void miseAJourPereDamianKarras() {
+        repository.findById("seed-11").ifPresent(c -> {
+            c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
+            c.setSangFroid(SANG_FROID_PERE_DAMIAN_KARRAS);
+            repository.save(c);
+        });
     }
 
     private void seedPereDamianKarras() {
@@ -49,6 +62,11 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.PERIPLE, Competence.RAGOT, Competence.RICHESSE, Competence.SURVIE_EXTERIEUR, Competence.TIR},
                 new int[]{5, -10, 5, 15, 9, 15, 15, -9, 9, 10, -10, 15, -15},
                 new String[]{"Désintéressé", "Chaste"}, 36);
+        repository.findById("seed-11").ifPresent(c -> {
+            c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
+            c.setSangFroid(SANG_FROID_PERE_DAMIAN_KARRAS);
+            repository.save(c);
+        });
     }
 
     @Transactional
