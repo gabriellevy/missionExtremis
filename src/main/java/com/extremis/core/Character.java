@@ -7,7 +7,7 @@ public final class Character {
     private final String id;
     private final String name;
     private final List<Trait> traits = new ArrayList<>();
-    private final java.util.EnumMap<Skill, Integer> skills = new java.util.EnumMap<>(Skill.class);
+    private final java.util.EnumMap<Competence, Integer> skills = new java.util.EnumMap<>(Competence.class);
     private final List<String> inventory = new ArrayList<>();
     private int skillBase = DEFAULT_SKILL_BASE;
     private int health = 10;
@@ -33,7 +33,7 @@ public final class Character {
         return this;
     }
 
-    public Character withSkill(Skill skill, int value) {
+    public Character withSkill(Competence skill, int value) {
         skills.put(skill, value);
         return this;
     }
@@ -43,11 +43,11 @@ public final class Character {
         return this;
     }
 
-    public boolean hasSkill(Skill skill) {
+    public boolean hasSkill(Competence skill) {
         return skills.containsKey(skill);
     }
 
-    public int skillValue(Skill skill) {
+    public int skillValue(Competence skill) {
         return skills.getOrDefault(skill, 0);
     }
 
@@ -55,7 +55,7 @@ public final class Character {
      * Cible effective d'un test de competence : base + valeur (wiki,
      * page "Base de competences"). Utilisee telle quelle par les tests en D100.
      */
-    public int skillTarget(Skill skill) {
+    public int skillTarget(Competence skill) {
         return skillBase + skillValue(skill);
     }
 
@@ -76,7 +76,7 @@ public final class Character {
         inventory.add(item);
     }
 
-    public java.util.Map<Skill, Integer> skillsSnapshot() {
+    public java.util.Map<Competence, Integer> skillsSnapshot() {
         return java.util.Map.copyOf(skills);
     }
 

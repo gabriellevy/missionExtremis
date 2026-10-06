@@ -1,7 +1,7 @@
 package com.extremis.db;
 
 import com.extremis.core.Character;
-import com.extremis.core.Skill;
+import com.extremis.core.Competence;
 import com.extremis.core.Trait;
 
 import java.util.LinkedHashSet;
@@ -32,7 +32,7 @@ public final class EntityMapper {
         CharacterEntity e = new CharacterEntity(c.id(), c.name());
         e.setCoterie(coterie);
         e.setRole(role); e.setSkillBase(c.skillBase());
-        for (java.util.Map.Entry<Skill, Integer> entry : c.skillsSnapshot().entrySet()) {
+        for (java.util.Map.Entry<Competence, Integer> entry : c.skillsSnapshot().entrySet()) {
             e.addSkill(entry.getKey(), entry.getValue());
         }
         for (Trait t : c.traits()) {

@@ -1,6 +1,6 @@
 package com.extremis.db;
 
-import com.extremis.core.Skill;
+import com.extremis.core.Competence;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,19 +26,19 @@ public class CharacterSkillEntity {
     private CharacterEntity owner;
 
     @Enumerated(EnumType.STRING)
-    private Skill skill;
+    private Competence skill;
 
     @Column(name = "skill_value")
     private int value;
 
     public CharacterSkillEntity() {}
 
-    public CharacterSkillEntity(CharacterEntity owner, Skill skill, int value) {
+    public CharacterSkillEntity(CharacterEntity owner, Competence skill, int value) {
         this.owner = owner;
         this.skill = skill;
         this.value = value;
     }
 
-    public Skill getSkill() { return skill; }
+    public Competence getSkill() { return skill; }
     public int getValue() { return value; }
 }

@@ -1,6 +1,6 @@
 package com.extremis.db;
 
-import com.extremis.core.Skill;
+import com.extremis.core.Competence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -44,9 +44,9 @@ public class CharacterSeeder implements ApplicationRunner {
 
     private void seedPereDamianKarras() {
         seed("seed-11", "Père Damian Karras", "cathare", "cure",
-                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.CHANCE, Skill.COMMANDEMENT, Skill.ELOQUENCE,
-                        Skill.ENDURANCE, Skill.FORCE_MENTALE, Skill.INTUITION, Skill.MARCHANDAGE,
-                        Skill.PERIPLE, Skill.RAGOT, Skill.RICHESSE, Skill.SURVIE_EXTERIEUR, Skill.TIR},
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.CHANCE, Competence.COMMANDEMENT, Competence.ELOQUENCE,
+                        Competence.ENDURANCE, Competence.FORCE_MENTALE, Competence.INTUITION, Competence.MARCHANDAGE,
+                        Competence.PERIPLE, Competence.RAGOT, Competence.RICHESSE, Competence.SURVIE_EXTERIEUR, Competence.TIR},
                 new int[]{5, -10, 5, 15, 9, 15, 15, -9, 9, 10, -10, 15, -15},
                 new String[]{"Désintéressé", "Chaste"}, 36);
     }
@@ -54,44 +54,44 @@ public class CharacterSeeder implements ApplicationRunner {
     @Transactional
     public void semerCatalogue() {
         seed("seed-01", "Alphonse Hercule de Gascoigne", "performeur", "enqueteur",
-                new Skill[]{Skill.INTUITION, Skill.MOUVEMENT, Skill.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
+                new Competence[]{Competence.INTUITION, Competence.MOUVEMENT, Competence.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
                 new String[]{"Esthete", "Orgueilleux", "Chaste"});
         seed("seed-02", "Jean-Paul Marat", "jacobin", "enqueteur",
-                new Skill[]{Skill.ELOQUENCE, Skill.INTELLIGENCE}, new int[]{8, 6},
+                new Competence[]{Competence.ELOQUENCE, Competence.INTELLIGENCE}, new int[]{8, 6},
                 new String[]{"Radical"});
         seed("seed-03", "Voltaire", "lumieres", "specialiste-volonte",
-                new Skill[]{Skill.INTUITION, Skill.ELOQUENCE}, new int[]{9, 7},
+                new Competence[]{Competence.INTUITION, Competence.ELOQUENCE}, new int[]{9, 7},
                 new String[]{"Esprit"});
         seed("seed-04", "Rorschach", "khaos", "enqueteur",
-                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.PERCEPTION, Skill.DISCRETION}, new int[]{7, 9, 6},
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.DISCRETION}, new int[]{7, 9, 6},
                 new String[]{"Implacable"});
         seed("seed-05", "Arsene Lupin", "esthete", "enqueteur",
-                new Skill[]{Skill.DISCRETION, Skill.MOUVEMENT, Skill.REFLEXES}, new int[]{10, 8, 6},
+                new Competence[]{Competence.DISCRETION, Competence.MOUVEMENT, Competence.REFLEXES}, new int[]{10, 8, 6},
                 new String[]{"Cambrioleur"});
         seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
-                new Skill[]{Skill.ELOQUENCE, Skill.INTUITION}, new int[]{8, 5},
+                new Competence[]{Competence.ELOQUENCE, Competence.INTUITION}, new int[]{8, 5},
                 new String[]{"Barde"});
         seed("seed-07", "Mata-Hari", "lotus-blanc", "enqueteur",
-                new Skill[]{Skill.DISCRETION, Skill.TROMPERIE}, new int[]{9, 8},
+                new Competence[]{Competence.DISCRETION, Competence.TROMPERIE}, new int[]{9, 8},
                 new String[]{"Espionne"});
         seed("seed-08", "Odysseus", "demokratos", "voyageur",
-                new Skill[]{Skill.COMMANDEMENT, Skill.ARMES_CORPS_A_CORPS, Skill.INTELLIGENCE}, new int[]{7, 6, 9},
+                new Competence[]{Competence.COMMANDEMENT, Competence.ARMES_CORPS_A_CORPS, Competence.INTELLIGENCE}, new int[]{7, 6, 9},
                 new String[]{"Stratege"});
         seed("seed-09", "Vidocq", "citadin", "enqueteur",
-                new Skill[]{Skill.PERCEPTION, Skill.DISCRETION, Skill.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
+                new Competence[]{Competence.PERCEPTION, Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
                 new String[]{"Inspecteur"});
         seed("seed-10", "Welf Schwarzschutze", "elfe", "voyageur",
-                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.PERCEPTION, Skill.MOUVEMENT}, new int[]{8, 7, 6},
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
         seedPereDamianKarras();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 
-    private void seed(String id, String name, String coterie, String role, Skill[] skills, int[] values, String[] traits) {
+    private void seed(String id, String name, String coterie, String role, Competence[] skills, int[] values, String[] traits) {
         seed(id, name, coterie, role, skills, values, traits, com.extremis.core.Character.DEFAULT_SKILL_BASE);
     }
 
-    private void seed(String id, String name, String coterie, String role, Skill[] skills, int[] values, String[] traits,
+    private void seed(String id, String name, String coterie, String role, Competence[] skills, int[] values, String[] traits,
                       int baseDeCompetences) {
         CharacterEntity c = new CharacterEntity(id, name);
         c.setCoterie(coterie);

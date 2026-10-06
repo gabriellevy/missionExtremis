@@ -1,9 +1,7 @@
 package com.extremis.web;
 
+import com.extremis.core.*;
 import com.extremis.core.Character;
-import com.extremis.core.Mission;
-import com.extremis.core.MissionExecution;
-import com.extremis.core.MissionReport;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,8 +304,8 @@ public class GameController {
     void recrutementRapide(String name) {
         game.clearRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
-                .withSkill(com.extremis.core.Skill.DISCRETION, 30)
-                .withSkill(com.extremis.core.Skill.ARMES_CORPS_A_CORPS, 30));
+                .withSkill(Competence.DISCRETION, 30)
+                .withSkill(Competence.ARMES_CORPS_A_CORPS, 30));
         missionsActives.clear();
     }
 
