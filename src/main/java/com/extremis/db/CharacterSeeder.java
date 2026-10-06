@@ -40,6 +40,9 @@ public class CharacterSeeder implements ApplicationRunner {
     /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
     @Transactional
     public void semerNouveauxPersonnages() {
+        if (repository.existsById("seed-11")) {
+            return;
+        }
         seedPereDamianKarras();
         log.info("Personnage seed-11 ajoute au catalogue");
     }
