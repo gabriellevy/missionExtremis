@@ -104,7 +104,7 @@ public class GameService {
     public MissionExecutionEntity startMission(Mission mission, List<Character> team, Instant now) {
         MissionExecutionEntity entity = new MissionExecutionEntity(mission.id(), mission.title(), now);
         for (Character c : team) {
-            entity.addTeamMember(new ExecutionTeamMemberEntity(c.id(), c.name(), c.health(), c.isAlive()));
+            entity.addTeamMember(new ExecutionTeamMemberEntity(c.id(), c.name(), c.vitalite(), c.isAlive()));
         }
         MissionExecution execution = MissionExecution.start(mission, team, new SeededRandom(42L), now);
         syncProgress(entity, execution);
@@ -138,7 +138,7 @@ public class GameService {
         List<Character> team = new ArrayList<>();
         for (ExecutionTeamMemberEntity m : entity.getTeam()) {
             Character c = new Character(m.getCharacterId(), m.getName());
-            c.setHealth(m.getHealth());
+            c.setVitalite(m.getVitalite());
             if (!m.isAlive()) {
                 c.kill();
             }
@@ -191,7 +191,7 @@ public class GameService {
                     .findFirst()
                     .ifPresent(name -> {
                         m.setAlive(false);
-                        m.setHealth(0);
+                        m.setVitalite(0);
                     });
         }
         syncRosterAfterMission(report);
@@ -205,7 +205,7 @@ public class GameService {
                     .findFirst()
                     .ifPresent(c -> {
                         c.setAlive(false);
-                        c.setHealth(0);
+                        c.setVitalite(0);
                         characters.save(c);
                     });
         }
@@ -221,7 +221,7 @@ public class GameService {
         for (int i = 0; i < entity.getTeam().size() && i < execution.teamSnapshot().size(); i++) {
             ExecutionTeamMemberEntity m = entity.getTeam().get(i);
             Character c = execution.teamSnapshot().get(i);
-            m.setHealth(c.health());
+            m.setVitalite(c.vitalite());
             m.setAlive(c.isAlive());
         }
     }

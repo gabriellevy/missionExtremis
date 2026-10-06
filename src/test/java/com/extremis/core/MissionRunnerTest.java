@@ -18,7 +18,7 @@ class MissionRunnerTest {
         MissionReport report = new MissionRunner(ALWAYS_LOW).run(mission, List.of(agent), m -> {});
         assertThat(report.teamWiped()).isFalse();
         assertThat(agent.inventory()).contains("Toge de sectateur");
-        assertThat(agent.health()).isEqualTo(10);
+        assertThat(agent.vitalite()).isEqualTo(10);
     }
 
     @Test
@@ -26,7 +26,7 @@ class MissionRunnerTest {
         Character agent = new Character("a", "Alice").withSkill(Competence.DISCRETION, 0);
         Mission mission = mission();
         MissionReport report = new MissionRunner(ALWAYS_HIGH).run(mission, List.of(agent), m -> {});
-        assertThat(agent.health()).isLessThan(10);
+        assertThat(agent.vitalite()).isLessThan(10);
         assertThat(report.log()).contains("echoue");
     }
 

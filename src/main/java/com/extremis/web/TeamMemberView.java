@@ -6,7 +6,8 @@ import java.util.Map;
 public record TeamMemberView(
         String id,
         String name,
-        int health,
+        int vitalite,
+        int sangFroid,
         boolean alive,
         int skillBase,
         Map<String, Integer> skills,

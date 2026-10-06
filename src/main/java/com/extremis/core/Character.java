@@ -10,8 +10,12 @@ public final class Character {
     private final java.util.EnumMap<Competence, Integer> skills = new java.util.EnumMap<>(Competence.class);
     private final List<String> inventory = new ArrayList<>();
     private int skillBase = DEFAULT_SKILL_BASE;
-    private int health = 10;
+    private int vitalite = VITALITE_DEFAUT;
+    private int sangFroid = SANG_FROID_DEFAUT;
     private boolean alive = true;
+
+    public static final int VITALITE_DEFAUT = 10;
+    public static final int SANG_FROID_DEFAUT = 10;
 
     public static final int DEFAULT_SKILL_BASE = 30;
 
@@ -22,11 +26,17 @@ public final class Character {
 
     public String id() { return id; }
     public String name() { return name; }
-    public int health() { return health; }
+    public int vitalite() { return vitalite; }
+    public int sangFroid() { return sangFroid; }
     public boolean isAlive() { return alive; }
     public List<Trait> traits() { return traits; }
     public List<String> inventory() { return inventory; }
     public int skillBase() { return skillBase; }
+
+    public Character withSangFroid(int valeur) {
+        this.sangFroid = valeur;
+        return this;
+    }
 
     public Character withSkillBase(int base) {
         this.skillBase = base;
@@ -60,15 +70,15 @@ public final class Character {
     }
 
     public void applyDamage(int amount) {
-        health = Math.max(0, health - amount);
-        if (health == 0) {
+        vitalite = Math.max(0, vitalite - amount);
+        if (vitalite == 0) {
             alive = false;
         }
     }
 
     public void heal(int amount) {
         if (alive) {
-            health = Math.min(10, health + amount);
+            vitalite = Math.min(VITALITE_DEFAUT, vitalite + amount);
         }
     }
 
@@ -80,12 +90,16 @@ public final class Character {
         return java.util.Map.copyOf(skills);
     }
 
-    public void setHealth(int value) {
-        health = Math.max(0, Math.min(10, value));
+    public void setVitalite(int value) {
+        vitalite = Math.max(0, Math.min(VITALITE_DEFAUT, value));
+    }
+
+    public void setSangFroid(int value) {
+        sangFroid = Math.max(0, value);
     }
 
     public void kill() {
-        health = 0;
+        vitalite = 0;
         alive = false;
     }
 }

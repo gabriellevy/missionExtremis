@@ -142,7 +142,8 @@ public class GameController {
             views.add(new TeamMemberView(
                     c.id(),
                     c.name(),
-                    c.health(),
+                    c.vitalite(),
+                    c.sangFroid(),
                     c.isAlive(),
                     rosterEntry != null ? rosterEntry.skillBase() : Character.DEFAULT_SKILL_BASE,
                     skills,
