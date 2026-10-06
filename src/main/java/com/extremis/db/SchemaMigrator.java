@@ -38,7 +38,7 @@ public class SchemaMigrator implements ApplicationRunner {
 
     private boolean colonneExiste(String table, String colonne) {
         Integer nb = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ? AND column_name = ?",
+                "SELECT COUNT(*) FROM information_schema.columns WHERE lower(table_name) = lower(?) AND lower(column_name) = lower(?)",
                 Integer.class, table, colonne);
         return nb != null && nb > 0;
     }
