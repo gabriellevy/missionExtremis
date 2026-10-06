@@ -1,12 +1,9 @@
 package com.extremis.db;
 
+import com.extremis.core.Competence;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -65,7 +62,7 @@ public class CharacterEntity {
     public void setHealth(int health) { this.health = health; }
     public void setAlive(boolean alive) { this.alive = alive; }
 
-    public void addSkill(com.extremis.core.Skill skill, int value) {
+    public void addSkill(Competence skill, int value) {
         skills.removeIf(s -> s.getSkill() == skill);
         CharacterSkillEntity e = new CharacterSkillEntity(this, skill, value);
         skills.add(e);

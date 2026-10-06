@@ -56,7 +56,7 @@ class MissionExecutionTest {
                 List.of(),
                 List.of(
                         MissionEvent.builder("e1", "piege")
-                                .test(new SimpleTest(Skill.DISCRETION, -1000))
+                                .test(new SimpleTest(Competence.DISCRETION, -1000))
                                 .damageOnFailure(100)
                                 .delayFromPrevious(Duration.ZERO)
                                 .build(),
@@ -71,7 +71,7 @@ class MissionExecutionTest {
     }
 
     private Character agent() {
-        return new Character("a", "Alice").withSkill(Skill.DISCRETION, 50).withSkill(Skill.ARMES_CORPS_A_CORPS, 50);
+        return new Character("a", "Alice").withSkill(Competence.DISCRETION, 50).withSkill(Competence.ARMES_CORPS_A_CORPS, 50);
     }
 
     private static final class MissionsForTest {

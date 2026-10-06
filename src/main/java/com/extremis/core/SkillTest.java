@@ -13,7 +13,7 @@ import java.util.Optional;
  * (negatif pour un test plus dur, positif pour un test plus facile).
  */
 public interface SkillTest {
-    Skill skill();
+    Competence skill();
 
     int difficulty();
 

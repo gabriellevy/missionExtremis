@@ -5,7 +5,7 @@ package com.extremis.core;
  * Les competences de base : tous les personnages peuvent les utiliser,
  * meme sans entrainement, avec leur base de competences.
  */
-public enum Skill {
+public enum Competence {
     ANIMAUX("Animaux"),
     ARMES_CORPS_A_CORPS("Armes de corps a corps"),
     BAGARRE("Bagarre"),
@@ -33,12 +33,11 @@ public enum Skill {
     SURVIE_EXTERIEUR("Survie en extérieur"),
     TIR("Tir"),
     TROMPERIE("Tromperie"),
-    VIGILANCE("Vigilance"),
-    VOLONTE("Volonté");
+    VIGILANCE("Vigilance");
 
     private final String label;
 
-    Skill(String label) {
+    Competence(String label) {
         this.label = label;
     }
 
