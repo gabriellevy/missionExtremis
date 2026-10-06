@@ -26,9 +26,29 @@ public class CharacterSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         if (repository.count() > 0) {
+            semerNouveauxPersonnages();
             return;
         }
         semerCatalogue();
+    }
+
+    /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
+    @Transactional
+    public void semerNouveauxPersonnages() {
+        if (repository.existsById("seed-11")) {
+            return;
+        }
+        seedPereDamianKarras();
+        log.info("Personnage seed-11 ajoute au catalogue");
+    }
+
+    private void seedPereDamianKarras() {
+        seed("seed-11", "Père Damian Karras", "cathare", "cure",
+                new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.CHANCE, Skill.COMMANDEMENT, Skill.ELOQUENCE,
+                        Skill.ENDURANCE, Skill.FORCE_MENTALE, Skill.INTUITION, Skill.MARCHANDAGE,
+                        Skill.PERIPLE, Skill.RAGOT, Skill.RICHESSE, Skill.SURVIE_EXTERIEUR, Skill.TIR},
+                new int[]{5, -10, 5, 15, 9, 15, 15, -9, 9, 10, -10, 15, -15},
+                new String[]{"Désintéressé", "Chaste"}, 36);
     }
 
     @Transactional
@@ -63,13 +83,20 @@ public class CharacterSeeder implements ApplicationRunner {
         seed("seed-10", "Welf Schwarzschutze", "elfe", "voyageur",
                 new Skill[]{Skill.ARMES_CORPS_A_CORPS, Skill.PERCEPTION, Skill.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
+        seedPereDamianKarras();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 
     private void seed(String id, String name, String coterie, String role, Skill[] skills, int[] values, String[] traits) {
+        seed(id, name, coterie, role, skills, values, traits, com.extremis.core.Character.DEFAULT_SKILL_BASE);
+    }
+
+    private void seed(String id, String name, String coterie, String role, Skill[] skills, int[] values, String[] traits,
+                      int baseDeCompetences) {
         CharacterEntity c = new CharacterEntity(id, name);
         c.setCoterie(coterie);
         c.setRole(role);
+        c.setSkillBase(baseDeCompetences);
         for (int i = 0; i < skills.length; i++) {
             c.addSkill(skills[i], values[i]);
         }
