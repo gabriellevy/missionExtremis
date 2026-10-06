@@ -27,7 +27,7 @@ class MissionRunnerTest {
         Mission mission = mission();
         MissionReport report = new MissionRunner(ALWAYS_HIGH).run(mission, List.of(agent), m -> {});
         assertThat(agent.vitalite()).isLessThan(10);
-        assertThat(report.log()).contains("echoue");
+        assertThat(report.log()).contains("échoue");
     }
 
     @Test

@@ -46,6 +46,7 @@ public class MissionExecutionEntity {
     private List<ExecutionTeamMemberEntity> team = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<ExecutionLogLineEntity> logLines = new ArrayList<>();
 
     public MissionExecutionEntity() {}
