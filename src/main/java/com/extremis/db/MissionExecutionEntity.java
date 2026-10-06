@@ -43,6 +43,7 @@ public class MissionExecutionEntity {
     private String lastEventTime;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<ExecutionTeamMemberEntity> team = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")

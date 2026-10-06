@@ -34,6 +34,38 @@ public class SchemaMigrator implements ApplicationRunner {
         renommerColonneSiPresente("characters", "health", "vitalite");
         renommerColonneSiPresente("execution_team_members", "health", "vitalite");
         ajouterColonneSiAbsente("characters", "sang_froid");
+        rendreCascadeSiNecessaire("execution_log_lines", "execution_id", "mission_executions");
+        rendreCascadeSiNecessaire("execution_team_members", "execution_id", "mission_executions");
+    }
+
+    /**
+     * Hibernate ne recree pas une cle etrangere existante en ON DELETE CASCADE
+     * (ddl-auto=update) : sur une base ancienne, la FK reste en NO ACTION et le
+     * deleteAll() de reinitialiserUsine() echoue. On la recree a la main.
+     */
+    private void rendreCascadeSiNecessaire(String tableEnfant, String colonneFk, String tableParente) {
+        Integer nb = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.table_constraints tc"
+                        + " JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name"
+                        + " WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = ?"
+                        + " AND kcu.column_name = ? AND tc.delete_rule <> 'CASCADE'",
+                Integer.class, tableEnfant, colonneFk);
+        if (nb == null || nb == 0) {
+            return;
+        }
+        jdbc.execute("ALTER TABLE " + tableEnfant + " DROP CONSTRAINT " + nomContrainte(tableEnfant, colonneFk));
+        jdbc.execute("ALTER TABLE " + tableEnfant + " ADD CONSTRAINT " + nomContrainte(tableEnfant, colonneFk)
+                + " FOREIGN KEY (" + colonneFk + ") REFERENCES " + tableParente + " (id) ON DELETE CASCADE");
+        log.info("Cle etrangere {}({}) recreee en ON DELETE CASCADE", tableEnfant, colonneFk);
+    }
+
+    private String nomContrainte(String tableEnfant, String colonneFk) {
+        return jdbc.queryForObject(
+                "SELECT tc.constraint_name FROM information_schema.table_constraints tc"
+                        + " JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name"
+                        + " WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name = ? AND kcu.column_name = ?"
+                        + " LIMIT 1",
+                String.class, tableEnfant, colonneFk);
     }
 
     private boolean colonneExiste(String table, String colonne) {
