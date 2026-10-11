@@ -105,10 +105,10 @@ public class GameController {
         return "home";
     }
 
-    private Map<String, ProfilPersonnageView> profilsRoster() {
+    private List<ProfilPersonnageView> profilsRoster() {
         Map<String, Character> roster = game.roster().stream()
                 .collect(java.util.stream.Collectors.toMap(Character::name, c -> c, (a, b) -> a, LinkedHashMap::new));
-        Map<String, ProfilPersonnageView> profils = new LinkedHashMap<>();
+        List<ProfilPersonnageView> profils = new ArrayList<>();
         for (CharacterEntity entity : game.availableCharacters()) {
             Character c = roster.get(entity.getName());
             if (c == null) {
@@ -118,7 +118,7 @@ public class GameController {
             c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), value));
             List<String> traits = new ArrayList<>();
             c.traits().forEach(t -> traits.add(t.name()));
-            profils.put(entity.getName(), new ProfilPersonnageView(
+            profils.add(new ProfilPersonnageView(
                     entity.getName(),
                     entity.getCoterie(),
                     entity.getRole(),
