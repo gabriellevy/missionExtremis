@@ -36,6 +36,20 @@
     .en-mission { color: #e07040; font-style: italic; }
     .mission-carte { border: 1px solid #5a4a30; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 1rem; background: #1c1710; }
     .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
+    .roster-liste { list-style: none; padding: 0; }
+    .roster-liste li { margin: 0.2rem 0; }
+    .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
+    .nom-personnage:hover { color: #f0d080; }
+    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
+    .profil-panneau.ouvert { display: block; }
+    .profil-panneau h3 { color: #e0c060; margin: 0 0 0.4rem; font-variant: small-caps; }
+    .profil-panneau .fermer { float: right; color: #d8c7a8; cursor: pointer; background: none; border: 1px solid #5a4a30; border-radius: 4px; padding: 0.1rem 0.4rem; }
+    .profil-panneau dl { margin: 0.4rem 0; }
+    .profil-panneau dt { color: #a89468; margin-top: 0.5rem; }
+    .profil-panneau dd { margin: 0.1rem 0 0 1rem; }
+    .profil-panneau ul { margin: 0.2rem 0; padding-left: 1.2rem; }
+    .profil-panneau .etat.mort { color: #c04040; font-weight: bold; }
+    .profil-panneau .etat.vivant { color: #90c060; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -65,10 +79,9 @@
   <p>
     Simulations restantes : <span th:text="${simulations}"/>
   </p>
-  <ul>
+  <ul class="roster-liste">
     <li th:each="c : ${roster}">
-      <span th:text="${c.name()}"/>
-      &#8212; vitalit&#233; : <span th:text="${c.vitalite()}"/>
+      <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"/>
       <span class="en-mission"
             th:if="${rosterAvecMission.containsKey(c.name())}"
             th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"/>
@@ -152,5 +165,72 @@
     </div>
   </div>
 </section>
+
+<aside class="profil-panneau" id="profil-panneau">
+  <button class="fermer" type="button" onclick="fermerProfil()">&#215;</button>
+  <h3 id="profil-nom"/>
+  <dl>
+    <dt>&#201;tat</dt>
+    <dd><span id="profil-etat"/></dd>
+    <dt>Coterie</dt>
+    <dd><span id="profil-coterie"/></dd>
+    <dt>R&#244;le</dt>
+    <dd><span id="profil-role"/></dd>
+    <dt>Sang-froid</dt>
+    <dd><span id="profil-sang-froid"/></dd>
+    <dt>Base de comp&#233;tences</dt>
+    <dd><span id="profil-skill-base"/></dd>
+    <dt>Vices / vertus</dt>
+    <dd><ul id="profil-traits"/></dd>
+    <dt>Inventaire</dt>
+    <dd><ul id="profil-inventaire"/></dd>
+    <dt>Comp&#233;tences</dt>
+    <dd><ul id="profil-competences"/></dd>
+  </dl>
+</aside>
+<script th:inline="javascript">
+  const profils = /*[[${profils}]]*/ {};
+  function ouvrirProfil(nom) {
+    const p = profils[nom];
+    if (!p) return;
+    document.getElementById('profil-nom').textContent = p.nom;
+    document.getElementById('profil-etat').textContent = p.vivant ? 'vivant' : 'mort';
+    document.getElementById('profil-etat').className = 'etat ' + (p.vivant ? 'vivant' : 'mort');
+    document.getElementById('profil-coterie').textContent = p.coterie || '';
+    document.getElementById('profil-role').textContent = p.role || '';
+    document.getElementById('profil-sang-froid').textContent = p.sangFroid;
+    document.getElementById('profil-skill-base').textContent = p.skillBase;
+    remplirListe('profil-traits', p.traits);
+    remplirListe('profil-inventaire', p.inventaire);
+    const competences = document.getElementById('profil-competences');
+    competences.innerHTML = '';
+    for (const [competence, valeur] of Object.entries(p.competences || {})) {
+      const li = document.createElement('li');
+      li.textContent = competence + ' : ' + valeur;
+      competences.appendChild(li);
+    }
+    document.getElementById('profil-panneau').classList.add('ouvert');
+  }
+  function remplirListe(id, valeurs) {
+    const ul = document.getElementById(id);
+    ul.innerHTML = '';
+    if (!valeurs || valeurs.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = '—';
+      ul.appendChild(li);
+      return;
+    }
+    for (const v of valeurs) {
+      const li = document.createElement('li');
+      li.textContent = v;
+      ul.appendChild(li);
+    }
+  }
+  function fermerProfil() {
+    document.getElementById('profil-panneau').classList.remove('ouvert');
+  }
+  document.querySelectorAll('.nom-personnage').forEach(el =>
+      el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
+</script>
 </body>
 </html>
