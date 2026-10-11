@@ -43,12 +43,12 @@ public class CharacterSeeder implements ApplicationRunner {
         if (repository.existsById("seed-11")) {
             return;
         }
-        seedPereDamianKarras();
+        generePereDamianKarras();
         log.info("Personnage seed-11 ajoute au catalogue");
     }
 
-    private void seedPereDamianKarras() {
-        seed("seed-11", "Père Damian Karras", "cathare", "cure",
+    private void generePereDamianKarras() {
+        seed("seed-11", "Père Damian Karras", "Cathare", "Curé",
                 new Competence[]{Competence.ANIMAUX, Competence.ARMES_CORPS_A_CORPS, Competence.COMMANDEMENT, Competence.ELOQUENCE,
                         Competence.ENDURANCE, Competence.FORCE_MENTALE, Competence.INTUITION, Competence.MARCHANDAGE,
                         Competence.PERIPLE, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE,
@@ -94,7 +94,7 @@ public class CharacterSeeder implements ApplicationRunner {
         seed("seed-10", "Welf Schwarzschutze", "elfe", "voyageur",
                 new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
-        seedPereDamianKarras();
+        generePereDamianKarras();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 
