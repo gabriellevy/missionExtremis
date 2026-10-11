@@ -27,6 +27,7 @@ public enum Competence {
     MOUVEMENT("Mouvement"),
     PERCEPTION("Perception"),
     PERIPLE("Périple"),
+    PROTECTION_DU_CONSUL("Protection du consul"),
     RAGOT("Ragot"),
     REFLEXES("Réflexes"),
     RICHESSE("Richesse"),

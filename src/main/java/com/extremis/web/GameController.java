@@ -115,7 +115,7 @@ public class GameController {
                 continue;
             }
             Map<String, Integer> competences = new LinkedHashMap<>();
-            c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), value));
+            c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), c.skillTarget(skill)));
             List<String> traits = new ArrayList<>();
             c.traits().forEach(t -> traits.add(t.name()));
             profils.add(new ProfilPersonnageView(
@@ -165,7 +165,7 @@ public class GameController {
             Map<String, Integer> skills = new LinkedHashMap<>();
             List<String> traits = new ArrayList<>();
             if (rosterEntry != null) {
-                rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.label(), value));
+                rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.label(), rosterEntry.skillTarget(skill)));
                 rosterEntry.traits().forEach(t -> traits.add(t.name()));
             }
             views.add(new TeamMemberView(
