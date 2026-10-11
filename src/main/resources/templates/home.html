@@ -36,6 +36,20 @@
     .en-mission { color: #e07040; font-style: italic; }
     .mission-carte { border: 1px solid #5a4a30; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 1rem; background: #1c1710; }
     .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
+    .roster-liste { list-style: none; padding: 0; }
+    .roster-liste li { margin: 0.2rem 0; }
+    .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
+    .nom-personnage:hover { color: #f0d080; }
+    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
+    .profil-panneau.ouvert { display: block; }
+    .profil-panneau h3 { color: #e0c060; margin: 0 0 0.4rem; font-variant: small-caps; }
+    .profil-panneau .fermer { float: right; color: #d8c7a8; cursor: pointer; background: none; border: 1px solid #5a4a30; border-radius: 4px; padding: 0.1rem 0.4rem; }
+    .profil-panneau dl { margin: 0.4rem 0; }
+    .profil-panneau dt { color: #a89468; margin-top: 0.5rem; }
+    .profil-panneau dd { margin: 0.1rem 0 0 1rem; }
+    .profil-panneau ul { margin: 0.2rem 0; padding-left: 1.2rem; }
+    .profil-panneau .etat.mort { color: #c04040; font-weight: bold; }
+    .profil-panneau .etat.vivant { color: #90c060; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -53,7 +67,7 @@
        th:text="${m.titre}"/>
   </nav>
   <div class="jetons-jokers">
-    Jetons jokers : <span class="jetons-valeur" th:text="${jokers}"/>
+    Jetons jokers : <span class="jetons-valeur" th:text="${jokers}"></span>
     <form th:if="${modeDebug}" method="post" action="/debug/reinitialiser-usine" style="display:inline">
       <button type="submit">R&#233;initialiser (usine)</button>
     </form>
@@ -63,15 +77,14 @@
 <section th:if="${ongletPersonnages}">
   <h2>Personnages recrut&#233;s</h2>
   <p>
-    Simulations restantes : <span th:text="${simulations}"/>
+    Simulations restantes : <span th:text="${simulations}"></span>
   </p>
-  <ul>
+  <ul class="roster-liste">
     <li th:each="c : ${roster}">
-      <span th:text="${c.name()}"/>
-      &#8212; vitalit&#233; : <span th:text="${c.vitalite()}"/>
+      <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
       <span class="en-mission"
             th:if="${rosterAvecMission.containsKey(c.name())}"
-            th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"/>
+            th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
     </li>
   </ul>
   <form method="post" action="/recruter">
@@ -90,7 +103,7 @@
     <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
   </div>
   <div class="mission-carte" th:each="m : ${missions}">
-    <h3 th:text="${m.title()}"/>
+    <h3 th:text="${m.title()}"></h3>
     <p th:text="${m.brief()}"/>
     <form method="post" action="/mission/run">
       <input type="hidden" name="missionId" th:value="${m.id()}"/>
@@ -98,7 +111,7 @@
         <th:block th:each="c : ${roster}">
           <label>
             <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
-            <span th:text="${c.name()}"/>
+            <span th:text="${c.name()}"></span>
           </label>
         </th:block>
       </div>
@@ -110,8 +123,8 @@
 <section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">
   <h2 th:text="'Ex&#233;cution &#8212; ' + ${m.titre} + (${m.terminee} ? ' (termin&#233;e)' : '')"/>
   <p>
-    Heure virtuelle : <span th:text="${m.heureVirtuelle}"/> &#8212;
-    Prochain &#233;v&#233;nement : <span th:text="${m.heureProchainEvenement}"/>
+    Heure virtuelle : <span th:text="${m.heureVirtuelle}"></span> &#8212;
+    Prochain &#233;v&#233;nement : <span th:text="${m.heureProchainEvenement}"></span>
     <form th:if="${modeDebug and !m.terminee}" method="post" th:action="@{/mission/{id}/advance(id=${m.id})}" style="display:inline">
       <button type="submit">Avancer jusqu'au prochain &#233;v&#233;nement (test)</button>
     </form>
@@ -127,17 +140,17 @@
           <div>&#201;tat :
             <span th:if="${!p.alive()}" class="etat mort">mort</span>
             <span th:if="${p.alive() and p.vitalite < 10}" class="etat blesse"
-                  th:text="'bless&#233; (' + ${p.vitalite} + '/10)'"/>
+                  th:text="'bless&#233; (' + ${p.vitalite} + '/10)'"></span>
             <span th:if="${p.alive() and p.vitalite == 10}" class="etat">indemne</span>
-            <div>Sang-froid : <span th:text="${p.sangFroid}"/></div>
+            <div>Sang-froid : <span th:text="${p.sangFroid}"></span></div>
           </div>
           <div th:if="${!p.traits.isEmpty()}">Vices / vertus :
-            <span th:text="${#strings.listJoin(p.traits, ', ')}"/>
+            <span th:text="${#strings.listJoin(p.traits, ', ')}"></span>
           </div>
-          <div>Comp&#233;tences (base <span th:text="${p.skillBase}"/>) :</div>
+          <div>Comp&#233;tences (base <span th:text="${p.skillBase}"></span>) :</div>
           <ul>
             <li th:each="e : ${p.skills}">
-              <span th:text="${e.key}"/> : <span th:text="${e.value}"/>
+              <span th:text="${e.key}"></span> : <span th:text="${e.value}"></span>
             </li>
           </ul>
         </div>
@@ -152,5 +165,58 @@
     </div>
   </div>
 </section>
+
+<aside class="profil-panneau" th:each="p : ${profils}" th:attr="data-nom=${p.nom}">
+  <button class="fermer" type="button" onclick="fermerProfils()">&#215;</button>
+  <h3 th:text="${p.nom}"></h3>
+  <dl>
+    <dt>&#201;tat</dt>
+    <dd><span th:class="'etat ' + (${p.vivant} ? 'vivant' : 'mort')"
+              th:text="(${p.vivant} ? 'vivant' : 'mort')"/></dd>
+    <dt>Coterie</dt>
+    <dd><span th:text="${p.coterie}"/></dd>
+    <dt>R&#244;le</dt>
+    <dd><span th:text="${p.role}"/></dd>
+    <dt>Sang-froid</dt>
+    <dd><span th:text="${p.sangFroid}"/></dd>
+    <dt>Base de comp&#233;tences</dt>
+    <dd><span th:text="${p.skillBase}"/></dd>
+    <dt>Vices / vertus</dt>
+    <dd>
+      <ul>
+        <li th:if="${p.traits.isEmpty()}">&#8212;</li>
+        <li th:each="t : ${p.traits}" th:text="${t}"/>
+      </ul>
+    </dd>
+    <dt>Inventaire</dt>
+    <dd>
+      <ul>
+        <li th:if="${p.inventaire.isEmpty()}">&#8212;</li>
+        <li th:each="obj : ${p.inventaire}" th:text="${obj}"/>
+      </ul>
+    </dd>
+    <dt>Comp&#233;tences</dt>
+    <dd>
+      <ul>
+        <li th:if="${p.competences.isEmpty()}">&#8212;</li>
+        <li th:each="e : ${p.competences}">
+          <span th:text="${e.key}"/> : <span th:text="${e.value}"/>
+        </li>
+      </ul>
+    </dd>
+  </dl>
+</aside>
+<script>
+  function ouvrirProfil(nom) {
+    document.querySelectorAll('.profil-panneau').forEach(panneau =>
+        panneau.classList.toggle('ouvert', panneau.dataset.nom === nom));
+  }
+  function fermerProfils() {
+    document.querySelectorAll('.profil-panneau').forEach(panneau =>
+        panneau.classList.remove('ouvert'));
+  }
+  document.querySelectorAll('.nom-personnage').forEach(el =>
+      el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
+</script>
 </body>
 </html>

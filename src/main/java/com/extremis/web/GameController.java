@@ -2,6 +2,7 @@ package com.extremis.web;
 
 import com.extremis.core.*;
 import com.extremis.core.Character;
+import com.extremis.db.CharacterEntity;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,7 @@ public class GameController {
         model.addAttribute("ongletPersonnages", ongletPersonnages);
         model.addAttribute("ongletMissions", ongletMissions);
         model.addAttribute("roster", game.roster());
+        model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
         model.addAttribute("missions", missionsDisponibles());
         model.addAttribute("missionsActives", onglets);
@@ -101,6 +103,33 @@ public class GameController {
         model.addAttribute("modeDebug", modeDebug);
         model.addAttribute("portraitService", portraits);
         return "home";
+    }
+
+    private List<ProfilPersonnageView> profilsRoster() {
+        Map<String, Character> roster = game.roster().stream()
+                .collect(java.util.stream.Collectors.toMap(Character::name, c -> c, (a, b) -> a, LinkedHashMap::new));
+        List<ProfilPersonnageView> profils = new ArrayList<>();
+        for (CharacterEntity entity : game.availableCharacters()) {
+            Character c = roster.get(entity.getName());
+            if (c == null) {
+                continue;
+            }
+            Map<String, Integer> competences = new LinkedHashMap<>();
+            c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), value));
+            List<String> traits = new ArrayList<>();
+            c.traits().forEach(t -> traits.add(t.name()));
+            profils.add(new ProfilPersonnageView(
+                    entity.getName(),
+                    entity.getCoterie(),
+                    entity.getRole(),
+                    c.isAlive(),
+                    c.sangFroid(),
+                    c.skillBase(),
+                    competences,
+                    traits,
+                    c.inventory()));
+        }
+        return profils;
     }
 
     private List<Mission> missionsDisponibles() {
