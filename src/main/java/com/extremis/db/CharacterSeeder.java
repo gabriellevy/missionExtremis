@@ -49,10 +49,11 @@ public class CharacterSeeder implements ApplicationRunner {
 
     private void seedPereDamianKarras() {
         seed("seed-11", "Père Damian Karras", "cathare", "cure",
-                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.CHANCE, Competence.COMMANDEMENT, Competence.ELOQUENCE,
+                new Competence[]{Competence.ANIMAUX, Competence.ARMES_CORPS_A_CORPS, Competence.COMMANDEMENT, Competence.ELOQUENCE,
                         Competence.ENDURANCE, Competence.FORCE_MENTALE, Competence.INTUITION, Competence.MARCHANDAGE,
-                        Competence.PERIPLE, Competence.RAGOT, Competence.RICHESSE, Competence.SURVIE_EXTERIEUR, Competence.TIR},
-                new int[]{5, -10, 5, 15, 9, 15, 15, -9, 9, 10, -10, 15, -15},
+                        Competence.PERIPLE, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE,
+                        Competence.TIR},
+                new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
                 new String[]{"Désintéressé", "Chaste"}, 36);
         repository.findById("seed-11").ifPresent(c -> {
             c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
