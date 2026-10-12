@@ -1,6 +1,7 @@
 package com.extremis.db;
 
 import com.extremis.core.Competence;
+import com.extremis.core.ViceEtVertu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -17,9 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Order(10)
 public class CharacterSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(CharacterSeeder.class);
-
-    private static final int VITALITE_PERE_DAMIAN_KARRAS = 19;
-    private static final int SANG_FROID_PERE_DAMIAN_KARRAS = 18;
 
     private final CharacterRepository repository;
 
@@ -54,10 +52,10 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.PERIPLE, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE,
                         Competence.TIR},
                 new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
-                new String[]{"Désintéressé", "Chaste"}, 36);
+                new String[]{ViceEtVertu.DESINTERESSE.vertu(), ViceEtVertu.CHASTE.vertu()}, 36);
         repository.findById("seed-11").ifPresent(c -> {
-            c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
-            c.setSangFroid(SANG_FROID_PERE_DAMIAN_KARRAS);
+            c.setVitalite(19);
+            c.setSangFroid(18);
             repository.save(c);
         });
     }
@@ -82,9 +80,17 @@ public class CharacterSeeder implements ApplicationRunner {
         seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
                 new Competence[]{Competence.ELOQUENCE, Competence.INTUITION}, new int[]{8, 5},
                 new String[]{"Barde"});
-        seed("seed-07", "Mata-Hari", "lotus-blanc", "enqueteur",
-                new Competence[]{Competence.DISCRETION, Competence.TROMPERIE}, new int[]{9, 8},
-                new String[]{"Espionne"});
+        seed("seed-07", "Casanova", "Culte du plaisir", "charlatan",
+                new Competence[]{Competence.CHARME, Competence.ELOQUENCE, Competence.EVALUATION, Competence.INTIMIDATION,
+                        Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
+                        Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
+                new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
+                new String[]{ViceEtVertu.CHASTE.vice(2), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
+        repository.findById("seed-07").ifPresent(c -> {
+            c.setVitalite(15);
+            c.setSangFroid(15);
+            repository.save(c);
+        });
         seed("seed-08", "Odysseus", "demokratos", "voyageur",
                 new Competence[]{Competence.COMMANDEMENT, Competence.ARMES_CORPS_A_CORPS, Competence.INTELLIGENCE}, new int[]{7, 6, 9},
                 new String[]{"Stratege"});
