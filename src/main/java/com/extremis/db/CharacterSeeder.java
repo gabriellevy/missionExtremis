@@ -85,7 +85,7 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
                         Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
                 new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
-                new String[]{ViceEtVertu.CHASTE.vice(), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
+                new String[]{ViceEtVertu.CHASTE.vice(2), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
         repository.findById("seed-07").ifPresent(c -> {
             c.setVitalite(15);
             c.setSangFroid(15);
