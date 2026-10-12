@@ -18,11 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CharacterSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(CharacterSeeder.class);
 
-    private static final int VITALITE_PERE_DAMIAN_KARRAS = 19;
-    private static final int SANG_FROID_PERE_DAMIAN_KARRAS = 18;
-    private static final int VITALITE_CASANOVA = 15;
-    private static final int SANG_FROID_CASANOVA = 15;
-
     private final CharacterRepository repository;
 
     public CharacterSeeder(CharacterRepository repository) {
@@ -58,8 +53,8 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
                 new String[]{"Désintéressé", "Chaste"}, 36);
         repository.findById("seed-11").ifPresent(c -> {
-            c.setVitalite(VITALITE_PERE_DAMIAN_KARRAS);
-            c.setSangFroid(SANG_FROID_PERE_DAMIAN_KARRAS);
+            c.setVitalite(19);
+            c.setSangFroid(18);
             repository.save(c);
         });
     }
@@ -91,8 +86,8 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
                 new String[]{"Luxurieux", "Esthète", "Sociable"}, 33);
         repository.findById("seed-07").ifPresent(c -> {
-            c.setVitalite(VITALITE_CASANOVA);
-            c.setSangFroid(SANG_FROID_CASANOVA);
+            c.setVitalite(15);
+            c.setSangFroid(15);
             repository.save(c);
         });
         seed("seed-08", "Odysseus", "demokratos", "voyageur",
