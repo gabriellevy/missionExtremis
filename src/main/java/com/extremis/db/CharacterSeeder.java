@@ -1,6 +1,7 @@
 package com.extremis.db;
 
 import com.extremis.core.Competence;
+import com.extremis.core.ViceEtVertu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -51,7 +52,7 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.PERIPLE, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE,
                         Competence.TIR},
                 new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
-                new String[]{"Désintéressé", "Chaste"}, 36);
+                new String[]{ViceEtVertu.DESINTERESSE.vertu(), ViceEtVertu.CHASTE.vertu()}, 36);
         repository.findById("seed-11").ifPresent(c -> {
             c.setVitalite(19);
             c.setSangFroid(18);
@@ -84,7 +85,7 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
                         Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
                 new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
-                new String[]{"Luxurieux", "Esthète", "Sociable"}, 33);
+                new String[]{ViceEtVertu.CHASTE.vice(), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
         repository.findById("seed-07").ifPresent(c -> {
             c.setVitalite(15);
             c.setSangFroid(15);
