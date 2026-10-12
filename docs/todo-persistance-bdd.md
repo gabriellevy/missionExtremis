@@ -43,7 +43,7 @@ Le paquet `core` reste du pur code métier, les entités JPA sont des adaptateur
 
 Le wiki (Notion, « Jeu des tables aléatoires → Persos - catalogue → Par rôles / Par coterie ») définit les coteries et rôles. La table `available_characters` reprend cette structure :
 
-- `id` (PK), `name`, `coterie` (bastet, carthaginois, cathare, celte, conquistador, culte-du-plaisir, demokratos, elfe, esthete, feerique, jacobin, khaos, libertin, lotus-blanc, lumieres, ogre, performeur, romain, saabi, schweizer, skaven, templier, transhumaniste, tyranide, zaporogue, tzigane, ork, acheron), `role` (enqueteur, specialistes-volonte, voyageur, citadin, ennemis-acheron, saltimbanque, vilain, vauban)
+- `id` (PK), `name`, `coterie` (bastet, carthaginois, cathare, celte, conquistador, Culte du plaisir, demokratos, elfe, esthete, feerique, jacobin, khaos, libertin, lotus-blanc, lumieres, ogre, performeur, romain, saabi, schweizer, skaven, templier, transhumaniste, tyranide, zaporogue, tzigane, ork, acheron), `role` (enqueteur, specialistes-volonte, voyageur, citadin, ennemis-acheron, saltimbanque, vilain, vauban)
 - compétences : comme `SkillEntity`
 - traits : comme `TraitEntity`
 - `vitalite`, `sang_froid`, `alive`, `inventory`
@@ -62,7 +62,7 @@ Créer un seeder (`db/CharacterSeeder`, profil `local` / `test-rapide`) inséran
 | seed-04 | Rorschach | khaos | enqueteur | COMBAT 7, PERCEPTION 9, DISCRETION 6 | Implacable |
 | seed-05 | Arsène Lupin | esthete | enqueteur | DISCRETION 10, AGILITE 8, TECHNIQUE 6 | Cambrioleur |
 | seed-06 | Albios le barde | celte | specialistes-volonte | DIPLOMATIE 8, ERUDITION 5 | Barde |
-| seed-07 | Casanova | culte-du-plaisir | charlatan | CHARME 25, ÉLOQUENCE 15, ÉVALUATION 10, INTIMIDATION -20, INTUITION 10, MARCHANDAGE 15, PERCEPTION 20, PÉRIPLE 15, PROTECTION DU CONSUL 5, RAGOT 15, RICHESSE -20, VIGILANCE -10 (base 33) | très Luxurieux (Luxurieux/2), Esthète, Sociable |
+| seed-07 | Casanova | Culte du plaisir | charlatan | CHARME 25, ÉLOQUENCE 15, ÉVALUATION 10, INTIMIDATION -20, INTUITION 10, MARCHANDAGE 15, PERCEPTION 20, PÉRIPLE 15, PROTECTION DU CONSUL 5, RAGOT 15, RICHESSE -20, VIGILANCE -10 (base 33) | très Luxurieux (Luxurieux/2), Esthète, Sociable |
 | seed-08 | Odysseus | demokratos | voyageur | DIPLOMATIE 7, COMBAT 6, TECHNIQUE 9 | Stratège |
 | seed-09 | Vidocq | citadin | enqueteur | PERCEPTION 8, DISCRETION 8, COMBAT 5 | Inspecteur |
 | seed-10 | Welf Schwarzschütze | elfe | voyageur | COMBAT 8, PERCEPTION 7, AGILITE 6 | Traqueur |

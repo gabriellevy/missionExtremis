@@ -80,7 +80,7 @@ public class CharacterSeeder implements ApplicationRunner {
         seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
                 new Competence[]{Competence.ELOQUENCE, Competence.INTUITION}, new int[]{8, 5},
                 new String[]{"Barde"});
-        seed("seed-07", "Casanova", "culte-du-plaisir", "charlatan",
+        seed("seed-07", "Casanova", "Culte du plaisir", "charlatan",
                 new Competence[]{Competence.CHARME, Competence.ELOQUENCE, Competence.EVALUATION, Competence.INTIMIDATION,
                         Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
                         Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
