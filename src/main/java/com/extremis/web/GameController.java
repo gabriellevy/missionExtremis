@@ -126,6 +126,7 @@ public class GameController {
                     entity.getName(),
                     entity.getCoterie(),
                     entity.getRole(),
+                    entity.getDescription(),
                     c.isAlive(),
                     c.sangFroid(),
                     c.skillBase(),

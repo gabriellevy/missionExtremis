@@ -38,11 +38,28 @@ public class CharacterSeeder implements ApplicationRunner {
     /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
     @Transactional
     public void semerNouveauxPersonnages() {
-        if (repository.existsById("seed-11")) {
+        if (repository.existsById("seed-12")) {
             return;
         }
         generePereDamianKarras();
-        log.info("Personnage seed-11 ajoute au catalogue");
+        genereJeanTrenton();
+        log.info("Personnages ajoutes au catalogue : seed-11, seed-12");
+    }
+
+    private void genereJeanTrenton() {
+        seed("seed-12", "Jean Trenton", "jacobin", "enqueteur",
+                new Competence[]{Competence.CHARME, Competence.ELOQUENCE, Competence.EVALUATION, Competence.INTIMIDATION,
+                        Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
+                        Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
+                new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
+                new String[]{ViceEtVertu.CHASTE.vice(2), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
+        repository.findById("seed-12").ifPresent(c -> {
+            c.setVitalite(15);
+            c.setSangFroid(15);
+            c.setDescription("Jean Trenton est un reflet, c'est a dire un personnage cree par un genie du divertissement "
+                    + "au point d'etre incarne par la volonte de ses innombrables fans.");
+            repository.save(c);
+        });
     }
 
     private void generePereDamianKarras() {
@@ -101,6 +118,7 @@ public class CharacterSeeder implements ApplicationRunner {
                 new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
         generePereDamianKarras();
+        genereJeanTrenton();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 

@@ -26,6 +26,8 @@ public class CharacterEntity {
 
     @Column(length = 64)
     private String role;
+    @Column(length = 2048)
+    private String description;
 
     @Column(name = "skill_base", nullable = false, columnDefinition = "integer default 30")
     private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;
@@ -54,6 +56,7 @@ public class CharacterEntity {
     public String getName() { return name; }
     public String getCoterie() { return coterie; }
     public String getRole() { return role; }
+    public String getDescription() { return description; }
     public int getSkillBase() { return skillBase; }
     public int getVitalite() { return vitalite; }
     public int getSangFroid() { return sangFroid; }
@@ -64,6 +67,7 @@ public class CharacterEntity {
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
     public void setRole(String role) { this.role = role; }
+    public void setDescription(String description) { this.description = description; }
     public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }
     public void setSangFroid(int sangFroid) { this.sangFroid = sangFroid; }
