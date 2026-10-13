@@ -38,11 +38,38 @@ public class CharacterSeeder implements ApplicationRunner {
     /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
     @Transactional
     public void semerNouveauxPersonnages() {
-        if (repository.existsById("seed-11")) {
-            return;
+        boolean ajoute = false;
+        if (!repository.existsById("seed-11")) {
+            generePereDamianKarras();
+            ajoute = true;
         }
-        generePereDamianKarras();
-        log.info("Personnage seed-11 ajoute au catalogue");
+        if (!repository.existsById("seed-12")) {
+            genereJeanTrenton();
+            ajoute = true;
+        }
+        if (ajoute) {
+            log.info("Personnages manquants ajoutes au catalogue");
+        }
+        repository.findById("seed-01").ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-01 (Alphonse Hercule de Gascoigne) retire du catalogue");
+        });
+    }
+
+    private void genereJeanTrenton() {
+        seed("seed-12", "Jean Trenton", "jacobin", "enquêteur",
+                new Competence[]{Competence.ANIMAUX, Competence.COMMANDEMENT, Competence.ELOQUENCE, Competence.INTIMIDATION,
+                        Competence.MAGIE, Competence.PERCEPTION, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT,
+                        Competence.VIGILANCE},
+                new int[]{-2, 2, 14, 12, -4, 15, 34, 15, 10},
+                new String[]{ViceEtVertu.CARTESIEN.vertu(), ViceEtVertu.NAIF.vice()}, 24);
+        repository.findById("seed-12").ifPresent(c -> {
+            c.setVitalite(13);
+            c.setSangFroid(13);
+            c.setDescription("Jean Trenton est un reflet, c'est à dire un personnage créé par un génie du divertissement "
+                    + "au point d'être incarné par la volonté de ses innombrables fans.");
+            repository.save(c);
+        });
     }
 
     private void generePereDamianKarras() {
@@ -62,9 +89,6 @@ public class CharacterSeeder implements ApplicationRunner {
 
     @Transactional
     public void semerCatalogue() {
-        seed("seed-01", "Alphonse Hercule de Gascoigne", "performeur", "enqueteur",
-                new Competence[]{Competence.INTUITION, Competence.MOUVEMENT, Competence.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
-                new String[]{"Esthete", "Orgueilleux", "Chaste"});
         seed("seed-02", "Jean-Paul Marat", "jacobin", "enqueteur",
                 new Competence[]{Competence.ELOQUENCE, Competence.INTELLIGENCE}, new int[]{8, 6},
                 new String[]{"Radical"});
@@ -101,6 +125,7 @@ public class CharacterSeeder implements ApplicationRunner {
                 new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.MOUVEMENT}, new int[]{8, 7, 6},
                 new String[]{"Trackeur"});
         generePereDamianKarras();
+        genereJeanTrenton();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 

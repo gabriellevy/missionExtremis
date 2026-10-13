@@ -182,6 +182,9 @@
     <dd><span th:text="${p.coterie}"/></dd>
     <dt>R&#244;le</dt>
     <dd><span th:text="${p.role}"/></dd>
+    <dt>Description</dt>
+    <dd th:if="${p.description != null}" th:text="${p.description}"/>
+    <dd th:if="${p.description == null}">&#8212;</dd>
     <dt>Sang-froid</dt>
     <dd><span th:text="${p.sangFroid}"/></dd>
     <dt>Base de comp&#233;tences</dt>
@@ -220,6 +223,8 @@
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.remove('ouvert'));
   }
+  document.querySelectorAll('.nom-personnage').forEach(el =>
+      el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
   function formaterDecompte(totalSecondes) {
     if (totalSecondes <= 0) {
       return '0h00mn00s';
