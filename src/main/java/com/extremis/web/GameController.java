@@ -75,6 +75,7 @@ public class GameController {
                     etat.journal,
                     missionTeam(etat),
                     etat.fini ? null : tempsAvantProchainEvenement(etat),
+                    etat.fini ? null : secondesAvantProchainEvenement(etat),
                     etat.execution.nextEventTime(),
                     heureFrancaise(maintenant(etat)),
                     etat.fini));
@@ -192,6 +193,18 @@ public class GameController {
 
     private String heureFrancaise(Instant instant) {
         return FORMAT_HEURE.format(instant) + " le " + FORMAT_DATE.format(instant);
+    }
+
+    private Long secondesAvantProchainEvenement(EtatMission etat) {
+        Instant prochain = etat.execution.nextEventTime();
+        if (prochain == null) {
+            return null;
+        }
+        Duration restant = Duration.between(maintenant(etat), prochain);
+        if (restant.isNegative()) {
+            restant = Duration.ZERO;
+        }
+        return restant.toSeconds();
     }
 
     private String tempsAvantProchainEvenement(EtatMission etat) {

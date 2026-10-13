@@ -162,7 +162,10 @@
     <div class="log-column">
       <div class="mission-log" th:text="${#strings.listJoin(m.journal, '&#10;')}"/>
       <p class="next-event" th:if="${!m.terminee}">
-        Prochain &#233;v&#233;nement aura lieu dans <strong th:text="${m.tempsAvantProchainEvenement}"/>
+        Prochain &#233;v&#233;nement aura lieu dans
+        <strong class="decompte" th:if="${m.secondesAvantProchainEvenement != null}"
+                th:attr="data-secondes=${m.secondesAvantProchainEvenement}"
+                th:text="${m.tempsAvantProchainEvenement}"/>
       </p>
     </div>
   </div>
@@ -217,8 +220,26 @@
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.remove('ouvert'));
   }
-  document.querySelectorAll('.nom-personnage').forEach(el =>
-      el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
+  function formaterDecompte(totalSecondes) {
+    if (totalSecondes <= 0) {
+      return '0h00mn00s';
+    }
+    const jours = Math.floor(totalSecondes / 86400);
+    const heures = Math.floor((totalSecondes % 86400) / 3600);
+    const minutes = Math.floor((totalSecondes % 3600) / 60);
+    const secondes = totalSecondes % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return jours > 0
+        ? jours + 'j' + pad(heures) + 'h' + pad(minutes) + 'mn' + pad(secondes) + 's'
+        : heures + 'h' + pad(minutes) + 'mn' + pad(secondes) + 's';
+  }
+  document.querySelectorAll('.decompte').forEach(el => {
+    let restant = parseInt(el.dataset.secondes, 10);
+    setInterval(() => {
+      restant = Math.max(0, restant - 1);
+      el.textContent = formaterDecompte(restant);
+    }, 1000);
+  });
 </script>
 </body>
 </html>
