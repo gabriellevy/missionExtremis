@@ -1,5 +1,12 @@
 # missionExtremis
-jeu de gestion d'équipe / lancement de missions dans l'univers Extremis
+Jeu de gestion d'équipe / lancement de missions dans l'univers Extremis.
+
+## Pour tester
+Utiliser le mode debug : 
+extremis.debug=true
+- affiche le bouton de reinitialisation usine dans la console
+- le bouton événement suivant
+- affiche une heure virtuelle (car l'heure virtuelle diffère de la réelle si on pase à l'événement suivant)
 
 ## Persistance des donnees
 
