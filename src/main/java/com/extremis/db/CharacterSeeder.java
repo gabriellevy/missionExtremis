@@ -48,14 +48,14 @@ public class CharacterSeeder implements ApplicationRunner {
 
     private void genereJeanTrenton() {
         seed("seed-12", "Jean Trenton", "jacobin", "enqueteur",
-                new Competence[]{Competence.CHARME, Competence.ELOQUENCE, Competence.EVALUATION, Competence.INTIMIDATION,
-                        Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
-                        Competence.PROTECTION_DU_CONSUL, Competence.RAGOT, Competence.RICHESSE, Competence.VIGILANCE},
-                new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
-                new String[]{ViceEtVertu.CHASTE.vice(2), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
+                new Competence[]{Competence.ANIMAUX, Competence.COMMANDEMENT, Competence.ELOQUENCE, Competence.INTIMIDATION,
+                        Competence.MAGIE, Competence.PERCEPTION, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT,
+                        Competence.VIGILANCE},
+                new int[]{-2, 2, 14, 12, -4, 15, 34, 15, 10},
+                new String[]{ViceEtVertu.CARTESIEN.vertu(), ViceEtVertu.NAIF.vice()}, 24);
         repository.findById("seed-12").ifPresent(c -> {
-            c.setVitalite(15);
-            c.setSangFroid(15);
+            c.setVitalite(13);
+            c.setSangFroid(13);
             c.setDescription("Jean Trenton est un reflet, c'est a dire un personnage cree par un genie du divertissement "
                     + "au point d'etre incarne par la volonte de ses innombrables fans.");
             repository.save(c);
