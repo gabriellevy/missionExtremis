@@ -223,6 +223,8 @@
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.remove('ouvert'));
   }
+  document.querySelectorAll('.nom-personnage').forEach(el =>
+      el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
   function formaterDecompte(totalSecondes) {
     if (totalSecondes <= 0) {
       return '0h00mn00s';
