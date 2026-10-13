@@ -50,6 +50,10 @@ public class CharacterSeeder implements ApplicationRunner {
         if (ajoute) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
+        repository.findById("seed-01").ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-01 (Alphonse Hercule de Gascoigne) retire du catalogue");
+        });
     }
 
     private void genereJeanTrenton() {
@@ -85,9 +89,6 @@ public class CharacterSeeder implements ApplicationRunner {
 
     @Transactional
     public void semerCatalogue() {
-        seed("seed-01", "Alphonse Hercule de Gascoigne", "performeur", "enqueteur",
-                new Competence[]{Competence.INTUITION, Competence.MOUVEMENT, Competence.ARMES_CORPS_A_CORPS}, new int[]{10, 5, 0},
-                new String[]{"Esthete", "Orgueilleux", "Chaste"});
         seed("seed-02", "Jean-Paul Marat", "jacobin", "enqueteur",
                 new Competence[]{Competence.ELOQUENCE, Competence.INTELLIGENCE}, new int[]{8, 6},
                 new String[]{"Radical"});
