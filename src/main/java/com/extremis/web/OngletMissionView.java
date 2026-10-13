@@ -9,6 +9,7 @@ public record OngletMissionView(
         List<String> journal,
         List<TeamMemberView> equipe,
         String tempsAvantProchainEvenement,
+        Long secondesAvantProchainEvenement,
         Instant heureProchainEvenement,
-        Instant heureVirtuelle,
+        String heureVirtuelle,
         boolean terminee) {}

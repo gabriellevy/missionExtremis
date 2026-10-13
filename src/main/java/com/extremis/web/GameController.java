@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -72,8 +75,9 @@ public class GameController {
                     etat.journal,
                     missionTeam(etat),
                     etat.fini ? null : tempsAvantProchainEvenement(etat),
+                    etat.fini ? null : secondesAvantProchainEvenement(etat),
                     etat.execution.nextEventTime(),
-                    maintenant(etat),
+                    heureFrancaise(maintenant(etat)),
                     etat.fini));
         }
         OngletMissionView ongletMission = null;
@@ -181,6 +185,28 @@ public class GameController {
         return views;
     }
 
+    private static final ZoneId FUSEAU_PARIS = ZoneId.of("Europe/Paris");
+    private static final DateTimeFormatter FORMAT_HEURE =
+            DateTimeFormatter.ofPattern("H'h'mm", Locale.FRANCE).withZone(FUSEAU_PARIS);
+    private static final DateTimeFormatter FORMAT_DATE =
+            DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.FRANCE).withZone(FUSEAU_PARIS);
+
+    private String heureFrancaise(Instant instant) {
+        return FORMAT_HEURE.format(instant) + " le " + FORMAT_DATE.format(instant);
+    }
+
+    private Long secondesAvantProchainEvenement(EtatMission etat) {
+        Instant prochain = etat.execution.nextEventTime();
+        if (prochain == null) {
+            return null;
+        }
+        Duration restant = Duration.between(maintenant(etat), prochain);
+        if (restant.isNegative()) {
+            restant = Duration.ZERO;
+        }
+        return restant.toSeconds();
+    }
+
     private String tempsAvantProchainEvenement(EtatMission etat) {
         Instant prochain = etat.execution.nextEventTime();
         if (prochain == null) {
@@ -190,7 +216,11 @@ public class GameController {
         if (restant.isNegative()) {
             restant = Duration.ZERO;
         }
-        return String.format("%02d:%02d:%02d",
+        if (restant.toDays() > 0) {
+            return String.format("%dj%02dh%02dmn%02ds",
+                    restant.toDays(), restant.toHoursPart(), restant.toMinutesPart(), restant.toSecondsPart());
+        }
+        return String.format("%dh%02dmn%02ds",
                 restant.toHours(), restant.toMinutesPart(), restant.toSecondsPart());
     }
 
