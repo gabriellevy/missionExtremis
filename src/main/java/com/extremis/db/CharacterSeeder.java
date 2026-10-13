@@ -53,7 +53,7 @@ public class CharacterSeeder implements ApplicationRunner {
     }
 
     private void genereJeanTrenton() {
-        seed("seed-12", "Jean Trenton", "jacobin", "enqueteur",
+        seed("seed-12", "Jean Trenton", "jacobin", "enquêteur",
                 new Competence[]{Competence.ANIMAUX, Competence.COMMANDEMENT, Competence.ELOQUENCE, Competence.INTIMIDATION,
                         Competence.MAGIE, Competence.PERCEPTION, Competence.PROTECTION_DU_CONSUL, Competence.RAGOT,
                         Competence.VIGILANCE},
@@ -62,8 +62,8 @@ public class CharacterSeeder implements ApplicationRunner {
         repository.findById("seed-12").ifPresent(c -> {
             c.setVitalite(13);
             c.setSangFroid(13);
-            c.setDescription("Jean Trenton est un reflet, c'est a dire un personnage cree par un genie du divertissement "
-                    + "au point d'etre incarne par la volonte de ses innombrables fans.");
+            c.setDescription("Jean Trenton est un reflet, c'est à dire un personnage créé par un génie du divertissement "
+                    + "au point d'être incarné par la volonté de ses innombrables fans.");
             repository.save(c);
         });
     }
