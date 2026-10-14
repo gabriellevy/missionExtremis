@@ -43,6 +43,7 @@
     .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
     .profil-panneau.ouvert { display: block; }
     .profil-panneau h3 { color: #e0c060; margin: 0 0 0.4rem; font-variant: small-caps; }
+    .profil-portrait { width: 150px; display: block; margin: 0 auto 0.6rem; border: 2px solid #5a4a30; border-radius: 6px; }
     .profil-panneau .fermer { float: right; color: #d8c7a8; cursor: pointer; background: none; border: 1px solid #5a4a30; border-radius: 4px; padding: 0.1rem 0.4rem; }
     .profil-panneau dl { margin: 0.4rem 0; }
     .profil-panneau dt { color: #a89468; margin-top: 0.5rem; }
@@ -173,6 +174,7 @@
 
 <aside class="profil-panneau" th:each="p : ${profils}" th:attr="data-nom=${p.nom}">
   <button class="fermer" type="button" onclick="fermerProfils()">&#215;</button>
+  <img class="profil-portrait" th:src="${portraitService.dataUri(p.nom, p.vivant)}" th:alt="${p.nom}"/>
   <h3 th:text="${p.nom}"></h3>
   <dl>
     <dt>&#201;tat</dt>
