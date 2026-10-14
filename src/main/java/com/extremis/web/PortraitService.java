@@ -1,5 +1,6 @@
 package com.extremis.web;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -13,14 +14,53 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
 /**
- * Portraits provisoires generes a la volee (pas encore d'illustrations
- * officielles). Un motif deterministe par personnage : initiales sur fond
- * colore derive du nom.
+ * Portraits affichés dans la vue mission. Si une illustration officielle
+ * existe (src/main/resources/static/portraits/&lt;nom&gt;.png), elle est
+ * servie telle quelle ; sinon un motif provisoire est généré à la volée :
+ * initiales sur fond coloré dérivé du nom.
  */
 @Component
 public class PortraitService {
 
+    private static final String DOSSIER_PORTRAITS = "/portraits/";
+
     public String dataUri(String name, boolean alive) {
+        BufferedImage img = chargerIllustration(nomDeFichier(name));
+        if (img == null) {
+            img = genererProvisoire(name);
+        }
+        if (!alive) {
+            img = teinterMort(img);
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(img, "png", out);
+        } catch (Exception e) {
+            throw new IllegalStateException("Génération du portrait impossible", e);
+        }
+        return "data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
+    }
+
+    private String nomDeFichier(String name) {
+        String normalise = name.trim().toLowerCase()
+                .replaceAll("[\\s']", "-")
+                .replaceAll("[^a-z0-9-]", "");
+        return normalise + ".png";
+    }
+
+    private BufferedImage chargerIllustration(String fichier) {
+        try {
+            var ressource = new ClassPathResource("static" + DOSSIER_PORTRAITS + fichier);
+            if (!ressource.exists()) {
+                return null;
+            }
+            return ImageIO.read(ressource.getInputStream());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private BufferedImage genererProvisoire(String name) {
         int size = 256;
         BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = img.createGraphics();
@@ -35,18 +75,19 @@ public class PortraitService {
         g.drawString(initials(name),
                 (float) ((size - bounds.getWidth()) / 2),
                 (float) ((size - bounds.getHeight()) / 2 - bounds.getY()));
-        if (!alive) {
-            g.setColor(new Color(120, 0, 0, 170));
-            g.fillRect(0, 0, size, size);
-        }
         g.dispose();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(img, "png", out);
-        } catch (Exception e) {
-            throw new IllegalStateException("Generation du portrait impossible", e);
-        }
-        return "data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray());
+        return img;
+    }
+
+    private BufferedImage teinterMort(BufferedImage source) {
+        BufferedImage img = new BufferedImage(source.getWidth(), source.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.drawImage(source, 0, 0, null);
+        g.setColor(new Color(120, 0, 0, 170));
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        g.dispose();
+        return img;
     }
 
     private String initials(String name) {
