@@ -2,8 +2,12 @@ package com.extremis.core;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * Execution incrementale d'une mission : chaque evenement ne se resout
@@ -17,6 +21,9 @@ public final class MissionExecution {
     private final List<String> logLines = new ArrayList<>();
     private int nextEvent = 0;
     private boolean finished;
+
+    private static final DateTimeFormatter FORMAT_HEURE_EVENEMENT =
+            DateTimeFormatter.ofPattern("H'h'mm", Locale.FRANCE).withZone(ZoneId.of("Europe/Paris"));
 
     private MissionExecution(Mission mission, List<Character> team, RandomSource random, List<Instant> scheduledTimes) {
         this.mission = mission;
@@ -47,11 +54,17 @@ public final class MissionExecution {
                 return false;
             }
             MissionEvent event = mission.events().get(nextEvent);
-            event.resolve(team, random, logLines::add);
+            Instant heureEvenement = scheduledTimes.get(nextEvent);
+            event.resolve(team, random, avecHorodatage(heureEvenement));
             nextEvent++;
         }
         finished = true;
         return true;
+    }
+
+    private Consumer<String> avecHorodatage(Instant heureEvenement) {
+        String prefixe = "[" + FORMAT_HEURE_EVENEMENT.format(heureEvenement) + "] ";
+        return ligne -> logLines.add(prefixe + ligne);
     }
 
     public boolean teamWiped() {
