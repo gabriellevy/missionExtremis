@@ -36,6 +36,23 @@ public class SchemaMigrator implements ApplicationRunner {
         ajouterColonneSiAbsente("characters", "sang_froid");
         rendreCascadeSiNecessaire("execution_log_lines", "execution_id", "mission_executions");
         rendreCascadeSiNecessaire("execution_team_members", "execution_id", "mission_executions");
+        deplacerSpecialitesDesTraits();
+    }
+
+    /**
+     * Les specialites etaient stockees comme des traits avant d'avoir leur
+     * propre table : on les deplace (une seule fois) vers character_specialites.
+     */
+    private void deplacerSpecialitesDesTraits() {
+        Integer nb = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM character_traits WHERE name LIKE '%+%'", Integer.class);
+        if (nb == null || nb == 0) {
+            return;
+        }
+        jdbc.execute("INSERT INTO character_specialites (owner_id, nom) "
+                + "SELECT owner_id, name FROM character_traits WHERE name LIKE '%+%'");
+        jdbc.execute("DELETE FROM character_traits WHERE name LIKE '%+%'");
+        log.info("Specialites deplacees de character_traits vers character_specialites");
     }
 
     /**

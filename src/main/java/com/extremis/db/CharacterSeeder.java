@@ -87,9 +87,10 @@ public class CharacterSeeder implements ApplicationRunner {
                         Competence.HABILETE, Competence.MARCHANDAGE, Competence.PERCEPTION,
                         Competence.PROTECTION_DU_CONSUL, Competence.RICHESSE},
                 new int[]{10, 20, -20, 10, 20, 10, 10, -10},
-                new String[]{ViceEtVertu.HUMBLE.vice(), ViceEtVertu.LOYAL.vice(2),
-                        "Jouer la com\u00e9die + 10", "D\u00e9guisement + 10"}, 36);
+                new String[]{ViceEtVertu.HUMBLE.vice(), ViceEtVertu.LOYAL.vice(2)}, 36);
         repository.findById("seed-02").ifPresent(c -> {
+            c.addSpecialite("Jouer la com\u00e9die + 10");
+            c.addSpecialite("D\u00e9guisement + 10");
             c.setVitalite(13);
             c.setSangFroid(17);
             c.setDescription("Espionne talentueuse et mythomane, elle a tout l'art d'une bonne agente, "

@@ -132,6 +132,7 @@ public class GameController {
                     c.skillBase(),
                     competences,
                     traits,
+                    new ArrayList<>(c.specialites()),
                     c.inventory()));
         }
         return profils;
@@ -169,9 +170,11 @@ public class GameController {
                     .orElse(null);
             Map<String, Integer> skills = new LinkedHashMap<>();
             List<String> traits = new ArrayList<>();
+            List<String> specialites = new ArrayList<>();
             if (rosterEntry != null) {
                 rosterEntry.skillsSnapshot().forEach((skill, value) -> skills.put(skill.label(), rosterEntry.skillTarget(skill)));
                 rosterEntry.traits().forEach(t -> traits.add(t.name()));
+                rosterEntry.specialites().forEach(specialites::add);
             }
             views.add(new TeamMemberView(
                     c.id(),
@@ -181,7 +184,8 @@ public class GameController {
                     c.isAlive(),
                     rosterEntry != null ? rosterEntry.skillBase() : Character.DEFAULT_SKILL_BASE,
                     skills,
-                    traits));
+                    traits,
+                    specialites));
         }
         return views;
     }
