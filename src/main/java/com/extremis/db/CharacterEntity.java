@@ -41,6 +41,8 @@ public class CharacterEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     private List<CharacterTraitEntity> traits = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
+    private List<CharacterSpecialiteEntity> specialites = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     private List<CharacterItemEntity> inventory = new ArrayList<>();
@@ -63,6 +65,7 @@ public class CharacterEntity {
     public boolean isAlive() { return alive; }
     public List<CharacterSkillEntity> getSkills() { return skills; }
     public List<CharacterTraitEntity> getTraits() { return traits; }
+    public List<CharacterSpecialiteEntity> getSpecialites() { return specialites; }
     public List<CharacterItemEntity> getInventory() { return inventory; }
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
@@ -81,6 +84,10 @@ public class CharacterEntity {
 
     public void addTrait(String name) {
         traits.add(new CharacterTraitEntity(this, name));
+    }
+
+    public void addSpecialite(String nom) {
+        specialites.add(new CharacterSpecialiteEntity(this, nom));
     }
 
     public void addItem(String label) {

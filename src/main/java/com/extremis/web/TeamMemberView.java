@@ -11,5 +11,5 @@ public record TeamMemberView(
         boolean alive,
         int skillBase,
         Map<String, Integer> skills,
-        List<String> traits) {
-}
+        List<String> traits,
+        List<String> specialites) {}

@@ -18,6 +18,9 @@ public final class EntityMapper {
         for (CharacterTraitEntity t : e.getTraits()) {
             c.withTrait(new Trait(t.getName(), new LinkedHashSet<>()));
         }
+        for (CharacterSpecialiteEntity s : e.getSpecialites()) {
+            c.withSpecialite(s.getNom());
+        }
         for (CharacterItemEntity i : e.getInventory()) {
             c.addItem(i.getLabel());
         }
@@ -38,6 +41,9 @@ public final class EntityMapper {
         }
         for (Trait t : c.traits()) {
             e.addTrait(t.name());
+        }
+        for (String specialite : c.specialites()) {
+            e.addSpecialite(specialite);
         }
         for (String item : c.inventory()) {
             e.addItem(item);

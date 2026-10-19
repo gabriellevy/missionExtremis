@@ -38,16 +38,25 @@ public class CharacterSeeder implements ApplicationRunner {
     /** Ajoute au catalogue les personnages apparus apres la premiere version, sur une base existante. */
     @Transactional
     public void semerNouveauxPersonnages() {
-        boolean ajoute = false;
+        boolean[] ajoute = {false};
+        repository.findById("seed-02").filter(c -> c.getName().equals("Jean-Paul Marat")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-02 (Jean-Paul Marat) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-02")) {
+            genereMiladyDeLise();
+            ajoute[0] = true;
+        }
         if (!repository.existsById("seed-11")) {
             generePereDamianKarras();
-            ajoute = true;
+            ajoute[0] = true;
         }
         if (!repository.existsById("seed-12")) {
             genereJeanTrenton();
-            ajoute = true;
+            ajoute[0] = true;
         }
-        if (ajoute) {
+        if (ajoute[0]) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
         repository.findById("seed-01").ifPresent(c -> {
@@ -72,6 +81,26 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereMiladyDeLise() {
+        seed("seed-02", "Milady de Lise", "Saabi", "espionne",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.DISCRETION, Competence.ENDURANCE,
+                        Competence.HABILETE, Competence.MARCHANDAGE, Competence.PERCEPTION,
+                        Competence.PROTECTION_DU_CONSUL, Competence.RICHESSE},
+                new int[]{10, 20, -20, 10, 20, 10, 10, -10},
+                new String[]{ViceEtVertu.HUMBLE.vice(), ViceEtVertu.LOYAL.vice(2)}, 36);
+        repository.findById("seed-02").ifPresent(c -> {
+            c.addSpecialite("Jouer la com\u00e9die + 10");
+            c.addSpecialite("D\u00e9guisement + 10");
+            c.setVitalite(13);
+            c.setSangFroid(17);
+            c.setDescription("Espionne talentueuse et mythomane, elle a tout l'art d'une bonne agente, "
+                    + "de la discrétion au marchandage. Elle est possédée par un esprit demoniaque et très belle, "
+                    + "la peau bronzee dorée et les cheveux bruns. Elle est complètement devouée a sa coterie "
+                    + "les Saabi, les seuls pour lesquels sa loyauté d'ordinaire douteuse devient sans faille.");
+            repository.save(c);
+        });
+    }
+
     private void generePereDamianKarras() {
         seed("seed-11", "Père Damian Karras", "Cathare", "Curé",
                 new Competence[]{Competence.ANIMAUX, Competence.ARMES_CORPS_A_CORPS, Competence.COMMANDEMENT, Competence.ELOQUENCE,
@@ -89,9 +118,6 @@ public class CharacterSeeder implements ApplicationRunner {
 
     @Transactional
     public void semerCatalogue() {
-        seed("seed-02", "Jean-Paul Marat", "jacobin", "enqueteur",
-                new Competence[]{Competence.ELOQUENCE, Competence.INTELLIGENCE}, new int[]{8, 6},
-                new String[]{"Radical"});
         seed("seed-03", "Voltaire", "lumieres", "specialiste-volonte",
                 new Competence[]{Competence.INTUITION, Competence.ELOQUENCE}, new int[]{9, 7},
                 new String[]{"Esprit"});

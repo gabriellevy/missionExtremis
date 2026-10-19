@@ -150,6 +150,9 @@
           <div th:if="${!p.traits.isEmpty()}">Vices / vertus :
             <span th:text="${#strings.listJoin(p.traits, ', ')}"></span>
           </div>
+          <div th:if="${!p.specialites.isEmpty()}">Sp&#233;cialit&#233;s :
+            <span th:text="${#strings.listJoin(p.specialites, ', ')}"></span>
+          </div>
           <div>Comp&#233;tences (base <span th:text="${p.skillBase}"></span>) :</div>
           <ul>
             <li th:each="e : ${p.skills}">
@@ -196,6 +199,13 @@
       <ul>
         <li th:if="${p.traits.isEmpty()}">&#8212;</li>
         <li th:each="t : ${p.traits}" th:text="${t}"/>
+      </ul>
+    </dd>
+    <dt>Sp&#233;cialit&#233;s</dt>
+    <dd>
+      <ul>
+        <li th:if="${p.specialites.isEmpty()}">&#8212;</li>
+        <li th:each="s : ${p.specialites}" th:text="${s}"/>
       </ul>
     </dd>
     <dt>Inventaire</dt>
