@@ -93,7 +93,9 @@ public class CharacterSeeder implements ApplicationRunner {
             c.setVitalite(13);
             c.setSangFroid(17);
             c.setDescription("Espionne talentueuse et mythomane, elle a tout l'art d'une bonne agente, "
-                    + "de la discretion au marchandage. Elle est possedee par un esprit demoniaque et tres belle.");
+                    + "de la discretion au marchandage. Elle est possedee par un esprit demoniaque et tres belle, "
+                    + "la peau bronzee doree et les cheveux bruns. Elle est completement devouee a sa coterie "
+                    + "les Saabi, les seuls pour lesquels sa loyaute douteuse devient sans faille.");
             repository.save(c);
         });
     }
