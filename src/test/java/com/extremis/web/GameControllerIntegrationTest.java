@@ -1,7 +1,6 @@
 package com.extremis.web;
 
 import com.extremis.core.Mission;
-import java.util.List;
 import com.extremis.db.CharacterRepository;
 import com.extremis.db.MissionExecutionRepository;
 import org.junit.jupiter.api.Test;
@@ -74,8 +73,8 @@ class GameControllerIntegrationTest {
     @TestConfiguration
     static class FastMissions {
         @Bean
-        public List<Mission> missionsTest() {
-            return List.of(com.extremis.catalog.Missions.fousDeGotheimRapide());
+        public Mission missionRapide() {
+            return com.extremis.catalog.Missions.fousDeGotheimRapide();
         }
     }
 }
