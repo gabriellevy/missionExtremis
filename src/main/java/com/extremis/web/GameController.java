@@ -281,7 +281,7 @@ public class GameController {
         EtatMission etat = new EtatMission();
         etat.entity = entity;
         etat.execution = execution;
-        etat.journal.add("=== " + mission.title() + " ===");
+        etat.journal.add("=== " + mission.titre() + " ===");
         etat.journal.add("Mission lancee a " + Instant.now() + ". Les evenements suivront leur delai prevu.");
         missionsActives.put(entity.getId(), etat);
         tick();
@@ -337,7 +337,9 @@ public class GameController {
             MissionReport report = etat.execution.report();
             etat.journal.add(report.teamWiped()
                     ? "Equipe eliminee. Mission echouee."
-                    : "Mission terminee. Survivants : " + report.survivors());
+                    : etat.execution.isReussie()
+                            ? "Mission reussie. Survivants : " + report.survivors()
+                            : "Mission terminee en echec. Survivants : " + report.survivors());
             game.finish(etat.entity, report, Instant.now());
             etat.fini = true;
         }

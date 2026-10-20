@@ -102,7 +102,7 @@ public class GameService {
 
     @Transactional
     public MissionExecutionEntity startMission(Mission mission, List<Character> team, Instant now) {
-        MissionExecutionEntity entity = new MissionExecutionEntity(mission.id(), mission.title(), now);
+        MissionExecutionEntity entity = new MissionExecutionEntity(mission.id(), mission.titre(), now);
         for (Character c : team) {
             entity.addTeamMember(new ExecutionTeamMemberEntity(c.id(), c.name(), c.vitalite(), c.isAlive()));
         }
@@ -142,17 +142,19 @@ public class GameService {
             if (!m.isAlive()) {
                 c.kill();
             }
+            if (m.isExclu()) {
+                c.exclure();
+            }
             team.add(c);
         }
         MissionExecution execution = MissionExecution.start(def.get(), team,
                 new SeededRandom(42L), entity.getStartedAt());
-        for (int i = 0; i < entity.getNextEventIndex(); i++) {
-            execution.skipEvent();
-        }
-        for (ExecutionTeamMemberEntity m : entity.getTeam()) {
-            if (!m.isAlive()) {
-                execution.markDead(m.getCharacterId());
+        if (entity.getEvenementCourant() != null) {
+            java.util.Map<String, Integer> ajustements = new java.util.LinkedHashMap<>();
+            for (com.extremis.db.ExecutionAjustementEntity a : entity.getAjustements()) {
+                ajustements.put(a.getEvenementId(), a.getAjustement());
             }
+            execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(), ajustements);
         }
         return Optional.of(execution);
     }
@@ -185,6 +187,7 @@ public class GameService {
         entity.setStatus(MissionExecutionEntity.Status.FINISHED);
         entity.setFinishedAt(now);
         entity.setTeamWiped(report.teamWiped());
+        entity.setEvenementCourant(null);
         for (ExecutionTeamMemberEntity m : entity.getTeam()) {
             report.casualties().stream()
                     .filter(name -> name.equals(m.getName()))
@@ -212,8 +215,10 @@ public class GameService {
     }
 
     private void syncProgress(MissionExecutionEntity entity, MissionExecution execution) {
-        entity.setNextEventIndex(execution.eventsResolved());
-        entity.setLastEventTime(String.valueOf(execution.nextEventTime()));
+        entity.setEvenementCourant(execution.evenementCourant());
+        entity.setHeureEffetCourant(execution.heureEffetCourant());
+        entity.setReussie(execution.isReussie());
+        execution.ajustementsDifficulte().forEach(entity::addAjustement);
         List<String> lignes = execution.logLines();
         while (entity.getLogLines().size() < lignes.size()) {
             entity.addLogLine(lignes.get(entity.getLogLines().size()));
@@ -223,6 +228,7 @@ public class GameService {
             Character c = execution.teamSnapshot().get(i);
             m.setVitalite(c.vitalite());
             m.setAlive(c.isAlive());
+            m.setExclu(c.isExclu());
         }
     }
 

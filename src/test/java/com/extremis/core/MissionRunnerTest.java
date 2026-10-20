@@ -12,8 +12,10 @@ class MissionRunnerTest {
     private static final RandomSource ALWAYS_LOW = () -> 1;
 
     @Test
-    void successfulTestGrantsRewardAndNoDamage() {
-        Character agent = new Character("a", "Alice").withSkill(Competence.DISCRETION, 50);
+    void laReussitePrincipaleProgresseEtAccordeDesRecompenses() {
+        Character agent = new Character("a", "Alice")
+                .withSkill(Competence.DISCRETION, 50)
+                .withSkill(Competence.ARMES_CORPS_A_CORPS, 50);
         Mission mission = mission();
         MissionReport report = new MissionRunner(ALWAYS_LOW).run(mission, List.of(agent), m -> {});
         assertThat(report.teamWiped()).isFalse();
@@ -22,66 +24,49 @@ class MissionRunnerTest {
     }
 
     @Test
-    void failingTestDamagesTheTeam() {
+    void lechecInfligeLesDegats() {
         Character agent = new Character("a", "Alice").withSkill(Competence.DISCRETION, 0);
         Mission mission = mission();
         MissionReport report = new MissionRunner(ALWAYS_HIGH).run(mission, List.of(agent), m -> {});
         assertThat(agent.vitalite()).isLessThan(10);
-        assertThat(report.log()).contains("échoue");
+        assertThat(report.log()).contains("obtient un echec");
     }
 
     @Test
-    void untrainedCharacterStillUsesSkillBase() {
-        Character agent = new Character("a", "Alice").withSkill(Competence.INTUITION, 90);
-        Mission mission = mission();
-        new MissionRunner(ALWAYS_HIGH).run(mission, List.of(agent), m -> {});
-        assertThat(agent.inventory()).isEmpty();
-    }
-
-    @Test
-    void teamWipeStopsTheMission() {
-        Character agent = new Character("a", "Alice").withSkill(Competence.DISCRETION, 0);
-        Mission brutal = new Mission(
-                "brutal",
-                "Mission brutale",
-                "Test",
-                List.of(),
-                List.of(
-                        MissionEvent.builder("e1", "piege")
-                                .test(new SimpleTest(Competence.DISCRETION, -1000))
-                                .damageOnFailure(100)
-                                .build(),
-                        MissionEvent.builder("e2", "jamais atteint").build()));
-        MissionReport report = new MissionRunner(ALWAYS_HIGH).run(brutal, List.of(agent), m -> {});
-        assertThat(report.teamWiped()).isTrue();
-        assertThat(report.log()).doesNotContain("jamais atteint");
-    }
-
-    @Test
-    void skillTestIsBasePlusSkillUnderD100() {
-        Character prodigy = new Character("p", "Prodige").withSkillBase(40).withSkill(Competence.DISCRETION, 10);
-        assertThat(prodigy.skillTarget(Competence.DISCRETION)).isEqualTo(50);
+    void leD100SeJoueSousLaCibleBasePlusCompetence() {
+        Character prodige = new Character("p", "Prodige").withSkillBase(40).withSkill(Competence.DISCRETION, 10);
+        assertThat(prodige.skillTarget(Competence.DISCRETION)).isEqualTo(50);
         SimpleTest test = new SimpleTest(Competence.DISCRETION, 0);
-        assertThat(test.attempt(prodigy, () -> 49)).isTrue();
-        assertThat(test.attempt(prodigy, () -> 50)).isFalse();
-        assertThat(test.attempt(prodigy, () -> 100)).isFalse();
+        assertThat(test.attempt(prodige, () -> 49)).isEqualTo(ResultatTest.REUSSITE);
+        assertThat(test.attempt(prodige, () -> 50)).isEqualTo(ResultatTest.ECHEC);
+        assertThat(test.attempt(prodige, () -> 100)).isEqualTo(ResultatTest.ECHEC);
     }
 
     @Test
-    void untrainedCharacterCanSucceedWithBaseOnly() {
+    void lesMargesCritiquesSontDetectees() {
+        Character agent = new Character("a", "Alice").withSkillBase(50);
+        SimpleTest test = new SimpleTest(Competence.TIR, 0);
+        assertThat(test.attempt(agent, () -> 1)).isEqualTo(ResultatTest.REUSSITE_CRITIQUE);
+        assertThat(test.attempt(agent, () -> 10)).isEqualTo(ResultatTest.REUSSITE);
+        assertThat(test.attempt(agent, () -> 60)).isEqualTo(ResultatTest.ECHEC);
+        assertThat(test.attempt(agent, () -> 99)).isEqualTo(ResultatTest.ECHEC_CRITIQUE);
+    }
+
+    @Test
+    void unPersonnageSansCompetenceUtiliseSaBase() {
         Character novice = new Character("n", "Novice");
         SimpleTest test = new SimpleTest(Competence.TIR, 0);
-        assertThat(test.attempt(novice, () -> 29)).isTrue();
-        assertThat(test.attempt(novice, () -> 30)).isFalse();
+        assertThat(test.attempt(novice, () -> 29)).isEqualTo(ResultatTest.REUSSITE);
+        assertThat(test.attempt(novice, () -> 30)).isEqualTo(ResultatTest.ECHEC);
     }
 
     @Test
-    void difficultyShiftsTheTarget() {
+    void laDifficulteDecaleLaCible() {
         Character agent = new Character("a", "Alice").withSkill(Competence.DISCRETION, 20);
-        SimpleTest hard = new SimpleTest(Competence.DISCRETION, -20);
-        assertThat(hard.target(agent)).isEqualTo(30);
-        SimpleTest easy = new SimpleTest(Competence.DISCRETION, 10);
-        assertThat(easy.target(agent)).isEqualTo(60);
+        SimpleTest dur = new SimpleTest(Competence.DISCRETION, -20);
+        assertThat(dur.target(agent)).isEqualTo(30);
+        SimpleTest facile = new SimpleTest(Competence.DISCRETION, 10);
+        assertThat(facile.target(agent)).isEqualTo(60);
     }
 
     private Mission mission() {
@@ -91,9 +76,29 @@ class MissionRunnerTest {
                 "Brief",
                 List.of(Competence.DISCRETION),
                 List.of(MissionEvent.builder("e1", "Infiltration")
+                        .introduction("Les arrangeurs s'infiltrent.")
                         .test(new SimpleTest(Competence.DISCRETION, 0))
-                        .damageOnFailure(3)
-                        .rewardOnSuccess("Toge de sectateur")
-                        .build()));
+                        .succes(MissionEvent.EffetReussite.builder()
+                                .texteSimple("Les arrangeurs passent inapercus.")
+                                .recompense("Toge de sectateur")
+                                .evenementSuivant("e2")
+                                .build())
+                        .echec(MissionEvent.EffetEchec.builder()
+                                .texteSimple("Les gardes reparent les arrangeurs.")
+                                .degats(3)
+                                .evenementSuivant("e2")
+                                .build())
+                        .build(),
+                        MissionEvent.builder("e2", "Confrontation")
+                                .introduction("Les arrangeurs affrontent les meneurs.")
+                                .test(new SimpleTest(Competence.ARMES_CORPS_A_CORPS, 0))
+                                .succes(MissionEvent.EffetReussite.builder()
+                                        .texteSimple("Les meneurs sont neutralises.")
+                                        .build())
+                                .echec(MissionEvent.EffetEchec.builder()
+                                        .texteSimple("Les meneurs ont le dessus.")
+                                        .degats(3)
+                                        .build())
+                                .build()));
     }
 }

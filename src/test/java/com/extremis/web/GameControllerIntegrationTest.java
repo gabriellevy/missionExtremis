@@ -1,6 +1,7 @@
 package com.extremis.web;
 
 import com.extremis.core.Mission;
+import java.util.List;
 import com.extremis.db.CharacterRepository;
 import com.extremis.db.MissionExecutionRepository;
 import org.junit.jupiter.api.Test;
@@ -56,14 +57,14 @@ class GameControllerIntegrationTest {
         }
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
-        assertThat(controller.journal()).containsAnyOf("Mission terminee", "Equipe eliminee");
+        assertThat(controller.journal()).containsAnyOf("Mission reussie", "Mission terminee en echec", "Equipe eliminee");
     }
 
     @TestConfiguration
     static class FastMissions {
         @Bean
-        public Mission fastMission() {
-            return com.extremis.catalog.Missions.foolsOfGotheimRapide();
+        public List<Mission> missionsTest() {
+            return List.of(com.extremis.catalog.Missions.fousDeGotheimRapide());
         }
     }
 }

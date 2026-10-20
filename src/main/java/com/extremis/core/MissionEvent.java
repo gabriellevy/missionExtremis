@@ -1,92 +1,194 @@
 package com.extremis.core;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * Un evenement de mission (wiki, page "Missions") : une succession
+ * d'evenements dont les reussites ou echecs menent a d'autres evenements.
+ *
+ * Chaque evenement a une duree avant d'etre realise. Au debut son texte
+ * d'introduction s'affiche, et seulement une fois la duree ecoulee son
+ * effet s'affiche, y compris les resultats des tests de caracteristiques.
+ */
 public final class MissionEvent {
     private final String id;
-    private final String description;
-    private final MissionEventType type;
+    private final String titre;
+    private final String introduction;
+    private final String effet;
+    private final Duration duree;
     private final SkillTest test;
-    private final int damageOnFailure;
-    private final String rewardOnSuccess;
-    private final Duration delayFromPrevious;
+    private final EffetReussite succes;
+    private final EffetEchec echec;
+
+    public record EffetReussite(
+            String texteCritique,
+            String texteSimple,
+            String recompense,
+            String evenementSuivant) {
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static final class Builder {
+            private String texteCritique;
+            private String texteSimple;
+            private String recompense;
+            private String evenementSuivant;
+
+            public Builder texteCritique(String texte) {
+                this.texteCritique = texte;
+                return this;
+            }
+
+            public Builder texteSimple(String texte) {
+                this.texteSimple = texte;
+                return this;
+            }
+
+            public Builder recompense(String recompense) {
+                this.recompense = recompense;
+                return this;
+            }
+
+            public Builder evenementSuivant(String id) {
+                this.evenementSuivant = id;
+                return this;
+            }
+
+            public EffetReussite build() {
+                return new EffetReussite(texteCritique, texteSimple, recompense, evenementSuivant);
+            }
+        }
+    }
+
+    public record EffetEchec(
+            String texteSimple,
+            String texteCritique,
+            Integer degats,
+            Integer perteSangFroid,
+            boolean exclureJoueur,
+            Integer ajustementDifficulte,
+            String evenementAjuste,
+            String evenementSuivant) {
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static final class Builder {
+            private String texteSimple;
+            private String texteCritique;
+            private Integer degats;
+            private Integer perteSangFroid;
+            private boolean exclureJoueur;
+            private Integer ajustementDifficulte;
+            private String evenementAjuste;
+            private String evenementSuivant;
+
+            public Builder texteSimple(String texte) {
+                this.texteSimple = texte;
+                return this;
+            }
+
+            public Builder texteCritique(String texte) {
+                this.texteCritique = texte;
+                return this;
+            }
+
+            public Builder degats(int degats) {
+                this.degats = degats;
+                return this;
+            }
+
+            public Builder perteSangFroid(int perte) {
+                this.perteSangFroid = perte;
+                return this;
+            }
+
+            public Builder exclureJoueur() {
+                this.exclureJoueur = true;
+                return this;
+            }
+
+            public Builder ajustementDifficulte(int ajustement) {
+                this.ajustementDifficulte = ajustement;
+                return this;
+            }
+
+            public Builder evenementSuivant(String id) {
+                this.evenementSuivant = id;
+                return this;
+            }
+
+            public Builder evenementAjuste(String id) {
+                this.evenementAjuste = id;
+                return this;
+            }
+
+            public EffetEchec build() {
+                return new EffetEchec(texteSimple, texteCritique, degats, perteSangFroid,
+                        exclureJoueur, ajustementDifficulte, evenementAjuste, evenementSuivant);
+            }
+        }
+    }
 
     private MissionEvent(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
-        this.type = builder.test == null ? MissionEventType.NARRATIVE : MissionEventType.SKILL_CHECK;
+        this.titre = builder.titre;
+        this.introduction = builder.introduction;
+        this.effet = builder.effet;
+        this.duree = builder.duree;
         this.test = builder.test;
-        this.damageOnFailure = builder.damageOnFailure;
-        this.rewardOnSuccess = builder.rewardOnSuccess;
-        this.delayFromPrevious = builder.delayFromPrevious;
+        this.succes = builder.succes;
+        this.echec = builder.echec;
     }
 
     public String id() { return id; }
-    public String description() { return description; }
-    public MissionEventType type() { return type; }
+    public String titre() { return titre; }
+    public String introduction() { return introduction; }
+    public String effet() { return effet; }
+    public Duration duree() { return duree; }
     public Optional<SkillTest> test() { return Optional.ofNullable(test); }
-    public int damageOnFailure() { return damageOnFailure; }
-    public String rewardOnSuccess() { return rewardOnSuccess; }
-    public Duration delayFromPrevious() { return delayFromPrevious; }
+    public Optional<EffetReussite> succes() { return Optional.ofNullable(succes); }
+    public Optional<EffetEchec> echec() { return Optional.ofNullable(echec); }
 
-    public void resolve(List<Character> team, RandomSource random, Consumer<String> log) {
-        log.accept(description);
-        if (type != MissionEventType.SKILL_CHECK || test == null) {
-            return;
-        }
-        Optional<Character> candidate = test.bestCandidate(team);
-        if (candidate.isEmpty()) {
-            log.accept("Aucun membre de l'équipe n'est en état de tenter le test de " + test.skill().label() + ".");
-            applyFailure(team, log);
-            return;
-        }
-        Character performer = candidate.get();
-        boolean success = test.attempt(performer, random);
-        if (success) {
-            log.accept(performer.name() + " réussit le test de " + test.skill().label() + ".");
-            if (rewardOnSuccess != null) {
-                performer.addItem(rewardOnSuccess);
-                log.accept(performer.name() + " obtient : " + rewardOnSuccess);
-            }
-        } else {
-            log.accept(performer.name() + " échoue au test de '" + test.skill().label() + "'.");
-            applyFailure(team, log);
-        }
-    }
-
-    private void applyFailure(List<Character> team, Consumer<String> log) {
-        if (damageOnFailure <= 0) {
-            return;
-        }
-        Character victim = team.stream().filter(Character::isAlive).findFirst().orElse(null);
-        if (victim == null) {
-            return;
-        }
-        victim.applyDamage(damageOnFailure);
-        log.accept(victim.name() + " subit " + damageOnFailure + " degats (vitalite restante : " + victim.vitalite() + ").");
-        if (!victim.isAlive()) {
-            log.accept(victim.name() + " succombe.");
-        }
-    }
-
-    public static Builder builder(String id, String description) {
-        return new Builder(id, description);
+    public static Builder builder(String id, String titre) {
+        return new Builder(id, titre);
     }
 
     public static final class Builder {
         private final String id;
-        private final String description;
+        private final String titre;
+        private String introduction;
+        private String effet;
+        private Duration duree = Duration.ZERO;
         private SkillTest test;
-        private int damageOnFailure;
-        private String rewardOnSuccess;
-        private Duration delayFromPrevious = Duration.ZERO;
+        private EffetReussite succes;
+        private EffetEchec echec;
 
-        private Builder(String id, String description) {
+        private Builder(String id, String titre) {
             this.id = id;
-            this.description = description;
+            this.titre = titre;
+        }
+
+        public Builder introduction(String introduction) {
+            this.introduction = introduction;
+            return this;
+        }
+
+        public Builder effet(String effet) {
+            this.effet = effet;
+            return this;
+        }
+
+        public Builder duree(Duration duree) {
+            this.duree = duree;
+            return this;
         }
 
         public Builder test(SkillTest test) {
@@ -94,18 +196,13 @@ public final class MissionEvent {
             return this;
         }
 
-        public Builder damageOnFailure(int damage) {
-            this.damageOnFailure = damage;
+        public Builder succes(EffetReussite succes) {
+            this.succes = succes;
             return this;
         }
 
-        public Builder rewardOnSuccess(String reward) {
-            this.rewardOnSuccess = reward;
-            return this;
-        }
-
-        public Builder delayFromPrevious(Duration delay) {
-            this.delayFromPrevious = delay;
+        public Builder echec(EffetEchec echec) {
+            this.echec = echec;
             return this;
         }
 
