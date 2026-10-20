@@ -108,8 +108,9 @@ public final class MissionExecution {
     private void publierIntroduction(MissionEvent evenement) {
         // chaque nouveau passage sur l'evenement republie son titre
         // (balise "aller a") et son introduction
-        if (introductionPublieePour != evenement.id() + "#" + passagesIntroduction) {
-            introductionPublieePour = evenement.id() + "#" + passagesIntroduction;
+        String cle = evenement.id() + "#" + passagesIntroduction;
+        if (!cle.equals(introductionPublieePour)) {
+            introductionPublieePour = cle;
             logLines.add("=== " + evenement.titre() + " ===");
             if (evenement.introduction() != null) {
                 logLines.add(evenement.introduction());

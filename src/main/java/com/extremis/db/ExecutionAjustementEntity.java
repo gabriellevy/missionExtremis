@@ -36,4 +36,7 @@ public class ExecutionAjustementEntity {
     public String getEvenementId() { return evenementId; }
     public int getAjustement() { return ajustement; }
     public MissionExecutionEntity getExecution() { return execution; }
+
+    public void setExecution(MissionExecutionEntity execution) { this.execution = execution; }
+    public void setAjustement(int ajustement) { this.ajustement = ajustement; }
 }

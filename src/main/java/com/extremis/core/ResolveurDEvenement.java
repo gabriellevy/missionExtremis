@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.extremis.core.MissionEvent.EffetEchec;
+import com.extremis.core.MissionEvent.EffetReussite;
+
 /**
  * Moteur de resolution des evenements de mission (wiki, page
  * "Missions") : le PJ avec la plus haute valeur de la competence
@@ -84,7 +87,7 @@ public final class ResolveurDEvenement {
         if (resultat.estReussite()) {
             return appliquerReussite(evenement, resultat, joueur, journal);
         }
-        return appliquerEchec(evenement, resultat, joueur, journal);
+        return appliquerEchec(evenement, resultat, joueur, etat, journal);
     }
 
     private static String libelle(ResultatTest resultat) {
@@ -118,7 +121,7 @@ public final class ResolveurDEvenement {
     }
 
     private ResultatEvenement appliquerEchec(MissionEvent evenement, ResultatTest resultat,
-                                             Character joueur, Consumer<String> journal) {
+                                             Character joueur, EtatMission etat, Consumer<String> journal) {
         EffetEchec echec = evenement.echec().orElse(null);
         String suivant = null;
         if (echec != null) {

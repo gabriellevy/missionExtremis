@@ -91,12 +91,7 @@ public class MissionExecutionEntity {
                 .filter(a -> evenementId.equals(a.getEvenementId()))
                 .findFirst()
                 .ifPresentOrElse(
-                        a -> {
-                            ExecutionAjustementEntity remplace = new ExecutionAjustementEntity(this, evenementId, ajustement);
-                            ajustements.remove(a);
-                            remplace.setExecution(this);
-                            ajustements.add(remplace);
-                        },
+                        a -> a.setAjustement(ajustement),
                         () -> ajustements.add(new ExecutionAjustementEntity(this, evenementId, ajustement)));
     }
 

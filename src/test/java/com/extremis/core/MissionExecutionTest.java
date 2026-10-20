@@ -1,5 +1,6 @@
 package com.extremis.core;
 
+import com.extremis.catalog.Missions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -73,19 +74,39 @@ class MissionExecutionTest {
 
     @Test
     void lechecSimpleRecommenceLaBoucleEtCumuleLaDifficulteBaissee() {
-        // cible 30, de 40 : echec simple, pas d'exclusion
-        RandomSource de40 = () -> 40;
+        // cible 30 : un seul jet a 40 (echec simple, pas d'exclusion)
+        RandomSource deUnique = new RandomSource() {
+            private boolean joue = false;
+            @Override
+            public int roll() {
+                if (!joue) { joue = true; return 40; }
+                return 1;
+            }
+        };
         Character menteur = new Character("a", "Alice").withSkill(Competence.RAGOT, 0);
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(menteur), de40, START);
+        MissionExecution execution = MissionExecution.start(mission, List.of(menteur), deUnique, START);
 
-        execution.advance(START.plus(Duration.ofDays(1)));
+        // on n'avance que d'une duree d'evenement : un seul passage resolu
+        execution.advance(START.plus(Duration.ofSeconds(1)));
         assertThat(menteur.isExclu()).isFalse();
         assertThat(execution.isFinished()).isFalse();
+        // l'evenement suivant est a nouveau "recherche-du-cas"
+        assertThat(execution.evenementCourant()).isEqualTo("recherche-du-cas");
         // l'ajustement de difficulte vise l'exorcisme
         assertThat(execution.ajustementsDifficulte()).containsEntry("exorcisme", 10);
         assertThat(execution.logLines())
                 .anyMatch(l -> l.contains("La difficulté du test de l'événement exorcisme sera baissée de 10"));
+        // l'introduction du nouveau passage est deja publiee
+        assertThat(execution.logLines())
+                .filteredOn(l -> l.contains("=== Recherche du cas ==="))
+                .hasSize(2);
+        // deuxieme passage : le de de 1 reussit, la boucle s'arrete
+        execution.advance(START.plus(Duration.ofSeconds(2)));
+        assertThat(execution.evenementCourant()).isEqualTo("convaincre-la-famille");
+        assertThat(execution.logLines())
+                .filteredOn(l -> l.contains("=== Recherche du cas ==="))
+                .hasSize(2);
     }
 
     @Test

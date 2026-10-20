@@ -1,5 +1,6 @@
 package com.extremis.core;
 
+import com.extremis.catalog.Missions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -39,17 +40,26 @@ class MissionRunnerTest {
         SimpleTest test = new SimpleTest(Competence.DISCRETION, 0);
         assertThat(test.attempt(prodige, () -> 49)).isEqualTo(ResultatTest.REUSSITE);
         assertThat(test.attempt(prodige, () -> 50)).isEqualTo(ResultatTest.ECHEC);
-        assertThat(test.attempt(prodige, () -> 100)).isEqualTo(ResultatTest.ECHEC);
+        assertThat(test.attempt(prodige, () -> 51)).isEqualTo(ResultatTest.ECHEC);
     }
 
     @Test
     void lesMargesCritiquesSontDetectees() {
+        // Brigandyne : qualite de reussite = cible - de, gravite de l'echec
+        // = de - cible ; critique a partir de 50 (echec retentissant 50+)
+        // cible 50 : reussite critique si de <= 0 (impossible ici), echec
+        // critique si de >= 100
         Character agent = new Character("a", "Alice").withSkillBase(50);
         SimpleTest test = new SimpleTest(Competence.TIR, 0);
-        assertThat(test.attempt(agent, () -> 1)).isEqualTo(ResultatTest.REUSSITE_CRITIQUE);
-        assertThat(test.attempt(agent, () -> 10)).isEqualTo(ResultatTest.REUSSITE);
-        assertThat(test.attempt(agent, () -> 60)).isEqualTo(ResultatTest.ECHEC);
-        assertThat(test.attempt(agent, () -> 99)).isEqualTo(ResultatTest.ECHEC_CRITIQUE);
+        assertThat(test.attempt(agent, () -> 1)).isEqualTo(ResultatTest.REUSSITE);
+        assertThat(test.attempt(agent, () -> 49)).isEqualTo(ResultatTest.REUSSITE);
+        assertThat(test.attempt(agent, () -> 51)).isEqualTo(ResultatTest.ECHEC);
+        assertThat(test.attempt(agent, () -> 99)).isEqualTo(ResultatTest.ECHEC);
+        assertThat(test.attempt(agent, () -> 100)).isEqualTo(ResultatTest.ECHEC_CRITIQUE);
+        // avec une cible de 80 la reussite critique devient possible
+        Character prodige = new Character("p", "Prodige").withSkillBase(80);
+        assertThat(test.attempt(prodige, () -> 30)).isEqualTo(ResultatTest.REUSSITE_CRITIQUE);
+        assertThat(test.attempt(prodige, () -> 31)).isEqualTo(ResultatTest.REUSSITE);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.extremis.core;
 
+import com.extremis.catalog.Missions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -33,20 +34,26 @@ class RumeursPossessionTest {
 
     @Test
     void lechecSimpleDuTestDeRagotRecommenceLaRecherche() {
-        // cible 30, de 40 : echec simple
-        RandomSource de40 = () -> 40;
+        // cible 30 : un seul jet a 40 (echec simple), puis toujours 1
+        RandomSource deUnique = new RandomSource() {
+            private boolean joue = false;
+            @Override
+            public int roll() {
+                if (!joue) { joue = true; return 40; }
+                return 1;
+            }
+        };
         Character enqueteur = new Character("a", "Alice");
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), de40, START);
+        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), deUnique, START);
 
-        execution.advance(START.plus(Duration.ofDays(1)));
+        execution.advance(START.plus(Duration.ofSeconds(1)));
         assertThat(execution.isFinished()).isFalse();
         assertThat(enqueteur.isExclu()).isFalse();
         assertThat(execution.logLines())
                 .anyMatch(l -> l.contains("Recommencer"));
-        assertThat(execution.logLines())
-                .filteredOn(l -> l.contains("=== Recherche du cas ==="))
-                .hasSize(2);
+        // la difficulte de l'exorcisme est baissée de 10 comme le dit le wiki
+        assertThat(execution.ajustementsDifficulte()).containsEntry("exorcisme", 10);
     }
 
     @Test
