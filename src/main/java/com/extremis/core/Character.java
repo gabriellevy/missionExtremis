@@ -14,6 +14,7 @@ public final class Character {
     private int vitalite = VITALITE_DEFAUT;
     private int sangFroid = SANG_FROID_DEFAUT;
     private boolean alive = true;
+    private boolean excluDeLAventure = false;
 
     public static final int VITALITE_DEFAUT = 10;
     public static final int SANG_FROID_DEFAUT = 10;
@@ -30,6 +31,15 @@ public final class Character {
     public int vitalite() { return vitalite; }
     public int sangFroid() { return sangFroid; }
     public boolean isAlive() { return alive; }
+
+    /**
+     * Un personnage actif est vivant et toujours dans l'aventure :
+     * seul un personnage actif peut tenter un test. Un personnage
+     * chasse du quartier (echec critique) est exclu de l'aventure.
+     */
+    public boolean isActif() { return alive && !excluDeLAventure; }
+
+    public boolean isExclu() { return excluDeLAventure; }
     public List<Trait> traits() { return traits; }
     public List<String> specialites() { return specialites; }
     public List<String> inventory() { return inventory; }
@@ -108,5 +118,13 @@ public final class Character {
     public void kill() {
         vitalite = 0;
         alive = false;
+    }
+
+    public void perteSangFroid(int perte) {
+        sangFroid = Math.max(0, sangFroid - perte);
+    }
+
+    public void exclure() {
+        excluDeLAventure = true;
     }
 }

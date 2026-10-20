@@ -27,6 +27,8 @@ public class ExecutionTeamMemberEntity {
 
     private boolean alive;
 
+    private boolean exclu;
+
     public ExecutionTeamMemberEntity() {}
 
     public ExecutionTeamMemberEntity(String characterId, String name, int vitalite, boolean alive) {
@@ -40,9 +42,11 @@ public class ExecutionTeamMemberEntity {
     public String getName() { return name; }
     public int getVitalite() { return vitalite; }
     public boolean isAlive() { return alive; }
+    public boolean isExclu() { return exclu; }
     public MissionExecutionEntity getExecution() { return execution; }
 
     public void setExecution(MissionExecutionEntity execution) { this.execution = execution; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }
     public void setAlive(boolean alive) { this.alive = alive; }
+    public void setExclu(boolean exclu) { this.exclu = exclu; }
 }

@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Test de competence a la maniere du jdr Brigandyne (wiki, page
- * "Competences") : un D100 dont le resultat doit etre inferieur a la
- * valeur de competence du personnage, c'est-a-dire sa base de
- * competences + sa valeur dans la competence.
+ * Test de competence D100 a la maniere de Brigandyne (wiki, page
+ * "Competences") : le resultat doit etre inferieur ou egal a la valeur
+ * de competence du personnage (base + competence).
  *
- * La difficulte est un modificateur applique a cette valeur cible
- * (negatif pour un test plus dur, positif pour un test plus facile).
+ * La difficulte est un ajustement applique a la cible (negatif = plus
+ * dur, positif = plus facile).
  */
 public interface SkillTest {
     Competence skill();
@@ -21,13 +20,20 @@ public interface SkillTest {
         return character.skillTarget(skill()) + difficulty();
     }
 
+    /**
+     * Le PJ du groupe qui a la plus haute valeur de la competence
+     * concernee tente le test (wiki, page "Missions"), sauf exclusion.
+     */
     default Optional<Character> bestCandidate(List<Character> team) {
         return team.stream()
-                .filter(Character::isAlive)
+                .filter(Character::isActif)
                 .max((a, b) -> Integer.compare(target(a), target(b)));
     }
 
-    default boolean attempt(Character character, RandomSource random) {
-        return random.roll() < target(character);
+    /**
+     * @return le niveau de reussite du jet D100, jamais null
+     */
+    default ResultatTest attempt(Character character, RandomSource random) {
+        return ResultatTest.duJet(target(character), random.roll());
     }
 }

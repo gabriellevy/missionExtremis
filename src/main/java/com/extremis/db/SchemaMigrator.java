@@ -36,7 +36,53 @@ public class SchemaMigrator implements ApplicationRunner {
         ajouterColonneSiAbsente("characters", "sang_froid");
         rendreCascadeSiNecessaire("execution_log_lines", "execution_id", "mission_executions");
         rendreCascadeSiNecessaire("execution_team_members", "execution_id", "mission_executions");
+        rendreCascadeSiNecessaire("execution_ajustements", "execution_id", "mission_executions");
+        migrerExecutionEvenementCourant();
+        ajouterColonneBooleenneSiAbsente("execution_team_members", "exclu");
         deplacerSpecialitesDesTraits();
+    }
+
+    /**
+     * Migration du modele lineaire (next_event_index + last_event_time en
+     * texte) vers le modele evenement courant du wiki : colonnes
+     * evenement_courant, heure_effet_courant et reussie. Hibernate
+     * ddl-auto=update ne fait pas les renommages et peut laisser la base
+     * anterieure incoherente (colonne reussie absente par exemple).
+     */
+    private void migrerExecutionEvenementCourant() {
+        ajouterColonneTexteSiAbsente("mission_executions", "evenement_courant");
+        ajouterColonneHorodatageSiAbsente("mission_executions", "heure_effet_courant");
+        ajouterColonneBooleenneSiAbsente("mission_executions", "reussie");
+        supprimerColonneSiPresente("mission_executions", "next_event_index");
+        supprimerColonneSiPresente("mission_executions", "last_event_time");
+    }
+
+    private void ajouterColonneTexteSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " varchar(128)");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    private void ajouterColonneHorodatageSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " timestamp");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    private void ajouterColonneBooleenneSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " boolean NOT NULL DEFAULT false");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    private void supprimerColonneSiPresente(String table, String colonne) {
+        if (colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " DROP COLUMN " + colonne);
+            log.info("Colonne {} supprimee de la table {}", colonne, table);
+        }
     }
 
     /**

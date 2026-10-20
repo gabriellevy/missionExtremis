@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "extremis.debug=true",
         "spring.profiles.active=test-rapide"
 })
+@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 @Import(GameControllerIntegrationTest.FastMissions.class)
 class GameControllerIntegrationTest {
 
@@ -28,6 +29,16 @@ class GameControllerIntegrationTest {
 
     @Autowired
     private CharacterRepository personnages;
+
+    @Autowired
+    private org.springframework.test.web.servlet.MockMvc mockMvc;
+
+    @org.junit.jupiter.api.Test
+    void laPageDAccueilAvecOngletMissionsSeRendSansErreur() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
+                        .param("onglet", "missions"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+    }
 
     @Test
     void reinitialisationUsineSupprimeLesActionsUtilisateur() {
@@ -56,14 +67,14 @@ class GameControllerIntegrationTest {
         }
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
-        assertThat(controller.journal()).containsAnyOf("Mission terminee", "Equipe eliminee");
+        assertThat(controller.journal()).containsAnyOf("Mission reussie", "Mission terminee en echec", "Equipe eliminee");
     }
 
     @TestConfiguration
     static class FastMissions {
         @Bean
-        public Mission fastMission() {
-            return com.extremis.catalog.Missions.foolsOfGotheimRapide();
+        public Mission missionRapide() {
+            return com.extremis.catalog.Missions.fousDeGotheimRapide();
         }
     }
 }

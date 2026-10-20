@@ -38,9 +38,12 @@ public class MissionExecutionEntity {
 
     private boolean teamWiped;
 
-    private int nextEventIndex;
+    @Column(name = "evenement_courant", length = 128)
+    private String evenementCourant;
 
-    private String lastEventTime;
+    private Instant heureEffetCourant;
+
+    private boolean reussie;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
@@ -49,6 +52,10 @@ public class MissionExecutionEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<ExecutionLogLineEntity> logLines = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
+    private List<ExecutionAjustementEntity> ajustements = new ArrayList<>();
 
     public MissionExecutionEntity() {}
 
@@ -65,16 +72,28 @@ public class MissionExecutionEntity {
     public Instant getStartedAt() { return startedAt; }
     public Instant getFinishedAt() { return finishedAt; }
     public boolean isTeamWiped() { return teamWiped; }
-    public int getNextEventIndex() { return nextEventIndex; }
-    public String getLastEventTime() { return lastEventTime; }
+    public String getEvenementCourant() { return evenementCourant; }
+    public Instant getHeureEffetCourant() { return heureEffetCourant; }
+    public boolean isReussie() { return reussie; }
+    public List<ExecutionAjustementEntity> getAjustements() { return ajustements; }
     public List<ExecutionTeamMemberEntity> getTeam() { return team; }
     public List<ExecutionLogLineEntity> getLogLines() { return logLines; }
 
     public void setStatus(Status status) { this.status = status; }
     public void setFinishedAt(Instant finishedAt) { this.finishedAt = finishedAt; }
     public void setTeamWiped(boolean teamWiped) { this.teamWiped = teamWiped; }
-    public void setNextEventIndex(int nextEventIndex) { this.nextEventIndex = nextEventIndex; }
-    public void setLastEventTime(String lastEventTime) { this.lastEventTime = lastEventTime; }
+    public void setEvenementCourant(String evenementCourant) { this.evenementCourant = evenementCourant; }
+    public void setHeureEffetCourant(Instant heureEffetCourant) { this.heureEffetCourant = heureEffetCourant; }
+    public void setReussie(boolean reussie) { this.reussie = reussie; }
+
+    public void addAjustement(String evenementId, int ajustement) {
+        ajustements.stream()
+                .filter(a -> evenementId.equals(a.getEvenementId()))
+                .findFirst()
+                .ifPresentOrElse(
+                        a -> a.setAjustement(ajustement),
+                        () -> ajustements.add(new ExecutionAjustementEntity(this, evenementId, ajustement)));
+    }
 
     public void addLogLine(String line) {
         logLines.add(new ExecutionLogLineEntity(this, logLines.size(), line));

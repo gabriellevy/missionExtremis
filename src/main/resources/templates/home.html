@@ -104,7 +104,7 @@
     <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
   </div>
   <div class="mission-carte" th:each="m : ${missions}">
-    <h3 th:text="${m.title()}"></h3>
+    <h3 th:text="${m.titre()}"></h3>
     <p th:text="${m.brief()}"/>
     <form method="post" action="/mission/run">
       <input type="hidden" name="missionId" th:value="${m.id()}"/>
