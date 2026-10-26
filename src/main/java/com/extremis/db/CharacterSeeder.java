@@ -48,6 +48,17 @@ public class CharacterSeeder implements ApplicationRunner {
             genereMiladyDeLise();
             ajoute[0] = true;
         }
+        if (!repository.existsById("seed-03") || repository.findById("seed-03").stream()
+                .anyMatch(c -> c.getName().equals("Voltaire"))) {
+            repository.findById("seed-03").ifPresent(c -> {
+                repository.delete(c);
+                log.info("Personnage seed-03 (Voltaire) retire du catalogue");
+            });
+        }
+        if (!repository.existsById("seed-03")) {
+            genereLacenaire();
+            ajoute[0] = true;
+        }
         if (!repository.existsById("seed-11")) {
             generePereDamianKarras();
             ajoute[0] = true;
@@ -62,6 +73,23 @@ public class CharacterSeeder implements ApplicationRunner {
         repository.findById("seed-01").ifPresent(c -> {
             repository.delete(c);
             log.info("Personnage seed-01 (Alphonse Hercule de Gascoigne) retire du catalogue");
+        });
+    }
+
+    private void genereLacenaire() {
+        seed("seed-03", "Lacenaire", "aucune", "chef de bande",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.COMMANDEMENT, Competence.INTIMIDATION,
+                        Competence.INTUITION, Competence.PERCEPTION, Competence.RAGOT, Competence.TIR},
+                new int[]{10, 15, 20, 5, 10, 20, 10},
+                new String[]{ViceEtVertu.HUMBLE.vice(), ViceEtVertu.EMPATHIQUE.vice()}, 30);
+        repository.findById("seed-03").ifPresent(c -> {
+            c.setVitalite(15);
+            c.setSangFroid(15);
+            c.setDescription("Sociopathe aigri et menaçant, Lacenaire combine sa malveillance avec une culture, "
+                    + "une élégance et une intelligence peu communes. Par mépris pour l'humanité il refuse le système "
+                    + "des coteries et vit en marge de la société par choix. Il dirige une bande de truands "
+                    + "qui lui sont tout dévoués.");
+            repository.save(c);
         });
     }
 
@@ -118,9 +146,7 @@ public class CharacterSeeder implements ApplicationRunner {
 
     @Transactional
     public void semerCatalogue() {
-        seed("seed-03", "Voltaire", "lumieres", "specialiste-volonte",
-                new Competence[]{Competence.INTUITION, Competence.ELOQUENCE}, new int[]{9, 7},
-                new String[]{"Esprit"});
+        genereLacenaire();
         seed("seed-04", "Rorschach", "khaos", "enqueteur",
                 new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.DISCRETION}, new int[]{7, 9, 6},
                 new String[]{"Implacable"});

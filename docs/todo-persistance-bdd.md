@@ -58,7 +58,7 @@ Créer un seeder (`db/CharacterSeeder`, profil `local` / `test-rapide`) inséran
 |---|---|---|---|---|---|
 | seed-01 | Alphonse Hercule de Gascoigne | performeur | enqueteur | ERUDITION 10, AGILITE 5, COMBAT 0 | Esthète, Orgueilleux, Chaste |
 | seed-02 | Marat | jacobin | enqueteur | DIPLOMATIE 8, ERUDITION 6 | Radical |
-| seed-03 | Voltaire | lumieres | specialistes-volonte | ERUDITION 9, DIPLOMATIE 7 | Esprit |
+| seed-03 | Lacenaire | aucune | chef de bande | ARMES DE CORPS À CORPS 10, COMMANDEMENT 15, INTIMIDATION 20, INTUITION 5, PERCEPTION 10, RAGOT 20, TIR 10 (base 30) | Orgueilleux, Sociopathique |
 | seed-04 | Rorschach | khaos | enqueteur | COMBAT 7, PERCEPTION 9, DISCRETION 6 | Implacable |
 | seed-05 | Arsène Lupin | esthete | enqueteur | DISCRETION 10, AGILITE 8, TECHNIQUE 6 | Cambrioleur |
 | seed-06 | Albios le barde | celte | specialistes-volonte | DIPLOMATIE 8, ERUDITION 5 | Barde |
