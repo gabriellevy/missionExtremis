@@ -3,6 +3,7 @@ package com.extremis.catalog;
 import java.time.Duration;
 import java.util.List;
 
+import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionEvent;
