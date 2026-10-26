@@ -80,7 +80,7 @@ class MissionExecutionTest {
             private boolean joue = false;
             @Override
             public int roll() {
-                if (!joue) { joue = true; return 40; }
+                if (!joue) { joue = true; return 60; }
                 return 1;
             }
         };
