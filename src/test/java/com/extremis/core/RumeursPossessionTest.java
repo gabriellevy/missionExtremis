@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests de la mission "Rumeurs de possession démoniaque" (wiki, page du
- * même nom) : les règles spécifiques du début de mission doivent être
- * respectées.
+ * Tests de la mission "Rumeurs de possession d\u00e9moniaque" (wiki, page du
+ * m\u00eame nom) : l'enquete puis les branches selon les moyens de l'equipe
+ * (exorcisme, psychiatrie, meurtre ou abandon).
  */
 class RumeursPossessionTest {
 
@@ -21,39 +22,91 @@ class RumeursPossessionTest {
     private static final RandomSource TOUJOURS_1 = () -> 1;
 
     @Test
-    void laMissionSArreteSurUnSuccesSiTousLesTestsReussissent() {
-        Character enqueteur = agent();
+    void laMissionReussitParLexorcismeSiUnArrangeurSaitExorciser() {
+        Character exorciste = agent().withSpecialite("Exorcisme");
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), TOUJOURS_1, START);
+        MissionExecution execution = MissionExecution.start(mission, List.of(exorciste), TOUJOURS_1, START);
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
         assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("Le foyer est purifié"));
+                .anyMatch(l -> l.contains("Un arrangeur sait pratiquer un exorcisme."));
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime."));
+        // l'apparence de la victime coute 2 de sang-froid, l'exorcisme 2 de plus
+        assertThat(exorciste.sangFroid()).isEqualTo(6);
     }
 
     @Test
-    void lechecSimpleDuTestDeRagotRecommenceLaRecherche() {
-        // cible 30 : un seul jet a 40 (echec simple), puis toujours 1
-        RandomSource deUnique = new RandomSource() {
-            private boolean joue = false;
+    void laMissionReussitParLaPsychiatrieSansExorciste() {
+        Character psychiatre = agent().withSpecialite("Psychiatre");
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(psychiatre), TOUJOURS_1, START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isReussie()).isTrue();
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("la victime sera intern\u00e9e."));
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Vous faites interner d\u00e9finitivement la malheureuse victime."));
+        // 2 (victime) + 4 (psychiatrie)
+        assertThat(psychiatre.sangFroid()).isEqualTo(4);
+    }
+
+    @Test
+    void unArrangeurCruelPeutAssassinerLaVictime() {
+        Character cruel = agent().withTrait(new Trait("Cruel", Set.of()));
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(cruel), TOUJOURS_1, START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isReussie()).isTrue();
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("a assassin\u00e9 la malheureuse victime"));
+        // la victime coute 2 de sang-froid, le meurtre n'en coute pas
+        assertThat(cruel.sangFroid()).isEqualTo(8);
+    }
+
+    @Test
+    void lechecDuMeurtreInflige2D10EtTermineLaMissionEnEchec() {
+        Character cruel = agent().withTrait(new Trait("Cruel", Set.of()));
+        // les deux premiers tests reussissent, la discretion du meurtre echoue
+        RandomSource des = new RandomSource() {
+            private int jets = 0;
             @Override
             public int roll() {
-                if (!joue) { joue = true; return 40; }
-                return 1;
+                jets++;
+                return jets <= 2 ? 1 : 100;
             }
         };
-        Character enqueteur = new Character("a", "Alice");
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), deUnique, START);
+        MissionExecution execution = MissionExecution.start(mission, List.of(cruel), des, START);
 
-        execution.advance(START.plus(Duration.ofSeconds(1)));
-        assertThat(execution.isFinished()).isFalse();
-        assertThat(enqueteur.isExclu()).isFalse();
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isFinished()).isTrue();
+        assertThat(execution.isReussie()).isFalse();
         assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("Recommencer"));
-        // la difficulte de l'exorcisme est baissée de 10 comme le dit le wiki
-        assertThat(execution.ajustementsDifficulte()).containsEntry("exorcisme", 10);
+                .anyMatch(l -> l.contains("perd 2D10 vitalit\u00e9"));
+        // 2 des de 100 : (100 % 10 + 1) x 2 = 2 degats
+        assertThat(cruel.vitalite()).isEqualTo(8);
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission"));
+    }
+
+    @Test
+    void uneEquipeSansSpecialisteAbandonneApresLApercuDeLaVictime() {
+        Character amateur = agent();
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(amateur), TOUJOURS_1, START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isFinished()).isTrue();
+        assertThat(execution.isReussie()).isFalse();
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("L\u2019apparence horrible de la victime poss\u00e9d\u00e9e co\u00fbte 2 de sang-froid"));
+        assertThat(amateur.sangFroid()).isEqualTo(8);
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission"));
     }
 
     @Test
@@ -62,37 +115,11 @@ class RumeursPossessionTest {
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
         MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), TOUJOURS_100, START);
 
-        execution.advance(START.plus(Duration.ofDays(1)));
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(enqueteur.isExclu()).isTrue();
         assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("Alice s'est fait détester"));
-        assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("La difficulté du test de l'événement exorcisme sera baissée de 10"));
-    }
-
-    @Test
-    void laDifficulteBaisseeRendLexorcismePlusFacile() {
-        Character enqueteur = agent();
-        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), TOUJOURS_100, START);
-
-        // toutes les reussites sont impossibles avec un de de 100 mais
-        // l'echec cumule des ajustements : on verifie l'ajustement cible
-        execution.advance(START.plus(Duration.ofDays(1)));
-        assertThat(execution.ajustementsDifficulte()).containsKey("exorcisme");
-    }
-
-    @Test
-    void lExclusionDeTousLesJoueursTermineLaMission() {
-        Character enqueteur = new Character("a", "Alice");
-        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(enqueteur), TOUJOURS_100, START);
-
-        assertThat(execution.advance(START.plus(Duration.ofDays(365)))).isTrue();
-        assertThat(execution.isFinished()).isTrue();
+                .anyMatch(l -> l.contains("s\u2019est fait d\u00e9tester par tout le voisinage"));
         assertThat(execution.isReussie()).isFalse();
-        assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("Plus personne pour continuer"));
     }
 
     @Test
@@ -104,15 +131,15 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("Tante Véréna tente le test de Ragot"));
+                .anyMatch(l -> l.contains("Tante V\u00e9r\u00e9na tente le test de Ragot"));
     }
 
     private Character agent() {
-        return new Character("v", "Tante Véréna")
+        return new Character("v", "Tante V\u00e9r\u00e9na")
                 .withSkill(Competence.RAGOT, 50)
                 .withSkill(Competence.ELOQUENCE, 50)
                 .withSkill(Competence.FORCE_MENTALE, 50)
-                .withSkill(Competence.VIGILANCE, 50)
-                .withSkill(Competence.MAGIE, 50);
+                .withSkill(Competence.INTELLIGENCE, 50)
+                .withSkill(Competence.DISCRETION, 50);
     }
 }

@@ -53,7 +53,8 @@ class MissionExecutionTest {
     @Test
     void laReussiteDAmenEvenementsSuivantJusquaLaVictoire() {
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
-        MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_LOW, START);
+        MissionExecution execution = MissionExecution.start(mission,
+                List.of(agent().withSpecialite("Exorcisme")), ALWAYS_LOW, START);
 
         assertThat(execution.advance(START.plus(Duration.ofDays(365)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
@@ -73,7 +74,7 @@ class MissionExecutionTest {
     }
 
     @Test
-    void lechecSimpleRecommenceLaBoucleEtCumuleLaDifficulteBaissee() {
+    void lechecSimpleRecommenceLaBoucleSansExclusion() {
         // cible 30 : un seul jet a 40 (echec simple, pas d'exclusion)
         RandomSource deUnique = new RandomSource() {
             private boolean joue = false;
@@ -93,10 +94,6 @@ class MissionExecutionTest {
         assertThat(execution.isFinished()).isFalse();
         // l'evenement suivant est a nouveau "recherche-du-cas"
         assertThat(execution.evenementCourant()).isEqualTo("recherche-du-cas");
-        // l'ajustement de difficulte vise l'exorcisme
-        assertThat(execution.ajustementsDifficulte()).containsEntry("exorcisme", 10);
-        assertThat(execution.logLines())
-                .anyMatch(l -> l.contains("La difficulté du test de l'événement exorcisme sera baissée de 10"));
         // l'introduction du nouveau passage est deja publiee
         assertThat(execution.logLines())
                 .filteredOn(l -> l.contains("=== Recherche du cas ==="))
