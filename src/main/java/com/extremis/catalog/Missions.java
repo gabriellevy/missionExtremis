@@ -135,30 +135,28 @@ public final class Missions {
                                 .effet("L\u2019apparence horrible de la victime poss\u00e9d\u00e9e co\u00fbte 2 de sang-froid "
                                         + "\u00e0 chaque personnage.")
                                 .perteSangFroidEquipe(2)
-                                .branche("Un arrangeur sait pratiquer un exorcisme.", equipe -> equipe.stream()
-                                        .anyMatch(c -> c.specialites().stream()
-                                        .anyMatch(s -> s.toLowerCase().startsWith("exorcisme")), "exorcisme")
+                                .branche("Un arrangeur sait pratiquer un exorcisme.",
+                                        equipe -> equipe.stream().anyMatch(c -> aLaSpecialite(c, "exorcisme")),
+                                        "exorcisme")
                                 .branche("Personne pour exorciser, mais un arrangeur sait soigner les esprits : "
-                                        + "la victime sera intern\u00e9e.", equipe -> equipe.stream()
-                                        .anyMatch(c -> c.specialites().stream()
-                                        .anyMatch(s -> s.toLowerCase().startsWith("psychiatre")), "psychiatrie")
+                                        + "la victime sera intern\u00e9e.",
+                                        equipe -> equipe.stream().anyMatch(c -> aLaSpecialite(c, "psychiatre")),
+                                        "psychiatrie")
                                 .branche("Personne pour soigner, mais un arrangeur cruel pourrait se d\u00e9barrasser "
-                                        + "de la victime.", equipe -> equipe.stream()
-                                        .anyMatch(c -> c.traits().stream()
-                                        .anyMatch(t -> t.name().equalsIgnoreCase("Cruel")
-                                        || t.name().equalsIgnoreCase("Sociopathique")
-                                        || t.name().equalsIgnoreCase("tr\u00e8s Sociopathe")
-                                        || t.name().equalsIgnoreCase("extr\u00eamement Sociopathe"))), "tentative-de-meurtre")
+                                        + "de la victime.",
+                                        equipe -> equipe.stream().anyMatch(c -> estCruelOuSociopathe(c)),
+                                        "tentative-de-meurtre")
                                 .branche("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission "
-                                        + "mais vous pouvez en renvoyer une autre.", equipe -> true, "abandon")
+                                        + "mais vous pouvez en renvoyer une autre.",
+                                        equipe -> true,
+                                        "abandon")
                                 .build(),
                         MissionEvent.builder("exorcisme", "Exorcisme")
                                 .introduction("Un arrangeur va tenter un exorcisme pendant que la cr\u00e9ature se d\u00e9bat. "
                                         + "Sa force mentale est mise \u00e0 rude \u00e9preuve (-2 sang-froid).")
                                 .duree(dExorcisme)
                                 .coutSangFroidTesteur(2)
-                                .testeurFiltre(c -> c.specialites().stream()
-                                        .anyMatch(s -> s.toLowerCase().startsWith("exorcisme")))
+                                .testeurFiltre(c -> aLaSpecialite(c, "exorcisme"))
                                 .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime.")
@@ -175,8 +173,7 @@ public final class Missions {
                                         + "La sc\u00e8ne \u00e9prouve ses nerfs (-4 sang-froid).")
                                 .duree(dPsychiatrie)
                                 .coutSangFroidTesteur(4)
-                                .testeurFiltre(c -> c.specialites().stream()
-                                        .anyMatch(s -> s.toLowerCase().startsWith("psychiatre")))
+                                .testeurFiltre(c -> aLaSpecialite(c, "psychiatre"))
                                 .test(new SimpleTest(Competence.INTELLIGENCE, -10))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Vous faites interner d\u00e9finitivement la malheureuse victime.")
@@ -192,11 +189,7 @@ public final class Missions {
                                 .introduction("Un arrangeur cruel va tenter d\u2019assassiner la victime "
                                         + "poss\u00e9d\u00e9e pour chasser le d\u00e9mon.")
                                 .duree(Duration.ZERO)
-                                .testeurFiltre(c -> c.traits().stream()
-                                        .anyMatch(t -> t.name().equalsIgnoreCase("Cruel")
-                                        || t.name().equalsIgnoreCase("Sociopathique")
-                                        || t.name().equalsIgnoreCase("tr\u00e8s Sociopathe")
-                                        || t.name().equalsIgnoreCase("extr\u00eamement Sociopathe")))
+                                .testeurFiltre(c -> estCruelOuSociopathe(c))
                                 .test(new SimpleTest(Competence.DISCRETION, 20))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Le personnage a assassin\u00e9 la malheureuse victime "
@@ -215,5 +208,18 @@ public final class Missions {
                                 .introduction("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission.")
                                 .duree(Duration.ZERO)
                                 .build()));
+    }
+
+    private static boolean aLaSpecialite(Character personnage, String prefixe) {
+        return personnage.specialites().stream()
+                .anyMatch(s -> s.toLowerCase().startsWith(prefixe));
+    }
+
+    private static boolean estCruelOuSociopathe(Character personnage) {
+        return personnage.traits().stream()
+                .anyMatch(t -> {
+                    String nom = t.name().toLowerCase();
+                    return nom.startsWith("cruel") || nom.startsWith("sociopath");
+                });
     }
 }
