@@ -144,12 +144,25 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereBaptisteLeMime() {
+        seed("seed-04", "Baptiste le mime", "esthete", "mime",
+                new Competence[]{Competence.BAGARRE, Competence.CHARME, Competence.DISCRETION,
+                        Competence.EVALUATION, Competence.HABILETE, Competence.INTUITION,
+                        Competence.MOUVEMENT, Competence.PERCEPTION, Competence.REFLEXES},
+                new int[]{-5, 5, 5, 5, 10, 5, 10, 10, -10},
+                new String[]{ViceEtVertu.CARTESIEN.vice(), ViceEtVertu.ESTHETE.vertu()}, 30);
+        repository.findById("seed-04").ifPresent(c -> {
+            c.setVitalite(15);
+            c.setSangFroid(14);
+            c.setDescription("Acteur mime de genie, doux et reveur, dans la lignée de Baptiste du film Les Enfants du paradis.");
+            repository.save(c);
+        });
+    }
+
     @Transactional
     public void semerCatalogue() {
         genereLacenaire();
-        seed("seed-04", "Rorschach", "khaos", "enqueteur",
-                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.DISCRETION}, new int[]{7, 9, 6},
-                new String[]{"Implacable"});
+        genereBaptisteLeMime();
         seed("seed-05", "Arsene Lupin", "esthete", "enqueteur",
                 new Competence[]{Competence.DISCRETION, Competence.MOUVEMENT, Competence.REFLEXES}, new int[]{10, 8, 6},
                 new String[]{"Cambrioleur"});
