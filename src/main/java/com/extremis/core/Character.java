@@ -8,6 +8,7 @@ public final class Character {
     private final String name;
     private final List<Trait> traits = new ArrayList<>();
     private final List<String> specialites = new ArrayList<>();
+    private final List<String> maitrises = new ArrayList<>();
     private final java.util.EnumMap<Competence, Integer> skills = new java.util.EnumMap<>(Competence.class);
     private final List<String> inventory = new ArrayList<>();
     private int skillBase = DEFAULT_SKILL_BASE;
@@ -46,6 +47,7 @@ public final class Character {
     public boolean isExclu() { return excluDeLAventure; }
     public List<Trait> traits() { return traits; }
     public List<String> specialites() { return specialites; }
+    public List<String> maitrises() { return maitrises; }
     public List<String> inventory() { return inventory; }
     public int skillBase() { return skillBase; }
 
@@ -81,6 +83,11 @@ public final class Character {
 
     public Character withSpecialite(String specialite) {
         specialites.add(specialite);
+        return this;
+    }
+
+    public Character withMaitrise(String maitrise) {
+        maitrises.add(maitrise);
         return this;
     }
 

@@ -14,4 +14,5 @@ public record TeamMemberView(
         int skillBase,
         Map<String, Integer> skills,
         List<String> traits,
-        List<String> specialites) {}
+        List<String> specialites,
+        List<String> maitrises) {}

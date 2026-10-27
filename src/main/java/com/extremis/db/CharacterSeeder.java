@@ -67,6 +67,14 @@ public class CharacterSeeder implements ApplicationRunner {
             genereJeanTrenton();
             ajoute[0] = true;
         }
+        repository.findById("seed-11").ifPresent(c -> {
+            if (c.getMaitrises().isEmpty()) {
+                c.addMaitrise("Exorcisme");
+                c.addMaitrise("Th\u00e9ologie");
+                repository.save(c);
+                log.info("Ma\u00eetrises Exorcisme et Th\u00e9ologie ajoutees au P\u00e8re Damian Karras");
+            }
+        });
         if (ajoute[0]) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
@@ -144,6 +152,10 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
                 new String[]{ViceEtVertu.DESINTERESSE.vertu(), ViceEtVertu.CHASTE.vertu()}, 36);
         repository.findById("seed-11").ifPresent(c -> {
+            if (c.getMaitrises().isEmpty()) {
+                c.addMaitrise("Exorcisme");
+                c.addMaitrise("Th\u00e9ologie");
+            }
             c.setVitaliteDepart(19);
             c.setVitalite(19);
             c.setSangFroidDepart(18);

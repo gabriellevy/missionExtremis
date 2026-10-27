@@ -38,6 +38,20 @@ class RumeursPossessionTest {
     }
 
     @Test
+    void laMaitriseExorcismePermetAussiLaBrancheExorcisme() {
+        Character exorciste = agent().withMaitrise("Exorcisme");
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(exorciste), TOUJOURS_1, START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isReussie()).isTrue();
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Un arrangeur sait pratiquer un exorcisme."));
+        assertThat(execution.logLines())
+                .anyMatch(l -> l.contains("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime."));
+    }
+
+    @Test
     void laMissionReussitParLaPsychiatrieSansExorciste() {
         Character psychiatre = agent().withSpecialite("Psychiatre");
         Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();

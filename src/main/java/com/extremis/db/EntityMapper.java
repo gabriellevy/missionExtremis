@@ -21,6 +21,9 @@ public final class EntityMapper {
         for (CharacterSpecialiteEntity s : e.getSpecialites()) {
             c.withSpecialite(s.getNom());
         }
+        for (CharacterMaitriseEntity m : e.getMaitrises()) {
+            c.withMaitrise(m.getNom());
+        }
         for (CharacterItemEntity i : e.getInventory()) {
             c.addItem(i.getLabel());
         }
@@ -46,6 +49,9 @@ public final class EntityMapper {
         }
         for (String specialite : c.specialites()) {
             e.addSpecialite(specialite);
+        }
+        for (String maitrise : c.maitrises()) {
+            e.addMaitrise(maitrise);
         }
         for (String item : c.inventory()) {
             e.addItem(item);

@@ -137,7 +137,7 @@ public final class Missions {
                                         + "\u00e0 chaque personnage.")
                                 .perteSangFroidEquipe(2)
                                 .branche("Un arrangeur sait pratiquer un exorcisme.",
-                                        equipe -> equipe.stream().anyMatch(c -> aLaSpecialite(c, "exorcisme")),
+                                        equipe -> equipe.stream().anyMatch(Missions::saitExorciser),
                                         "exorcisme")
                                 .branche("Personne pour exorciser, mais un arrangeur sait soigner les esprits : "
                                         + "la victime sera intern\u00e9e.",
@@ -157,7 +157,7 @@ public final class Missions {
                                         + "Sa force mentale est mise \u00e0 rude \u00e9preuve (-2 sang-froid).")
                                 .duree(dExorcisme)
                                 .coutSangFroidTesteur(2)
-                                .testeurFiltre(c -> aLaSpecialite(c, "exorcisme"))
+                                .testeurFiltre(Missions::saitExorciser)
                                 .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime.")
@@ -214,6 +214,15 @@ public final class Missions {
     private static boolean aLaSpecialite(Character personnage, String prefixe) {
         return personnage.specialites().stream()
                 .anyMatch(s -> s.toLowerCase().startsWith(prefixe));
+    }
+
+    private static boolean aLaMaitrise(Character personnage, String prefixe) {
+        return personnage.maitrises().stream()
+                .anyMatch(m -> m.toLowerCase().startsWith(prefixe));
+    }
+
+    private static boolean saitExorciser(Character personnage) {
+        return aLaMaitrise(personnage, "exorcisme") || aLaSpecialite(personnage, "exorcisme");
     }
 
     private static boolean estCruelOuSociopathe(Character personnage) {
