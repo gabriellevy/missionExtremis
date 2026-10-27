@@ -34,6 +34,10 @@ public class SchemaMigrator implements ApplicationRunner {
         renommerColonneSiPresente("characters", "health", "vitalite");
         renommerColonneSiPresente("execution_team_members", "health", "vitalite");
         ajouterColonneSiAbsente("characters", "sang_froid");
+        ajouterColonneDepartSiAbsente("characters", "vitalite_depart", "vitalite");
+        ajouterColonneDepartSiAbsente("characters", "sang_froid_depart", "sang_froid");
+        initialiserValeursDeDepart("characters", "vitalite_depart", "vitalite");
+        initialiserValeursDeDepart("characters", "sang_froid_depart", "sang_froid");
         rendreCascadeSiNecessaire("execution_log_lines", "execution_id", "mission_executions");
         rendreCascadeSiNecessaire("execution_team_members", "execution_id", "mission_executions");
         rendreCascadeSiNecessaire("execution_ajustements", "execution_id", "mission_executions");
@@ -153,6 +157,32 @@ public class SchemaMigrator implements ApplicationRunner {
         if (!colonneExiste(table, colonne)) {
             jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " integer NOT NULL DEFAULT 10");
             log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    /**
+     * Ajoute une colonne de valeur de depart (vitalite_depart, sang_froid_depart)
+     * pour afficher "valeur actuelle / valeur de depart" dans les profils.
+     */
+    private void ajouterColonneDepartSiAbsente(String table, String colonne, String colonneSource) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne
+                    + " integer NOT NULL DEFAULT 10");
+            jdbc.execute("UPDATE " + table + " SET " + colonne + " = " + colonneSource);
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    /**
+     * Hibernate (ddl-auto=update) cree ces colonnes avec la valeur par defaut 10
+     * avant ce migrateur : on reprend alors la valeur actuelle comme point de
+     * depart pour les personnages deja en base.
+     */
+    private void initialiserValeursDeDepart(String table, String colonne, String colonneSource) {
+        int lignes = jdbc.update("UPDATE " + table + " SET " + colonne + " = " + colonneSource
+                + " WHERE " + colonne + " = 10 AND " + colonneSource + " <> 10");
+        if (lignes > 0) {
+            log.info("{} valeurs de depart ({}) initialisees dans {}", lignes, colonne, table);
         }
     }
 }

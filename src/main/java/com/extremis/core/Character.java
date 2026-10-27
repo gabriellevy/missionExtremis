@@ -13,6 +13,8 @@ public final class Character {
     private int skillBase = DEFAULT_SKILL_BASE;
     private int vitalite = VITALITE_DEFAUT;
     private int sangFroid = SANG_FROID_DEFAUT;
+    private int vitaliteDepart = VITALITE_DEFAUT;
+    private int sangFroidDepart = SANG_FROID_DEFAUT;
     private boolean alive = true;
     private boolean excluDeLAventure = false;
 
@@ -30,6 +32,8 @@ public final class Character {
     public String name() { return name; }
     public int vitalite() { return vitalite; }
     public int sangFroid() { return sangFroid; }
+    public int vitaliteDepart() { return vitaliteDepart; }
+    public int sangFroidDepart() { return sangFroidDepart; }
     public boolean isAlive() { return alive; }
 
     /**
@@ -47,6 +51,16 @@ public final class Character {
 
     public Character withSangFroid(int valeur) {
         this.sangFroid = valeur;
+        return this;
+    }
+
+    public Character withVitaliteDepart(int valeur) {
+        this.vitaliteDepart = valeur;
+        return this;
+    }
+
+    public Character withSangFroidDepart(int valeur) {
+        this.sangFroidDepart = valeur;
         return this;
     }
 
@@ -95,7 +109,7 @@ public final class Character {
 
     public void heal(int amount) {
         if (alive) {
-            vitalite = Math.min(VITALITE_DEFAUT, vitalite + amount);
+            vitalite = Math.min(Math.max(vitaliteDepart, VITALITE_DEFAUT), vitalite + amount);
         }
     }
 
@@ -108,7 +122,7 @@ public final class Character {
     }
 
     public void setVitalite(int value) {
-        vitalite = Math.max(0, Math.min(VITALITE_DEFAUT, value));
+        vitalite = Math.max(0, Math.min(Math.max(vitaliteDepart, VITALITE_DEFAUT), value));
     }
 
     public void setSangFroid(int value) {

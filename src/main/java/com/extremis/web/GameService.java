@@ -61,6 +61,12 @@ public class GameService {
         Character copy = new Character("rec-" + recruit.id() + "-" + System.nanoTime(), recruit.name());
         copy.withSkillBase(recruit.skillBase()); recruit.skillsSnapshot().forEach((skill, value) -> copy.withSkill(skill, value));
         CharacterEntity source = characters.findById(recruit.id()).orElse(null);
+        if (source != null) {
+            copy.withVitaliteDepart(source.getVitaliteDepart());
+            copy.withSangFroidDepart(source.getSangFroidDepart());
+            copy.setVitalite(source.getVitalite());
+            copy.setSangFroid(source.getSangFroid());
+        }
         CharacterEntity entity = EntityMapper.toEntity(copy,
                 source != null ? source.getCoterie() : null,
                 source != null ? source.getRole() : null);
