@@ -275,7 +275,8 @@ public class GameController {
                 game.characterById(id).ifPresent(equipe::add);
             }
         }
-        if (equipe.isEmpty()) {
+        if (equipe.isEmpty() || equipe.size() > 4) {
+            log.info("Lancement de mission refuse : equipe invalide ({} membres).", equipe.size());
             return "redirect:/";
         }
         MissionExecutionEntity entity = game.startMission(mission, equipe, Instant.now());

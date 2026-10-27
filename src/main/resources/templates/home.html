@@ -108,6 +108,7 @@
     <p th:text="${m.brief()}"/>
     <form method="post" action="/mission/run">
       <input type="hidden" name="missionId" th:value="${m.id()}"/>
+      <p class="message-limite-equipe" style="display:none; color: #e07040;"></p>
       <div class="champs-equipes">
         <th:block th:each="c : ${roster}">
           <label>
@@ -259,6 +260,24 @@
       restant = Math.max(0, restant - 1);
       el.textContent = formaterDecompte(restant);
     }, 1000);
+  });
+  const MAX_ARRANGEURS = 4;
+  document.querySelectorAll('form[action="/mission/run"]').forEach(form => {
+    const cases = Array.from(form.querySelectorAll('input[name="teamIds"]'));
+    const message = form.querySelector('.message-limite-equipe');
+    cases.forEach(caseACocher => caseACocher.addEventListener('change', () => {
+      const cochees = cases.filter(c => c.checked);
+      if (cochees.length > MAX_ARRANGEURS) {
+        caseACocher.checked = false;
+        if (message) {
+          message.textContent = 'Un maximum de quatre arrangeurs peuvent être envoyés pour une mission.';
+          message.style.display = 'block';
+        }
+      } else if (message) {
+        message.textContent = '';
+        message.style.display = 'none';
+      }
+    }));
   });
 </script>
 </body>
