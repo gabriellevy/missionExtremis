@@ -24,6 +24,8 @@ public final class EntityMapper {
         for (CharacterItemEntity i : e.getInventory()) {
             c.addItem(i.getLabel());
         }
+        c.withVitaliteDepart(e.getVitaliteDepart());
+        c.withSangFroidDepart(e.getSangFroidDepart());
         c.setVitalite(e.getVitalite());
         c.setSangFroid(e.getSangFroid());
         if (!e.isAlive()) {
@@ -50,6 +52,8 @@ public final class EntityMapper {
         }
         e.setVitalite(c.vitalite());
         e.setSangFroid(c.sangFroid());
+        e.setVitaliteDepart(c.vitaliteDepart());
+        e.setSangFroidDepart(c.sangFroidDepart());
         e.setAlive(c.isAlive());
         return e;
     }

@@ -83,7 +83,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{10, 15, 20, 5, 10, 20, 10},
                 new String[]{ViceEtVertu.HUMBLE.vice(), ViceEtVertu.EMPATHIQUE.vice()}, 30);
         repository.findById("seed-03").ifPresent(c -> {
+            c.setVitaliteDepart(15);
             c.setVitalite(15);
+            c.setSangFroidDepart(15);
             c.setSangFroid(15);
             c.setDescription("Sociopathe aigri et menaçant, Lacenaire combine sa malveillance avec une culture, "
                     + "une élégance et une intelligence peu communes. Par mépris pour l'humanité il refuse le système "
@@ -101,7 +103,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{-2, 2, 14, 12, -4, 15, 34, 15, 10},
                 new String[]{ViceEtVertu.CARTESIEN.vertu(), ViceEtVertu.NAIF.vice()}, 24);
         repository.findById("seed-12").ifPresent(c -> {
+            c.setVitaliteDepart(13);
             c.setVitalite(13);
+            c.setSangFroidDepart(13);
             c.setSangFroid(13);
             c.setDescription("Jean Trenton est un reflet, c'est à dire un personnage créé par un génie du divertissement "
                     + "au point d'être incarné par la volonté de ses innombrables fans.");
@@ -119,7 +123,9 @@ public class CharacterSeeder implements ApplicationRunner {
         repository.findById("seed-02").ifPresent(c -> {
             c.addSpecialite("Jouer la com\u00e9die + 10");
             c.addSpecialite("D\u00e9guisement + 10");
+            c.setVitaliteDepart(13);
             c.setVitalite(13);
+            c.setSangFroidDepart(17);
             c.setSangFroid(17);
             c.setDescription("Espionne talentueuse et mythomane, elle a tout l'art d'une bonne agente, "
                     + "de la discrétion au marchandage. Elle est possédée par un esprit demoniaque et très belle, "
@@ -138,7 +144,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{9, 5, 5, 15, 9, 15, 15, -9, 15, -10, 10, -10, -15},
                 new String[]{ViceEtVertu.DESINTERESSE.vertu(), ViceEtVertu.CHASTE.vertu()}, 36);
         repository.findById("seed-11").ifPresent(c -> {
+            c.setVitaliteDepart(19);
             c.setVitalite(19);
+            c.setSangFroidDepart(18);
             c.setSangFroid(18);
             repository.save(c);
         });
@@ -152,7 +160,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{-5, 5, 5, 5, 10, 5, 10, 10, -10},
                 new String[]{ViceEtVertu.CARTESIEN.vice(), ViceEtVertu.ESTHETE.vertu()}, 30);
         repository.findById("seed-04").ifPresent(c -> {
+            c.setVitaliteDepart(15);
             c.setVitalite(15);
+            c.setSangFroidDepart(14);
             c.setSangFroid(14);
             c.setDescription("Acteur mime de genie, doux et reveur, dans la lignée de Baptiste du film Les Enfants du paradis.");
             repository.save(c);
@@ -176,7 +186,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{25, 15, 10, -20, 10, 15, 20, 15, 5, 15, -20, -10},
                 new String[]{ViceEtVertu.CHASTE.vice(2), ViceEtVertu.ESTHETE.vertu(), ViceEtVertu.SOCIABLE.vertu()}, 33);
         repository.findById("seed-07").ifPresent(c -> {
+            c.setVitaliteDepart(15);
             c.setVitalite(15);
+            c.setSangFroidDepart(15);
             c.setSangFroid(15);
             repository.save(c);
         });

@@ -33,6 +33,8 @@ public class CharacterEntity {
     private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;
     private int vitalite = com.extremis.core.Character.VITALITE_DEFAUT;
     private int sangFroid = com.extremis.core.Character.SANG_FROID_DEFAUT;
+    private int vitaliteDepart = com.extremis.core.Character.VITALITE_DEFAUT;
+    private int sangFroidDepart = com.extremis.core.Character.SANG_FROID_DEFAUT;
 
     private boolean alive = true;
 
@@ -62,6 +64,8 @@ public class CharacterEntity {
     public int getSkillBase() { return skillBase; }
     public int getVitalite() { return vitalite; }
     public int getSangFroid() { return sangFroid; }
+    public int getVitaliteDepart() { return vitaliteDepart; }
+    public int getSangFroidDepart() { return sangFroidDepart; }
     public boolean isAlive() { return alive; }
     public List<CharacterSkillEntity> getSkills() { return skills; }
     public List<CharacterTraitEntity> getTraits() { return traits; }
@@ -74,6 +78,8 @@ public class CharacterEntity {
     public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }
     public void setSangFroid(int sangFroid) { this.sangFroid = sangFroid; }
+    public void setVitaliteDepart(int vitaliteDepart) { this.vitaliteDepart = vitaliteDepart; }
+    public void setSangFroidDepart(int sangFroidDepart) { this.sangFroidDepart = sangFroidDepart; }
     public void setAlive(boolean alive) { this.alive = alive; }
 
     public void addSkill(Competence skill, int value) {
