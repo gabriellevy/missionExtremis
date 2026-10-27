@@ -176,7 +176,7 @@ public class CharacterSeeder implements ApplicationRunner {
             c.setVitalite(15);
             c.setSangFroidDepart(14);
             c.setSangFroid(14);
-            c.setDescription("Acteur mime de genie, doux et reveur, dans la lignée de Baptiste du film Les Enfants du paradis.");
+            c.setDescription("Acteur mime de genie, doux et reveur.");
             repository.save(c);
         });
     }
