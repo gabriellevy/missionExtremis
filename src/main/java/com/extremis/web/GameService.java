@@ -104,7 +104,8 @@ public class GameService {
     public MissionExecutionEntity startMission(Mission mission, List<Character> team, Instant now) {
         MissionExecutionEntity entity = new MissionExecutionEntity(mission.id(), mission.titre(), now);
         for (Character c : team) {
-            entity.addTeamMember(new ExecutionTeamMemberEntity(c.id(), c.name(), c.vitalite(), c.isAlive()));
+            entity.addTeamMember(new ExecutionTeamMemberEntity(c.id(), c.name(),
+                    c.vitalite(), c.sangFroid(), c.isAlive()));
         }
         MissionExecution execution = MissionExecution.start(mission, team, new SeededRandom(42L), now);
         syncProgress(entity, execution);
@@ -137,8 +138,11 @@ public class GameService {
         }
         List<Character> team = new ArrayList<>();
         for (ExecutionTeamMemberEntity m : entity.getTeam()) {
-            Character c = new Character(m.getCharacterId(), m.getName());
+            Character c = characters.findById(m.getCharacterId())
+                    .map(EntityMapper::toCore)
+                    .orElseGet(() -> new Character(m.getCharacterId(), m.getName()));
             c.setVitalite(m.getVitalite());
+            c.setSangFroid(m.getSangFroid());
             if (!m.isAlive()) {
                 c.kill();
             }
@@ -198,7 +202,22 @@ public class GameService {
                     });
         }
         syncRosterAfterMission(report);
+        syncSangFroidRoster(entity);
         executions.save(entity);
+    }
+
+    /**
+     * Repercute le sang-froid final de l'execution sur le roster : les
+     * pertes de sang-froid subies en mission persistent (wiki, page
+     * "Personnage jdr").
+     */
+    private void syncSangFroidRoster(MissionExecutionEntity entity) {
+        for (ExecutionTeamMemberEntity m : entity.getTeam()) {
+            characters.findById(m.getCharacterId()).ifPresent(c -> {
+                c.setSangFroid(m.getSangFroid());
+                characters.save(c);
+            });
+        }
     }
 
     private void syncRosterAfterMission(MissionReport report) {
@@ -227,6 +246,7 @@ public class GameService {
             ExecutionTeamMemberEntity m = entity.getTeam().get(i);
             Character c = execution.teamSnapshot().get(i);
             m.setVitalite(c.vitalite());
+            m.setSangFroid(c.sangFroid());
             m.setAlive(c.isAlive());
             m.setExclu(c.isExclu());
         }

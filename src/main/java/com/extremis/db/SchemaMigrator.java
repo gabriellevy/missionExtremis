@@ -39,6 +39,7 @@ public class SchemaMigrator implements ApplicationRunner {
         rendreCascadeSiNecessaire("execution_ajustements", "execution_id", "mission_executions");
         migrerExecutionEvenementCourant();
         ajouterColonneBooleenneSiAbsente("execution_team_members", "exclu");
+        ajouterColonneSiAbsente("execution_team_members", "sang_froid");
         deplacerSpecialitesDesTraits();
     }
 
