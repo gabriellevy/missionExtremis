@@ -31,6 +31,7 @@ public class SchemaMigrator implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        renommerColonneSiPresente("characters", "role", "carriere");
         renommerColonneSiPresente("characters", "health", "vitalite");
         renommerColonneSiPresente("execution_team_members", "health", "vitalite");
         ajouterColonneSiAbsente("characters", "sang_froid");

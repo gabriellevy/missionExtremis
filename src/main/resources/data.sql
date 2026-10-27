@@ -8,15 +8,3 @@ UPDATE character_skills SET skill = 'MOUVEMENT'          WHERE skill = 'AGILITE'
 UPDATE character_skills SET skill = 'INTUITION'          WHERE skill = 'ERUDITION';
 UPDATE character_skills SET skill = 'ELOQUENCE'         WHERE skill = 'DIPLOMATIE';
 UPDATE character_skills SET skill = 'HABILETE'           WHERE skill = 'TECHNIQUE';
-
--- Renommage de la colonne "role" en "carriere" (Carriere du personnage).
--- Idempotent : ne renomme que si l'ancienne colonne existe encore.
-DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.columns
-               WHERE table_name = 'characters' AND column_name = 'role')
-       AND NOT EXISTS (SELECT 1 FROM information_schema.columns
-               WHERE table_name = 'characters' AND column_name = 'carriere')
-    THEN
-        ALTER TABLE characters RENAME COLUMN role TO carriere;
-    END IF;
-END $$;
