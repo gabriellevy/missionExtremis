@@ -128,6 +128,7 @@ public class GameService {
         executions.save(entity);
     }
 
+    @Transactional
     public Optional<MissionExecution> rebuild(MissionExecutionEntity entity) {
         Optional<Mission> def = missionDefinitions.stream()
                 .filter(m -> m.id().equals(entity.getMissionId()))
