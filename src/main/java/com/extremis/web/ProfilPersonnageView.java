@@ -17,4 +17,5 @@ public record ProfilPersonnageView(
         Map<String, Integer> competences,
         List<String> traits,
         List<String> specialites,
+        List<String> maitrises,
         List<String> inventaire) {}
