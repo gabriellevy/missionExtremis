@@ -33,7 +33,11 @@ public class CharacterEntity {
     private int skillBase = com.extremis.core.Character.DEFAULT_SKILL_BASE;
     private int vitalite = com.extremis.core.Character.VITALITE_DEFAUT;
     private int sangFroid = com.extremis.core.Character.SANG_FROID_DEFAUT;
+
+    @Column(name = "vitalite_depart", nullable = false, columnDefinition = "integer not null default 10")
     private int vitaliteDepart = com.extremis.core.Character.VITALITE_DEFAUT;
+
+    @Column(name = "sang_froid_depart", nullable = false, columnDefinition = "integer not null default 10")
     private int sangFroidDepart = com.extremis.core.Character.SANG_FROID_DEFAUT;
 
     private boolean alive = true;
