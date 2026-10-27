@@ -3,6 +3,7 @@ package com.extremis.catalog;
 import java.time.Duration;
 import java.util.List;
 
+import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionEvent;
@@ -69,122 +70,157 @@ public final class Missions {
     }
 
     /**
-     * "Rumeurs de possession démoniaque" (wiki, page du meme nom) :
+     * "Rumeurs de possession demoniaque" (wiki, page du meme nom) :
      * une sonde espionne a rapporte des conversations contenant des
      * mots cles associes aux possessions demoniaques. La mission
-     * complete l'enquete jusqu'a l'exorcisme.
+     * complete l'enquete puis branche selon les moyens de l'equipe :
+     * exorcisme, psychiatrie, assassinat de la victime ou abandon.
      */
     public static Mission rumeursDePossessionDemoniaque() {
         return possession(Duration.ofHours(6), Duration.ofHours(3), Duration.ofHours(4),
-                Duration.ofHours(2), Duration.ofHours(8), Duration.ofHours(5));
+                Duration.ofHours(12));
     }
 
     public static Mission rumeursDePossessionDemoniaqueRapide() {
         return possession(Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1),
-                Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1));
+                Duration.ofSeconds(1));
     }
 
     private static Mission possession(Duration dRecherche, Duration dConvaincre, Duration dExorcisme,
-                                      Duration dRituel, Duration dSurveillance, Duration dPurification) {
+                                      Duration dPsychiatrie) {
         return new Mission(
                 "possession",
-                "Rumeurs de possession démoniaque",
-                "Une sonde espionne a rapporte plusieurs conversations eparses contenant des mots cles "
-                        + "associes aux possessions demoniaques : folie, langues inconnues, prescience, "
-                        + "profanites... Rien n'est prouve et les pistes sont faibles mais cela est plus "
-                        + "prudent d'enqueter.",
+                "Rumeurs de possession d\u00e9moniaque",
+                "Une sonde espionne a rapport\u00e9 plusieurs conversations \u00e9parses contenant des mots cl\u00e9s "
+                        + "associ\u00e9s aux possessions d\u00e9moniaques : folie, langues inconnues, prescience, "
+                        + "profanit\u00e9s\u2026 Rien n\u2019est prouv\u00e9 et les pistes sont faibles mais cela est plus "
+                        + "prudent d\u2019enqu\u00eater.",
                 List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.FORCE_MENTALE),
                 List.of(
                         MissionEvent.builder("recherche-du-cas", "Recherche du cas")
-                                .introduction("Les arrangeurs s'enquièrent discrètement autour d'eux.")
+                                .introduction("Les arrangeurs s\u2019enqui\u00e8rent discr\u00e8tement autour d\u2019eux.")
                                 .duree(dRecherche)
-                                .test(new SimpleTest(Competence.RAGOT, 0))
+                                .test(new SimpleTest(Competence.RAGOT, 20))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Vous avez trouvé la victime de possession démoniaque "
+                                        .texteSimple("Vous avez trouv\u00e9 la victime de possession d\u00e9moniaque "
                                                 + "que sa famille tentait de cacher.")
                                         .evenementSuivant("convaincre-la-famille")
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("Les arrangeurs ne trouvent aucune piste fiable. "
-                                                + "Recommencer à \"Recherche du cas\". La difficulté du test "
-                                                + "d'exorcisme sera baissée de 10.")
-                                        .texteCritique("\\[nom du perso\\] s'est fait détester par tout le "
-                                                + "voisinage avec ses questions. Il a été chassé du quartier. "
-                                                + "La difficulté du test d'exorcisme sera baissée de 10.")
+                                                + "Recommencer \u00e0 \"Recherche du cas\".")
+                                        .texteCritique("Le personnage qui a \u00e9chou\u00e9 au test s\u2019est fait "
+                                                + "d\u00e9tester par tout le voisinage avec ses questions. Il a \u00e9t\u00e9 "
+                                                + "chass\u00e9 du quartier. Recommencer \u00e0 \"Recherche du cas\".")
                                         .exclureJoueur()
-                                        .ajustementDifficulte(10)
-                                        .evenementAjuste("exorcisme")
                                         .evenementSuivant("recherche-du-cas")
                                         .build())
                                 .build(),
                         MissionEvent.builder("convaincre-la-famille", "Convaincre la famille")
-                                .introduction("La famille de la victime refuse de laisser des étrangers s'approcher.")
+                                .introduction("La famille de la victime refuse de laisser des \u00e9trangers s\u2019approcher.")
                                 .duree(dConvaincre)
-                                .test(new SimpleTest(Competence.ELOQUENCE, -10))
+                                .test(new SimpleTest(Competence.ELOQUENCE, 20))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("La famille accepte de laisser les arrangeurs tenter "
-                                                + "l'exorcisme.")
-                                        .evenementSuivant("exorcisme")
+                                        .texteSimple("La famille accepte de laisser les arrangeurs approcher la victime.")
+                                        .evenementSuivant("choix-du-traitement")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("La famille reste hermétique. Recommencer à "
-                                                + "\"Convaincre la famille\". La difficulté du test "
-                                                + "d'exorcisme sera baissée de 10.")
-                                        .ajustementDifficulte(10)
-                                        .evenementAjuste("exorcisme")
+                                        .texteSimple("La famille reste herm\u00e9tique. Recommencer \u00e0 "
+                                                + "\"Convaincre la famille\".")
                                         .evenementSuivant("convaincre-la-famille")
                                         .build())
                                 .build(),
+                        MissionEvent.builder("choix-du-traitement", "L\u2019horrible victime")
+                                .introduction("L\u2019apparence horrible de la victime poss\u00e9d\u00e9e glace le sang des arrangeurs.")
+                                .duree(Duration.ZERO)
+                                .effet("L\u2019apparence horrible de la victime poss\u00e9d\u00e9e co\u00fbte 2 de sang-froid "
+                                        + "\u00e0 chaque personnage.")
+                                .perteSangFroidEquipe(2)
+                                .branche("Un arrangeur sait pratiquer un exorcisme.",
+                                        equipe -> equipe.stream().anyMatch(c -> aLaSpecialite(c, "exorcisme")),
+                                        "exorcisme")
+                                .branche("Personne pour exorciser, mais un arrangeur sait soigner les esprits : "
+                                        + "la victime sera intern\u00e9e.",
+                                        equipe -> equipe.stream().anyMatch(c -> aLaSpecialite(c, "psychiatre")),
+                                        "psychiatrie")
+                                .branche("Personne pour soigner, mais un arrangeur cruel pourrait se d\u00e9barrasser "
+                                        + "de la victime.",
+                                        equipe -> equipe.stream().anyMatch(c -> estCruelOuSociopathe(c)),
+                                        "tentative-de-meurtre")
+                                .branche("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission "
+                                        + "mais vous pouvez en renvoyer une autre.",
+                                        equipe -> true,
+                                        "abandon")
+                                .build(),
                         MissionEvent.builder("exorcisme", "Exorcisme")
-                                .introduction("Les arrangeurs commencent le rituel d'exorcisme pendant que "
-                                        + "la créature se débat.")
+                                .introduction("Un arrangeur va tenter un exorcisme pendant que la cr\u00e9ature se d\u00e9bat. "
+                                        + "Sa force mentale est mise \u00e0 rude \u00e9preuve (-2 sang-froid).")
                                 .duree(dExorcisme)
-                                .test(new SimpleTest(Competence.FORCE_MENTALE, -20))
+                                .coutSangFroidTesteur(2)
+                                .testeurFiltre(c -> aLaSpecialite(c, "exorcisme"))
+                                .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Le rituel achevé, la victime redevient elle-même. "
-                                                + "La créature est bannie.")
-                                        .evenementSuivant("surveillance")
+                                        .texteSimple("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime.")
+                                        .evenementSuivant(null)
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Le rituel échoue. Le démon se manifeste avec rage. "
-                                                + "Recommencer à \"Exorcisme\".")
-                                        .texteCritique("Le rituel tourne mal : le démon hurle dans une langue "
-                                                + "inconnue et l'un des arrangeurs perd pied. "
-                                                + "Recommencer à \"Exorcisme\".")
-                                        .degats(2)
-                                        .perteSangFroid(2)
+                                        .texteSimple("Le rituel \u00e9choue. Le d\u00e9mon se manifeste avec rage. "
+                                                + "Recommencer \u00e0 \"Exorcisme\".")
                                         .evenementSuivant("exorcisme")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("surveillance", "Surveillance de la victime")
-                                .introduction("Tant que la victime ne fait aucune rechute, les arrangeurs "
-                                        + "la surveillent la nuit venue.")
-                                .duree(dSurveillance)
-                                .test(new SimpleTest(Competence.VIGILANCE, -10))
+                        MissionEvent.builder("psychiatrie", "Psychiatrie")
+                                .introduction("Un arrangeur va soigner la victime en la faisant interner. "
+                                        + "La sc\u00e8ne \u00e9prouve ses nerfs (-4 sang-froid).")
+                                .duree(dPsychiatrie)
+                                .coutSangFroidTesteur(4)
+                                .testeurFiltre(c -> aLaSpecialite(c, "psychiatre"))
+                                .test(new SimpleTest(Competence.INTELLIGENCE, -10))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("La nuit se passe sans incident : la victime dort "
-                                                + "paisiblement, définitivement délivrée.")
-                                        .evenementSuivant("purification")
+                                        .texteSimple("Vous faites interner d\u00e9finitivement la malheureuse victime.")
+                                        .evenementSuivant(null)
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("La victime fait une rechute nocturne : les arrangeurs "
-                                                + "doivent recommencer la surveillance.")
-                                        .evenementSuivant("exorcisme")
+                                        .texteSimple("L\u2019internement \u00e9choue : la famille refuse de laisser "
+                                                + "emmener la victime. Recommencer \u00e0 \"Psychiatrie\".")
+                                        .evenementSuivant("psychiatrie")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("purification", "Purification du foyer")
-                                .introduction("Le foyer doit être purifié pour empêcher toute nouvelle intrusion.")
-                                .duree(dPurification)
-                                .test(new SimpleTest(Competence.MAGIE, -30))
+                        MissionEvent.builder("tentative-de-meurtre", "Tentative de meurtre")
+                                .introduction("Un arrangeur cruel va tenter d\u2019assassiner la victime "
+                                        + "poss\u00e9d\u00e9e pour chasser le d\u00e9mon.")
+                                .duree(Duration.ZERO)
+                                .testeurFiltre(c -> estCruelOuSociopathe(c))
+                                .test(new SimpleTest(Competence.DISCRETION, 20))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Le foyer est purifié. La famille est sauvée et la "
-                                                + "possession démoniaque ne reviendra pas.")
+                                        .texteSimple("Le personnage a assassin\u00e9 la malheureuse victime "
+                                                + "poss\u00e9d\u00e9e, chassant le d\u00e9mon.")
+                                        .evenementSuivant(null)
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("La purification est imparfaite : le mal est affaibli "
-                                                + "mais pas dissipé. Recommencer à \"Purification du foyer\".")
-                                        .evenementSuivant("purification")
+                                        .texteSimple("La tentative \u00e9choue et le perso assassin perd 2D10 vitalit\u00e9. "
+                                                + "Votre \u00e9quipe n\u2019a pas de quoi remplir la mission "
+                                                + "mais vous pouvez en renvoyer une autre.")
+                                        .degatsAleatoires(2, 10)
+                                        .evenementSuivant(null)
                                         .build())
+                                .build(),
+                        MissionEvent.builder("abandon", "Abandon")
+                                .introduction("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission.")
+                                .duree(Duration.ZERO)
                                 .build()));
+    }
+
+    private static boolean aLaSpecialite(Character personnage, String prefixe) {
+        return personnage.specialites().stream()
+                .anyMatch(s -> s.toLowerCase().startsWith(prefixe));
+    }
+
+    private static boolean estCruelOuSociopathe(Character personnage) {
+        return personnage.traits().stream()
+                .anyMatch(t -> {
+                    String nom = t.name().toLowerCase();
+                    return nom.startsWith("cruel") || nom.startsWith("sociopath");
+                });
     }
 }

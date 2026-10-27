@@ -25,28 +25,33 @@ public class ExecutionTeamMemberEntity {
 
     private int vitalite;
 
+    private int sangFroid;
+
     private boolean alive;
 
     private boolean exclu;
 
     public ExecutionTeamMemberEntity() {}
 
-    public ExecutionTeamMemberEntity(String characterId, String name, int vitalite, boolean alive) {
+    public ExecutionTeamMemberEntity(String characterId, String name, int vitalite, int sangFroid, boolean alive) {
         this.characterId = characterId;
         this.name = name;
         this.vitalite = vitalite;
+        this.sangFroid = sangFroid;
         this.alive = alive;
     }
 
     public String getCharacterId() { return characterId; }
     public String getName() { return name; }
     public int getVitalite() { return vitalite; }
+    public int getSangFroid() { return sangFroid; }
     public boolean isAlive() { return alive; }
     public boolean isExclu() { return exclu; }
     public MissionExecutionEntity getExecution() { return execution; }
 
     public void setExecution(MissionExecutionEntity execution) { this.execution = execution; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }
+    public void setSangFroid(int sangFroid) { this.sangFroid = sangFroid; }
     public void setAlive(boolean alive) { this.alive = alive; }
     public void setExclu(boolean exclu) { this.exclu = exclu; }
 }
