@@ -143,7 +143,7 @@
           <div>&#201;tat :
             <span th:if="${!p.alive()}" class="etat mort">mort</span>
             <span th:if="${p.alive() and p.vitalite < p.vitaliteDepart}" class="etat blesse"
-                  th:text="'bless&#233; (' + ${p.vitalite} + '/' + ${p.vitaliteDepart} + ')'""></span>
+                  th:text="'bless&#233; (' + ${p.vitalite} + '/' + ${p.vitaliteDepart} + ')'"/>
             <span th:if="${p.alive() and p.vitalite == p.vitaliteDepart}" class="etat">indemne</span>
             <div>Vitalit&#233; : <span th:text="${p.vitalite + '/' + p.vitaliteDepart}"></span></div>
             <div>Sang-froid : <span th:text="${p.sangFroid + '/' + p.sangFroidDepart}"></span></div>
