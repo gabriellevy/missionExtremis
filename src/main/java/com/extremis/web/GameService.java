@@ -69,7 +69,7 @@ public class GameService {
         }
         CharacterEntity entity = EntityMapper.toEntity(copy,
                 source != null ? source.getCoterie() : null,
-                source != null ? source.getRole() : null);
+                source != null ? source.getCarriere() : null);
         characters.save(entity);
         ConsulStateEntity state = consul();
         if (state.getLastRecruitment() != null

@@ -6,7 +6,7 @@ import java.util.Map;
 public record ProfilPersonnageView(
         String nom,
         String coterie,
-        String role,
+        String carriere,
         String description,
         boolean vivant,
         int vitalite,

@@ -125,7 +125,7 @@ public class GameController {
             profils.add(new ProfilPersonnageView(
                     entity.getName(),
                     entity.getCoterie(),
-                    entity.getRole(),
+                    entity.getCarriere(),
                     entity.getDescription(),
                     c.isAlive(),
                     c.vitalite(),

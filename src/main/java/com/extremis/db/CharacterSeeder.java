@@ -218,15 +218,15 @@ public class CharacterSeeder implements ApplicationRunner {
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 
-    private void seed(String id, String name, String coterie, String role, Competence[] skills, int[] values, String[] traits) {
-        seed(id, name, coterie, role, skills, values, traits, com.extremis.core.Character.DEFAULT_SKILL_BASE);
+    private void seed(String id, String name, String coterie, String carriere, Competence[] skills, int[] values, String[] traits) {
+        seed(id, name, coterie, carriere, skills, values, traits, com.extremis.core.Character.DEFAULT_SKILL_BASE);
     }
 
-    private void seed(String id, String name, String coterie, String role, Competence[] skills, int[] values, String[] traits,
+    private void seed(String id, String name, String coterie, String carriere, Competence[] skills, int[] values, String[] traits,
                       int baseDeCompetences) {
         CharacterEntity c = new CharacterEntity(id, name);
         c.setCoterie(coterie);
-        c.setRole(role);
+        c.setCarriere(carriere);
         c.setSkillBase(baseDeCompetences);
         for (int i = 0; i < skills.length; i++) {
             c.addSkill(skills[i], values[i]);

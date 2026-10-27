@@ -24,8 +24,8 @@ public class CharacterEntity {
     @Column(length = 64)
     private String coterie;
 
-    @Column(length = 64)
-    private String role;
+    @Column(name = "carriere", length = 64)
+    private String carriere;
     @Column(length = 2048)
     private String description;
 
@@ -66,7 +66,7 @@ public class CharacterEntity {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getCoterie() { return coterie; }
-    public String getRole() { return role; }
+    public String getCarriere() { return carriere; }
     public String getDescription() { return description; }
     public int getSkillBase() { return skillBase; }
     public int getVitalite() { return vitalite; }
@@ -81,7 +81,7 @@ public class CharacterEntity {
     public List<CharacterItemEntity> getInventory() { return inventory; }
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
-    public void setRole(String role) { this.role = role; }
+    public void setCarriere(String carriere) { this.carriere = carriere; }
     public void setDescription(String description) { this.description = description; }
     public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }
