@@ -41,9 +41,9 @@ Le paquet `core` reste du pur code métier, les entités JPA sont des adaptateur
 
 ## 3. Catalogue des personnages disponibles en base
 
-Le wiki (Notion, « Jeu des tables aléatoires → Persos - catalogue → Par rôles / Par coterie ») définit les coteries et rôles. La table `available_characters` reprend cette structure :
+Le wiki (Notion, « Jeu des tables aléatoires → Persos - catalogue → Par carrieres / Par coterie ») définit les coteries et carrieres. La table `available_characters` reprend cette structure :
 
-- `id` (PK), `name`, `coterie` (bastet, carthaginois, cathare, celte, conquistador, Culte du plaisir, demokratos, elfe, esthete, feerique, jacobin, khaos, libertin, lotus-blanc, lumieres, ogre, performeur, romain, saabi, schweizer, skaven, templier, transhumaniste, tyranide, zaporogue, tzigane, ork, acheron), `role` (enqueteur, specialistes-volonte, voyageur, citadin, ennemis-acheron, saltimbanque, vilain, vauban)
+- `id` (PK), `name`, `coterie` (bastet, carthaginois, cathare, celte, conquistador, Culte du plaisir, demokratos, elfe, esthete, feerique, jacobin, khaos, libertin, lotus-blanc, lumieres, ogre, performeur, romain, saabi, schweizer, skaven, templier, transhumaniste, tyranide, zaporogue, tzigane, ork, acheron), `carriere` (enqueteur, specialistes-volonte, voyageur, citadin, ennemis-acheron, saltimbanque, vilain, vauban)
 - compétences : comme `SkillEntity`
 - traits : comme `TraitEntity`
 - `vitalite`, `sang_froid`, `alive`, `inventory`
@@ -54,7 +54,7 @@ Le recrutement (`POST /recruit`) sélectionne alors un personnage dans `availabl
 
 Créer un seeder (`db/CharacterSeeder`, profil `local` / `test-rapide`) insérant ~10 personnages inspirés des sous-pages du wiki :
 
-| id | nom | coterie | rôle | compétences | traits |
+| id | nom | coterie | carriere | compétences | traits |
 |---|---|---|---|---|---|
 | seed-01 | Alphonse Hercule de Gascoigne | performeur | enqueteur | ERUDITION 10, AGILITE 5, COMBAT 0 | Esthète, Orgueilleux, Chaste |
 | seed-02 | Marat | jacobin | enqueteur | DIPLOMATIE 8, ERUDITION 6 | Radical |

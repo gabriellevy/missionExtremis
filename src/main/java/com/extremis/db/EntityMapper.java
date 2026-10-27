@@ -37,10 +37,10 @@ public final class EntityMapper {
         return c;
     }
 
-    public static CharacterEntity toEntity(Character c, String coterie, String role) {
+    public static CharacterEntity toEntity(Character c, String coterie, String carriere) {
         CharacterEntity e = new CharacterEntity(c.id(), c.name());
         e.setCoterie(coterie);
-        e.setRole(role); e.setSkillBase(c.skillBase());
+        e.setCarriere(carriere); e.setSkillBase(c.skillBase());
         for (java.util.Map.Entry<Competence, Integer> entry : c.skillsSnapshot().entrySet()) {
             e.addSkill(entry.getKey(), entry.getValue());
         }
