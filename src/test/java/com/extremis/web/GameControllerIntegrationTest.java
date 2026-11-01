@@ -70,6 +70,33 @@ class GameControllerIntegrationTest {
         assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");
     }
 
+    @Test
+    void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
+        controller.recrutementRapide("Alice");
+        controller.lancementRapide();
+        // fait avancer la mission jusqu'au premier test résolu
+        long deadline = System.currentTimeMillis() + 5000;
+        while (System.currentTimeMillis() < deadline) {
+            if (controller.journal().contains("tente le test")) {
+                break;
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        String avant = controller.journal();
+        assertThat(avant).contains("tente le test");
+
+        // simule l'extinction du serveur : le cache mémoire est perdu,
+        // seules les lignes de la base de données restent
+        controller.simulerRedemarrage();
+        String apres = controller.journal();
+
+        assertThat(apres).isEqualTo(avant);
+    }
+
     @TestConfiguration
     static class FastMissions {
         @Bean

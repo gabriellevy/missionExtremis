@@ -391,10 +391,15 @@ public class GameController {
             EtatMission etat = new EtatMission();
             etat.entity = entity;
             etat.execution = execution;
-            etat.lignesPubliees = entity.getLogLines().size();
-            entity.getLogLines().forEach(l -> etat.journal.add(versVue(l)));
+            List<LigneJournal> historique = execution.logLines();
+            etat.lignesPubliees = historique.size();
+            historique.forEach(l -> etat.journal.add(versVue(l)));
             missionsActives.put(entity.getId(), etat);
         }
+    }
+
+    void simulerRedemarrage() {
+        missionsActives.clear();
     }
 
     void recrutementRapide(String name) {
