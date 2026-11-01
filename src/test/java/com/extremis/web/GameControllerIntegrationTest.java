@@ -71,6 +71,7 @@ class GameControllerIntegrationTest {
     }
 
     @Test
+    @org.springframework.transaction.annotation.Transactional
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
