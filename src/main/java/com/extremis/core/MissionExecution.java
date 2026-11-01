@@ -137,7 +137,8 @@ public final class MissionExecution {
      * ajustements de difficulte accumules.
      */
     public void reprendre(String evenementId, java.time.Instant heureEffet,
-                          java.util.Map<String, Integer> ajustements) {
+                          java.util.Map<String, Integer> ajustements,
+                          List<LigneJournal> historique) {
         if (evenementId == null || finished) {
             return;
         }
@@ -145,6 +146,16 @@ public final class MissionExecution {
         this.heureEffetCourant = heureEffet;
         this.attenteEffet = true;
         etat.restaurerAjustements(ajustements);
+        // l'historique du journal est recharge depuis la base : on le
+        // restaure tel quel pour que les nouvelles lignes s'y ajoutent
+        // a la suite sans re-publier les introductions deja affichees
+        logLines.clear();
+        if (historique != null) {
+            logLines.addAll(historique);
+        }
+        if (!logLines.isEmpty()) {
+            introductionPublieePour = evenementId + "#" + passagesIntroduction;
+        }
     }
 
     public java.util.Map<String, Integer> ajustementsDifficulte() {

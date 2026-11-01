@@ -166,7 +166,14 @@ public class GameService {
             for (com.extremis.db.ExecutionAjustementEntity a : entity.getAjustements()) {
                 ajustements.put(a.getEvenementId(), a.getAjustement());
             }
-            execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(), ajustements);
+            List<LigneJournal> historique = entity.getLogLines().stream()
+                    .map(l -> "jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null
+                            ? new LigneJournal(l.getLine(),
+                                    new com.extremis.core.JetDes(l.getDeDizaines(), l.getDeUnites()))
+                            : new LigneJournal(l.getLine()))
+                    .toList();
+            execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(),
+                    ajustements, historique);
         }
         return Optional.of(execution);
     }
