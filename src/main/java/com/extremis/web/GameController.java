@@ -398,6 +398,7 @@ public class GameController {
         }
     }
 
+    @Transactional
     void simulerRedemarrage() {
         missionsActives.clear();
     }
