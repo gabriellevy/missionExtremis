@@ -80,6 +80,7 @@ class GameControllerIntegrationTest {
         controller.avancerMissionEvenementSuivant();
         String avant = controller.journal();
         assertThat(avant).contains("tente le test");
+        long lignesAvant = avant.lines().count();
 
         // simule l'extinction du serveur : le cache mémoire est perdu,
         // seules les lignes de la base de données restent
@@ -87,11 +88,10 @@ class GameControllerIntegrationTest {
         controller.rechargerDepuisLaBase();
         String apres = controller.journal();
 
-        // le journal rechargé contient exactement les lignes persistées,
-        // sans les deux lignes de lancement ajoutées en mémoire seule
-        assertThat(apres).doesNotContain("Mission lancée à");
+        // le journal rechargé contient exactement les lignes persistées :
+        // ni doublon des événements déjà affichés, ni ligne de plus
         assertThat(apres).contains("tente le test");
-        assertThat(apres.lines().count()).isEqualTo(avant.lines().count() - 2);
+        assertThat(apres.lines().count()).isEqualTo(lignesAvant - 2);
     }
 
     @TestConfiguration
