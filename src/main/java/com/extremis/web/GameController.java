@@ -423,14 +423,12 @@ public class GameController {
         }
     }
 
-    void avancerMissionPremierEvenement() {
-        if (!missionsActives.isEmpty()) {
-            avancerMission(missionsActives.keySet().iterator().next());
-        }
-    }
-
+    @Transactional
     void avancerMissionEvenementSuivant() {
-        avancerMissionPremierEvenement();
+        if (missionsActives.isEmpty()) {
+            return;
+        }
+        avancerMission(missionsActives.keySet().iterator().next());
     }
 
     void recrutementRapide(String name) {

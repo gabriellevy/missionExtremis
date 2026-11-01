@@ -71,6 +71,7 @@ class GameControllerIntegrationTest {
         // fait avancer la mission de deux événements en mode debug
         controller.avancerMissionEvenementSuivant();
         controller.avancerMissionEvenementSuivant();
+        controller.avancerMissionEvenementSuivant();
         String avant = controller.journal();
         assertThat(avant).contains("tente le test");
         long lignesAvant = avant.lines().count();
