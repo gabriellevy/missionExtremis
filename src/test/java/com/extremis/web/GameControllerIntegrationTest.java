@@ -75,18 +75,9 @@ class GameControllerIntegrationTest {
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
-        // fait avancer la mission jusqu'au premier test résolu
-        long deadline = System.currentTimeMillis() + 5000;
-        while (System.currentTimeMillis() < deadline) {
-            if (controller.journal().contains("tente le test")) {
-                break;
-            }
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+        // fait avancer la mission de deux événements en mode debug
+        controller.avancerMissionPremierEvenement();
+        controller.avancerMissionEvenementSuivant();
         String avant = controller.journal();
         assertThat(avant).contains("tente le test");
 

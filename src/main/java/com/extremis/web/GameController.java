@@ -402,6 +402,16 @@ public class GameController {
         missionsActives.clear();
     }
 
+    void avancerMissionPremierEvenement() {
+        if (!missionsActives.isEmpty()) {
+            avancerMission(missionsActives.keySet().iterator().next());
+        }
+    }
+
+    void avancerMissionEvenementSuivant() {
+        avancerMissionPremierEvenement();
+    }
+
     void recrutementRapide(String name) {
         game.clearRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
