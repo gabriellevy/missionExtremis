@@ -65,6 +65,8 @@
        th:href="@{/(onglet='personnages')}">Personnages</a>
     <a class="tab" th:classappend="${ongletMissions} ? active"
        th:href="@{/(onglet='missions')}">Missions</a>
+    <a class="tab" th:classappend="${ongletExtremis} ? active"
+       th:href="@{/(onglet='extremis')}">Extremis</a>
     <a class="tab" th:each="m : ${missionsActives}"
        th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
        th:href="@{/(onglet=${m.id})}"
@@ -123,6 +125,17 @@
       <button type="submit">Lancer la mission</button>
     </form>
   </div>
+</section>
+
+<section th:if="${ongletExtremis}">
+  <h2>Wiki Extremis &#8212; pages au hasard</h2>
+  <p><em>Cinq pages tir&#233;es au hasard dans l'int&#233;gralit&#233; du wiki &#224; chaque affichage :</em></p>
+  <ul class="roster-liste" th:if="${!liensWiki.isEmpty()}">
+    <li th:each="lien : ${liensWiki}">
+      <a th:href="${lien.url()}" th:text="${lien.titre()}" target="_blank" rel="noopener"></a>
+    </li>
+  </ul>
+  <p th:if="${liensWiki.isEmpty()}"><em>Aucune page du wiki &#224; afficher pour le moment.</em></p>
 </section>
 
 <section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">

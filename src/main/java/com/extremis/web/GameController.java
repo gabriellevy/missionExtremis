@@ -37,16 +37,18 @@ public class GameController {
     private final List<Mission> missions;
     private final PortraitService portraits;
     private final ServiceDes serviceDes;
+    private final ServiceWikiNotion serviceWiki;
     private final boolean modeDebug;
     private final Map<Long, EtatMission> missionsActives = new LinkedHashMap<>();
 
     public GameController(GameService game, List<Mission> missions, PortraitService portraits,
-                          ServiceDes serviceDes,
+                          ServiceDes serviceDes, ServiceWikiNotion serviceWiki,
                           @Value("${extremis.debug:false}") boolean modeDebug) {
         this.game = game;
         this.missions = missions;
         this.portraits = portraits;
         this.serviceDes = serviceDes;
+        this.serviceWiki = serviceWiki;
         this.modeDebug = modeDebug;
     }
 
@@ -65,6 +67,7 @@ public class GameController {
 
     public static final String ONGLET_PERSONNAGES = "personnages";
     public static final String ONGLET_MISSIONS = "missions";
+    public static final String ONGLET_EXTREMIS = "extremis";
 
     @GetMapping
     @Transactional
@@ -94,11 +97,14 @@ public class GameController {
         }
         boolean ongletPersonnages = ONGLET_PERSONNAGES.equals(onglet);
         boolean ongletMissions = ONGLET_MISSIONS.equals(onglet);
-        if (!ongletPersonnages && !ongletMissions && ongletMission == null && onglet != null) {
+        boolean ongletExtremis = ONGLET_EXTREMIS.equals(onglet);
+        if (!ongletPersonnages && !ongletMissions && !ongletExtremis && ongletMission == null && onglet != null) {
             ongletMissions = true;
         }
         model.addAttribute("ongletPersonnages", ongletPersonnages);
         model.addAttribute("ongletMissions", ongletMissions);
+        model.addAttribute("ongletExtremis", ongletExtremis);
+        model.addAttribute("liensWiki", ongletExtremis ? serviceWiki.liensAleatoires(5) : List.of());
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
