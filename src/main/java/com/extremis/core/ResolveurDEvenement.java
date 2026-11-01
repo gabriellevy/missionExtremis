@@ -88,15 +88,16 @@ public final class ResolveurDEvenement {
             return new ResultatEvenement(evenement.echec().map(EffetEchec::evenementSuivant).orElse(null), false);
         }
         Character joueur = candidat.get();
-        ResultatTest resultat = testAjuste.attempt(joueur, random);
+        int de = random.roll();
+        ResultatTest resultat = ResultatTest.duJet(testAjuste.target(joueur), de);
         evenement.coutSangFroidTesteur().ifPresent(cout -> {
             joueur.perteSangFroid(cout);
             journal.accept(joueur.name() + " perd " + cout
                     + " de sang-froid avant le test (restant : " + joueur.sangFroid() + ").");
         });
         journal.accept(joueur.name() + " tente le test de " + test.skill().label()
-                + " (cible " + testAjuste.target(joueur) + " sur D100) et obtient un "
-                + libelle(resultat) + ".");
+                + " (cible " + testAjuste.target(joueur) + " sur D100) et obtient un " + de
+                + " : " + libelle(resultat) + ".");
         if (resultat.estReussite()) {
             return appliquerReussite(evenement, resultat, joueur, journal);
         }
@@ -105,10 +106,10 @@ public final class ResolveurDEvenement {
 
     private static String libelle(ResultatTest resultat) {
         return switch (resultat) {
-            case REUSSITE_CRITIQUE -> "reussite critique";
-            case REUSSITE -> "reussite";
-            case ECHEC -> "echec";
-            case ECHEC_CRITIQUE -> "echec critique";
+            case REUSSITE_CRITIQUE -> "une réussite critique";
+            case REUSSITE -> "une réussite";
+            case ECHEC -> "un échec";
+            case ECHEC_CRITIQUE -> "un échec critique";
         };
     }
 
