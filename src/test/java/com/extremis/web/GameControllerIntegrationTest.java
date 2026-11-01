@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
-        "mission.tick-rate-ms=3600000",
         "extremis.debug=true",
         "spring.profiles.active=test-rapide"
 })
@@ -53,6 +52,7 @@ class GameControllerIntegrationTest {
     }
 
     @Test
+    @org.springframework.test.context.TestPropertySource(properties = "mission.tick-rate-ms=100")
     void tickerAdvancesMissionWithoutManualAction() throws InterruptedException {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
@@ -72,6 +72,7 @@ class GameControllerIntegrationTest {
 
     @Test
     @org.springframework.transaction.annotation.Transactional
+    @org.springframework.test.context.TestPropertySource(properties = "mission.tick-rate-ms=3600000")
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
