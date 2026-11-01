@@ -413,7 +413,11 @@ public class GameController {
         rechargerMissionsActives();
         for (EtatMission etat : List.copyOf(missionsActives.values())) {
             int gardesFous = 0;
-            while (!etat.fini && gardesFous++ < 1000) {
+            while (!etat.fini && !etat.execution.isFinished() && gardesFous++ < 1000) {
+                Instant prochain = etat.execution.nextEventTime();
+                if (prochain != null && prochain.isAfter(maintenant(etat))) {
+                    etat.decalageTemps = Duration.between(Instant.now(), prochain);
+                }
                 tickMission(etat);
             }
         }
