@@ -29,9 +29,9 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Un arrangeur sait pratiquer un exorcisme."));
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime."));
         // l'apparence de la victime coute 2 de sang-froid, l'exorcisme 2 de plus
         assertThat(exorciste.sangFroid()).isEqualTo(6);
@@ -45,9 +45,9 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Un arrangeur sait pratiquer un exorcisme."));
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Le d\u00e9mon a \u00e9t\u00e9 extrait de sa victime."));
     }
 
@@ -59,9 +59,9 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("la victime sera intern\u00e9e."));
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Vous faites interner d\u00e9finitivement la malheureuse victime."));
         // 2 (victime) + 4 (psychiatrie)
         assertThat(psychiatre.sangFroid()).isEqualTo(4);
@@ -75,7 +75,7 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("a assassin\u00e9 la malheureuse victime"));
         // la victime coute 2 de sang-froid, le meurtre n'en coute pas
         assertThat(cruel.sangFroid()).isEqualTo(8);
@@ -99,11 +99,11 @@ class RumeursPossessionTest {
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isFinished()).isTrue();
         assertThat(execution.isReussie()).isFalse();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("perd 2D10 vitalit\u00e9"));
         // 2 des de 100 : (100 % 10 + 1) x 2 = 2 degats
         assertThat(cruel.vitalite()).isEqualTo(8);
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission"));
     }
 
@@ -116,10 +116,10 @@ class RumeursPossessionTest {
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isFinished()).isTrue();
         assertThat(execution.isReussie()).isFalse();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("L\u2019apparence horrible de la victime poss\u00e9d\u00e9e co\u00fbte 2 de sang-froid"));
         assertThat(amateur.sangFroid()).isEqualTo(8);
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission"));
     }
 
@@ -131,7 +131,7 @@ class RumeursPossessionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(enqueteur.isExclu()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("s\u2019est fait d\u00e9tester par tout le voisinage"));
         assertThat(execution.isReussie()).isFalse();
     }
@@ -144,7 +144,7 @@ class RumeursPossessionTest {
         MissionExecution execution = MissionExecution.start(mission, List.of(mauvais, bon), TOUJOURS_1, START);
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Tante V\u00e9r\u00e9na tente le test de Ragot"));
     }
 
@@ -155,5 +155,9 @@ class RumeursPossessionTest {
                 .withSkill(Competence.FORCE_MENTALE, 50)
                 .withSkill(Competence.INTELLIGENCE, 50)
                 .withSkill(Competence.DISCRETION, 50);
+    }
+
+    private static java.util.List<String> textesDuJournal(MissionExecution execution) {
+        return execution.logLines().stream().map(LigneJournal::texte).toList();
     }
 }

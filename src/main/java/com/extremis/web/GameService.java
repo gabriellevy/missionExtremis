@@ -1,6 +1,7 @@
 package com.extremis.web;
 
 import com.extremis.core.Character;
+import com.extremis.core.LigneJournal;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
@@ -245,7 +246,7 @@ public class GameService {
         entity.setHeureEffetCourant(execution.heureEffetCourant());
         entity.setReussie(execution.isReussie());
         execution.ajustementsDifficulte().forEach(entity::addAjustement);
-        List<String> lignes = execution.logLines();
+        List<LigneJournal> lignes = execution.logLines();
         while (entity.getLogLines().size() < lignes.size()) {
             entity.addLogLine(lignes.get(entity.getLogLines().size()));
         }

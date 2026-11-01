@@ -22,7 +22,7 @@ public final class MissionExecution {
     private final List<Character> team;
     private final ResolveurDEvenement resolveur;
     private final ResolveurDEvenement.EtatMission etat;
-    private final List<String> logLines = new ArrayList<>();
+    private final List<LigneJournal> logLines = new ArrayList<>();
 
     private String evenementCourant;
     private String introductionPublieePour;
@@ -84,7 +84,7 @@ public final class MissionExecution {
                 if (suivant == null || plusAucunJoueurActif()) {
                     finished = true;
                     if (plusAucunJoueurActif()) {
-                        logLines.add("Plus personne pour continuer : la mission echoue.");
+                        logLines.add(new LigneJournal("Plus personne pour continuer : la mission echoue."));
                     }
                     return true;
                 }
@@ -111,16 +111,16 @@ public final class MissionExecution {
         String cle = evenement.id() + "#" + passagesIntroduction;
         if (!cle.equals(introductionPublieePour)) {
             introductionPublieePour = cle;
-            logLines.add("=== " + evenement.titre() + " ===");
+            logLines.add(new LigneJournal("=== " + evenement.titre() + " ==="));
             if (evenement.introduction() != null) {
-                logLines.add(evenement.introduction());
+                logLines.add(new LigneJournal(evenement.introduction()));
             }
         }
     }
 
-    private java.util.function.Consumer<String> avecHorodatage(Instant heureEvenement) {
+    private java.util.function.Consumer<LigneJournal> avecHorodatage(Instant heureEvenement) {
         String prefixe = "[" + FORMAT_HEURE_EVENEMENT.format(heureEvenement) + "] ";
-        return ligne -> logLines.add(prefixe + ligne);
+        return ligne -> logLines.add(new LigneJournal(prefixe + ligne.texte(), ligne.jet()));
     }
 
     public boolean teamWiped() {
@@ -160,7 +160,7 @@ public final class MissionExecution {
     }
 
     private void journalBloque() {
-        logLines.add("La mission s'enlise sans fin : le Consul met fin aux operations.");
+        logLines.add(new LigneJournal("La mission s'enlise sans fin : le Consul met fin aux opérations."));
     }
 
     public String evenementCourant() {
@@ -178,7 +178,7 @@ public final class MissionExecution {
         return heureEffetCourant;
     }
 
-    public List<String> logLines() {
+    public List<LigneJournal> logLines() {
         return List.copyOf(logLines);
     }
 
@@ -192,6 +192,6 @@ public final class MissionExecution {
                 team.stream().filter(c -> !c.isAlive()).map(Character::name).toList(),
                 team.stream().filter(Character::isAlive).count(),
                 teamWiped(),
-                String.join("\n", logLines));
+                String.join("\n", logLines.stream().map(LigneJournal::texte).toList()));
     }
 }

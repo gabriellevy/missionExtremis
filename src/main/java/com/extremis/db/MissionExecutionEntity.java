@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import com.extremis.core.LigneJournal;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +99,15 @@ public class MissionExecutionEntity {
 
     public void addLogLine(String line) {
         logLines.add(new ExecutionLogLineEntity(this, logLines.size(), line));
+    }
+
+    public void addLogLine(LigneJournal ligne) {
+        if (ligne.aUnJet()) {
+            logLines.add(new ExecutionLogLineEntity(this, logLines.size(), ligne.texte(),
+                    "jet", ligne.jet().dizaines(), ligne.jet().unites()));
+        } else {
+            addLogLine(ligne.texte());
+        }
     }
 
     public void addTeamMember(ExecutionTeamMemberEntity member) {

@@ -13,4 +13,9 @@ public final class SeededRandom implements RandomSource {
     public int roll() {
         return generator.nextInt(1, 101);
     }
+
+    @Override
+    public JetDes jetD100() {
+        return JetDes.d100(generator.nextInt(1, 101));
+    }
 }

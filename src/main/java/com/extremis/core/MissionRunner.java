@@ -25,7 +25,7 @@ public final class MissionRunner {
         while (!execution.advance(maintenant.plus(java.time.Duration.ofDays(36500)))) {
             // rien : l'horloge passee couvre toutes les durees restantes
         }
-        String summary = String.join("\n", execution.logLines());
+        String summary = String.join("\n", execution.logLines().stream().map(LigneJournal::texte).toList());
         log.accept(summary);
         return execution.report();
     }

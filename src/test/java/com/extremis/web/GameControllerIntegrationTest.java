@@ -59,15 +59,15 @@ class GameControllerIntegrationTest {
 
         long deadline = System.currentTimeMillis() + 5000;
         while (System.currentTimeMillis() < deadline) {
-            if (controller.journal().contains("Mission terminee")
-                    || controller.journal().contains("Equipe eliminee")) {
+            if (controller.journal().contains("Mission terminée")
+                    || controller.journal().contains("Équipe éliminée")) {
                 break;
             }
             Thread.sleep(100);
         }
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
-        assertThat(controller.journal()).containsAnyOf("Mission reussie", "Mission terminee en echec", "Equipe eliminee");
+        assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");
     }
 
     @TestConfiguration
