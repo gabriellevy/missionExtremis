@@ -68,10 +68,8 @@ class GameControllerIntegrationTest {
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
-        // fait avancer la mission de deux événements en mode debug
-        controller.avancerMissionEvenementSuivant();
-        controller.avancerMissionEvenementSuivant();
-        controller.avancerMissionEvenementSuivant();
+        // fait avancer la mission jusqu'au bout
+        controller.avancerMissionJusquAuBout();
         String avant = controller.journal();
         assertThat(avant).contains("tente le test");
         long lignesAvant = avant.lines().count();
