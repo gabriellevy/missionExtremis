@@ -68,11 +68,9 @@ class GameControllerIntegrationTest {
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
-        // fait avancer la mission jusqu'au bout
-        controller.avancerMissionJusquAuBout();
+        controller.avancerMissionEvenementSuivant();
         String avant = controller.journal();
         assertThat(avant).contains("tente le test");
-        long lignesAvant = avant.lines().count();
 
         // simule l'extinction du serveur : le cache mémoire est perdu,
         // seules les lignes de la base de données restent
@@ -80,11 +78,9 @@ class GameControllerIntegrationTest {
         controller.rechargerDepuisLaBase();
         String apres = controller.journal();
 
-        // le journal rechargé contient exactement les lignes persistées :
-        // ni doublon des événements déjà affichés, ni ligne de plus
-        // (la ligne de fin ajoutée en mémoire seule n'est pas persistée)
-        assertThat(apres).contains("tente le test");
-        assertThat(apres.lines().count()).isLessThanOrEqualTo(lignesAvant);
+        // le journal rechargé contient exactement les lignes persistées,
+        // sans répéter les événements déjà affichés avant le redémarrage
+        assertThat(apres).isEqualTo(avant.substring(avant.indexOf("=== Arrivee")));
     }
 
     @TestConfiguration
