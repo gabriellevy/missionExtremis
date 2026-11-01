@@ -84,9 +84,14 @@ class GameControllerIntegrationTest {
         // simule l'extinction du serveur : le cache mémoire est perdu,
         // seules les lignes de la base de données restent
         controller.simulerRedemarrage();
+        controller.rechargerDepuisLaBase();
         String apres = controller.journal();
 
-        assertThat(apres).isEqualTo(avant);
+        // le journal rechargé contient exactement les lignes persistées,
+        // sans les deux lignes de lancement ajoutées en mémoire seule
+        assertThat(apres).doesNotContain("Mission lancée à");
+        assertThat(apres).contains("tente le test");
+        assertThat(apres.lines().count()).isEqualTo(avant.lines().count() - 2);
     }
 
     @TestConfiguration

@@ -403,6 +403,11 @@ public class GameController {
         missionsActives.clear();
     }
 
+    @Transactional
+    void rechargerDepuisLaBase() {
+        rechargerMissionsActives();
+    }
+
     void avancerMissionPremierEvenement() {
         if (!missionsActives.isEmpty()) {
             avancerMission(missionsActives.keySet().iterator().next());
