@@ -53,13 +53,11 @@ class GameControllerIntegrationTest {
     }
 
     @Test
-    @Test
     @org.springframework.transaction.annotation.Transactional
     void tickerAdvancesMissionWithoutManualAction() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
         controller.avancerMissionJusquAuBout();
-
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
         assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");
@@ -67,7 +65,6 @@ class GameControllerIntegrationTest {
 
     @Test
     @org.springframework.transaction.annotation.Transactional
-    @org.springframework.test.context.TestPropertySource(properties = "mission.tick-rate-ms=3600000")
     void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
