@@ -10,6 +10,7 @@ import com.extremis.web.GameService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -42,6 +43,7 @@ class JetDeDesPersistanceTest {
     private MissionExecutionRepository executions;
 
     @Test
+    @Transactional
     void leJetDeDesEstPersistePuisReluDepuisLaBase() {
         Mission mission = missionDeTest();
         Character agent = new Character("test-jet", "Alice")

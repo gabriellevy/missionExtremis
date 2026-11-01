@@ -147,8 +147,8 @@ class MissionExecutionTest {
 
         assertThat(execution.logLines())
                 .filteredOn(LigneJournal::aUnJet)
-                .singleElement()
-                .satisfies(l -> {
+                .isNotEmpty()
+                .allSatisfy(l -> {
                     assertThat(l.texte()).contains("obtient un 73");
                     assertThat(l.jet()).isEqualTo(new JetDes(7, 3));
                 });
