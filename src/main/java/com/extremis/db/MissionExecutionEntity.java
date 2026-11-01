@@ -48,7 +48,7 @@ public class MissionExecutionEntity {
     private boolean reussie;
 
     @Column(name = "jets_effectues")
-    private long jetsEffectues;
+    private Long jetsEffectues;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
@@ -80,7 +80,7 @@ public class MissionExecutionEntity {
     public String getEvenementCourant() { return evenementCourant; }
     public Instant getHeureEffetCourant() { return heureEffetCourant; }
     public boolean isReussie() { return reussie; }
-    public long getJetsEffectues() { return jetsEffectues; }
+    public long getJetsEffectues() { return jetsEffectues == null ? 0L : jetsEffectues; }
     public List<ExecutionAjustementEntity> getAjustements() { return ajustements; }
     public List<ExecutionTeamMemberEntity> getTeam() { return team; }
     public List<ExecutionLogLineEntity> getLogLines() { return logLines; }

@@ -54,6 +54,12 @@ public class SchemaMigrator implements ApplicationRunner {
         if (!colonneExiste(table, colonne)) {
             jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " bigint NOT NULL DEFAULT 0");
             log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        } else {
+            // Hibernate a pu creer la colonne en nullable avant ce
+            // migrateur : renseigne les NULL puis rends la colonne
+            // NOT NULL pour eviter les erreurs sur les anciennes lignes
+            jdbc.update("UPDATE " + table + " SET " + colonne + " = 0 WHERE " + colonne + " IS NULL");
+            jdbc.execute("ALTER TABLE " + table + " ALTER COLUMN " + colonne + " SET NOT NULL");
         }
     }
 
