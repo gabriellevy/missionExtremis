@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
-        "mission.tick-rate-ms=100",
+        "mission.tick-rate-ms=3600000",
         "extremis.debug=true",
         "spring.profiles.active=test-rapide"
 })
