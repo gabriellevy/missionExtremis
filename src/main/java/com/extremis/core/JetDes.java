@@ -6,7 +6,7 @@ package com.extremis.core;
  * les unités. La convention du D100 en percentiles est que le dé des
  * dizaines vaut 0 (et non 10) quand le jet tombe sur 100.
  */
-public record JetDes(int dizaines, unites) {
+public record JetDes(int dizaines, int unites) {
 
     public static JetDes d100(int valeur) {
         int borne = Math.floorMod(valeur - 1, 100) + 1;
@@ -16,6 +16,6 @@ public record JetDes(int dizaines, unites) {
     }
 
     public int valeur() {
-        return dizaines * 10 + unites;
+        return dizaines == 0 && unites == 0 ? 100 : dizaines * 10 + unites;
     }
 }
