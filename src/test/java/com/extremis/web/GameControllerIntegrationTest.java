@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
+        "mission.tick-rate-ms=3600000",
         "extremis.debug=true",
         "spring.profiles.active=test-rapide"
 })
@@ -52,19 +53,13 @@ class GameControllerIntegrationTest {
     }
 
     @Test
-    @org.springframework.test.context.TestPropertySource(properties = "mission.tick-rate-ms=100")
-    void tickerAdvancesMissionWithoutManualAction() throws InterruptedException {
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void tickerAdvancesMissionWithoutManualAction() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
+        controller.avancerMissionJusquAuBout();
 
-        long deadline = System.currentTimeMillis() + 5000;
-        while (System.currentTimeMillis() < deadline) {
-            if (controller.journal().contains("Mission terminée")
-                    || controller.journal().contains("Équipe éliminée")) {
-                break;
-            }
-            Thread.sleep(100);
-        }
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
         assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");

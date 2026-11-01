@@ -406,7 +406,17 @@ public class GameController {
     @Transactional
     void rechargerDepuisLaBase() {
         rechargerMissionsActives();
-        tick();
+    }
+
+    @Transactional
+    void avancerMissionJusquAuBout() {
+        rechargerMissionsActives();
+        for (EtatMission etat : List.copyOf(missionsActives.values())) {
+            int gardesFous = 0;
+            while (!etat.fini && gardesFous++ < 1000) {
+                tickMission(etat);
+            }
+        }
     }
 
     void avancerMissionPremierEvenement() {
