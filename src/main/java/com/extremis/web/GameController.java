@@ -406,6 +406,7 @@ public class GameController {
     @Transactional
     void rechargerDepuisLaBase() {
         rechargerMissionsActives();
+        tick();
     }
 
     void avancerMissionPremierEvenement() {
