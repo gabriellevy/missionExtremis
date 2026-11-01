@@ -1,6 +1,7 @@
 package com.extremis.web;
 
 import com.extremis.core.*;
+import com.extremis.core.LigneJournal;
 import com.extremis.core.Character;
 import com.extremis.db.CharacterEntity;
 import com.extremis.db.MissionExecutionEntity;
@@ -35,21 +36,24 @@ public class GameController {
     private final GameService game;
     private final List<Mission> missions;
     private final PortraitService portraits;
+    private final ServiceDes serviceDes;
     private final boolean modeDebug;
     private final Map<Long, EtatMission> missionsActives = new LinkedHashMap<>();
 
     public GameController(GameService game, List<Mission> missions, PortraitService portraits,
+                          ServiceDes serviceDes,
                           @Value("${extremis.debug:false}") boolean modeDebug) {
         this.game = game;
         this.missions = missions;
         this.portraits = portraits;
+        this.serviceDes = serviceDes;
         this.modeDebug = modeDebug;
     }
 
     private static final class EtatMission {
         MissionExecution execution;
         MissionExecutionEntity entity;
-        List<String> journal = new ArrayList<>();
+        List<LigneJournalView> journal = new ArrayList<>();
         int lignesPubliees = 0;
         Duration decalageTemps = Duration.ZERO;
         boolean fini = false;
@@ -106,6 +110,7 @@ public class GameController {
         model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("modeDebug", modeDebug);
         model.addAttribute("portraitService", portraits);
+        model.addAttribute("serviceDes", serviceDes);
         return "home";
     }
 
@@ -291,8 +296,8 @@ public class GameController {
         EtatMission etat = new EtatMission();
         etat.entity = entity;
         etat.execution = execution;
-        etat.journal.add("=== " + mission.titre() + " ===");
-        etat.journal.add("Mission lancee a " + Instant.now() + ". Les evenements suivront leur delai prevu.");
+        etat.journal.add(LigneJournalView.texte("=== " + mission.titre() + " ==="));
+        etat.journal.add(LigneJournalView.texte("Mission lancée à " + Instant.now() + ". Les événements suivront leur délai prévu."));
         missionsActives.put(entity.getId(), etat);
         tick();
         return "redirect:/?onglet=" + entity.getId();
@@ -336,23 +341,37 @@ public class GameController {
             return;
         }
         boolean finished = etat.execution.advance(maintenant(etat));
-        List<String> lines = etat.execution.logLines();
+        List<LigneJournal> lines = etat.execution.logLines();
         if (lines.size() > etat.lignesPubliees) {
-            etat.journal.addAll(lines.subList(etat.lignesPubliees, lines.size()));
+            lines.subList(etat.lignesPubliees, lines.size()).forEach(l -> etat.journal.add(versVue(l)));
             log.info("Tick : {} evenement(s) resolu(s)", lines.size() - etat.lignesPubliees);
             etat.lignesPubliees = lines.size();
         }
         game.saveProgress(etat.entity, etat.execution, maintenant(etat));
         if (finished) {
             MissionReport report = etat.execution.report();
-            etat.journal.add(report.teamWiped()
-                    ? "Equipe eliminee. Mission echouee."
+            etat.journal.add(LigneJournalView.texte(report.teamWiped()
+                    ? "Équipe éliminée. Mission échouée."
                     : etat.execution.isReussie()
-                            ? "Mission reussie. Survivants : " + report.survivors()
-                            : "Mission terminee en echec. Survivants : " + report.survivors());
+                            ? "Mission réussie. Survivants : " + report.survivors()
+                            : "Mission terminée en échec. Survivants : " + report.survivors()));
             game.finish(etat.entity, report, Instant.now());
             etat.fini = true;
         }
+    }
+
+    private static LigneJournalView versVue(com.extremis.db.ExecutionLogLineEntity l) {
+        if ("jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null) {
+            return LigneJournalView.jet(l.getLine(), l.getDeDizaines(), l.getDeUnites());
+        }
+        return LigneJournalView.texte(l.getLine());
+    }
+
+    private static LigneJournalView versVue(LigneJournal l) {
+        if (l.aUnJet()) {
+            return LigneJournalView.jet(l.texte(), l.jet().dizaines(), l.jet().unites());
+        }
+        return LigneJournalView.texte(l.texte());
     }
 
     private void rechargerMissionsActives() {
@@ -372,10 +391,44 @@ public class GameController {
             EtatMission etat = new EtatMission();
             etat.entity = entity;
             etat.execution = execution;
-            etat.lignesPubliees = entity.getLogLines().size();
-            entity.getLogLines().forEach(l -> etat.journal.add(l.getLine()));
+            List<LigneJournal> historique = execution.logLines();
+            etat.lignesPubliees = historique.size();
+            historique.forEach(l -> etat.journal.add(versVue(l)));
             missionsActives.put(entity.getId(), etat);
         }
+    }
+
+    @Transactional
+    void simulerRedemarrage() {
+        missionsActives.clear();
+    }
+
+    @Transactional
+    void rechargerDepuisLaBase() {
+        rechargerMissionsActives();
+    }
+
+    @Transactional
+    void avancerMissionJusquAuBout() {
+        rechargerMissionsActives();
+        for (EtatMission etat : List.copyOf(missionsActives.values())) {
+            int gardesFous = 0;
+            while (!etat.fini && !etat.execution.isFinished() && gardesFous++ < 1000) {
+                Instant prochain = etat.execution.nextEventTime();
+                if (prochain != null && prochain.isAfter(maintenant(etat))) {
+                    etat.decalageTemps = Duration.between(Instant.now(), prochain);
+                }
+                tickMission(etat);
+            }
+        }
+    }
+
+    @Transactional
+    void avancerMissionEvenementSuivant() {
+        if (missionsActives.isEmpty()) {
+            return;
+        }
+        avancerMission(missionsActives.keySet().iterator().next());
     }
 
     void recrutementRapide(String name) {
@@ -394,6 +447,7 @@ public class GameController {
         rechargerMissionsActives();
         return missionsActives.values().stream()
                 .flatMap(e -> e.journal.stream())
+                .map(LigneJournalView::texte)
                 .reduce((a, b) -> a + "\n" + b)
                 .orElse("");
     }

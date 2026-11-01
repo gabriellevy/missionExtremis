@@ -1,6 +1,7 @@
 package com.extremis.web;
 
 import com.extremis.core.Character;
+import com.extremis.core.LigneJournal;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
@@ -159,13 +160,20 @@ public class GameService {
             team.add(c);
         }
         MissionExecution execution = MissionExecution.start(def.get(), team,
-                new SeededRandom(42L), entity.getStartedAt());
+                new SeededRandom(42L, entity.getJetsEffectues()), entity.getStartedAt());
         if (entity.getEvenementCourant() != null) {
             java.util.Map<String, Integer> ajustements = new java.util.LinkedHashMap<>();
             for (com.extremis.db.ExecutionAjustementEntity a : entity.getAjustements()) {
                 ajustements.put(a.getEvenementId(), a.getAjustement());
             }
-            execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(), ajustements);
+            List<LigneJournal> historique = entity.getLogLines().stream()
+                    .map(l -> "jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null
+                            ? new LigneJournal(l.getLine(),
+                                    new com.extremis.core.JetDes(l.getDeDizaines(), l.getDeUnites()))
+                            : new LigneJournal(l.getLine()))
+                    .toList();
+            execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(),
+                    ajustements, historique);
         }
         return Optional.of(execution);
     }
@@ -244,8 +252,11 @@ public class GameService {
         entity.setEvenementCourant(execution.evenementCourant());
         entity.setHeureEffetCourant(execution.heureEffetCourant());
         entity.setReussie(execution.isReussie());
+        if (execution.sourceAleatoire() instanceof SeededRandom seeded) {
+            entity.setJetsEffectues(seeded.getJetsEffectues());
+        }
         execution.ajustementsDifficulte().forEach(entity::addAjustement);
-        List<String> lignes = execution.logLines();
+        List<LigneJournal> lignes = execution.logLines();
         while (entity.getLogLines().size() < lignes.size()) {
             entity.addLogLine(lignes.get(entity.getLogLines().size()));
         }

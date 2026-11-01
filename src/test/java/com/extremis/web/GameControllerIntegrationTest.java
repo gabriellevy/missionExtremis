@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {
-        "mission.tick-rate-ms=100",
+        "mission.tick-rate-ms=3600000",
         "extremis.debug=true",
         "spring.profiles.active=test-rapide"
 })
@@ -53,21 +53,34 @@ class GameControllerIntegrationTest {
     }
 
     @Test
-    void tickerAdvancesMissionWithoutManualAction() throws InterruptedException {
+    @org.springframework.transaction.annotation.Transactional
+    void tickerAdvancesMissionWithoutManualAction() {
         controller.recrutementRapide("Alice");
         controller.lancementRapide();
-
-        long deadline = System.currentTimeMillis() + 5000;
-        while (System.currentTimeMillis() < deadline) {
-            if (controller.journal().contains("Mission terminee")
-                    || controller.journal().contains("Equipe eliminee")) {
-                break;
-            }
-            Thread.sleep(100);
-        }
+        controller.avancerMissionJusquAuBout();
 
         assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
-        assertThat(controller.journal()).containsAnyOf("Mission reussie", "Mission terminee en echec", "Equipe eliminee");
+        assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void apresRedemarrageLeJournalNeRepubliePasLesEvenementsDejaAffiches() {
+        controller.recrutementRapide("Alice");
+        controller.lancementRapide();
+        controller.avancerMissionEvenementSuivant();
+        String avant = controller.journal();
+        assertThat(avant).contains("tente le test");
+
+        // simule l'extinction du serveur : le cache mémoire est perdu,
+        // seules les lignes de la base de données restent
+        controller.simulerRedemarrage();
+        controller.rechargerDepuisLaBase();
+        String apres = controller.journal();
+
+        // le journal rechargé contient exactement les lignes persistées,
+        // sans répéter les événements déjà affichés avant le redémarrage
+        assertThat(apres).isEqualTo(avant.substring(avant.indexOf("=== Arrivee")));
     }
 
     @TestConfiguration

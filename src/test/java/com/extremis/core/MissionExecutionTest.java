@@ -23,8 +23,8 @@ class MissionExecutionTest {
         // premiere duree : l'introduction du premier evenement est publiee,
         // pas encore son effet
         assertThat(execution.advance(START)).isFalse();
-        assertThat(execution.logLines()).anyMatch(l -> l.contains("=== Arrivee a Gotheim ==="));
-        assertThat(execution.logLines()).noneMatch(l -> l.contains("tente le test"));
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("=== Arrivee a Gotheim ==="));
+        assertThat(textesDuJournal(execution)).noneMatch(l -> l.contains("tente le test"));
     }
 
     @Test
@@ -33,10 +33,10 @@ class MissionExecutionTest {
         MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_HIGH, START);
 
         assertThat(execution.advance(START.plus(Duration.ofHours(4)).minusSeconds(1))).isFalse();
-        assertThat(execution.logLines()).noneMatch(l -> l.contains("tente le test de Discrétion"));
+        assertThat(textesDuJournal(execution)).noneMatch(l -> l.contains("tente le test de Discrétion"));
 
         assertThat(execution.advance(START.plus(Duration.ofHours(4)))).isFalse();
-        assertThat(execution.logLines()).anyMatch(l -> l.contains("tente le test de Discrétion"));
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("tente le test de Discrétion"));
     }
 
     @Test
@@ -47,7 +47,7 @@ class MissionExecutionTest {
         MissionExecution execution = MissionExecution.start(mission, List.of(amateur, menteur), ALWAYS_LOW, START);
 
         execution.advance(START.plus(Duration.ofDays(1)));
-        assertThat(execution.logLines()).anyMatch(l -> l.startsWith("[") && l.contains("Alice tente le test de Ragot"));
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.startsWith("[") && l.contains("Alice tente le test de Ragot"));
     }
 
     @Test
@@ -58,7 +58,7 @@ class MissionExecutionTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(365)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Vous avez trouvé la victime"));
     }
 
@@ -70,7 +70,7 @@ class MissionExecutionTest {
 
         execution.advance(START.plus(Duration.ofDays(1)));
         assertThat(menteur.isExclu()).isTrue();
-        assertThat(execution.logLines()).anyMatch(l -> l.contains("est exclu de l'aventure"));
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("est exclu de l'aventure"));
     }
 
     @Test
@@ -95,13 +95,13 @@ class MissionExecutionTest {
         // l'evenement suivant est a nouveau "recherche-du-cas"
         assertThat(execution.evenementCourant()).isEqualTo("recherche-du-cas");
         // l'introduction du nouveau passage est deja publiee
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .filteredOn(l -> l.contains("=== Recherche du cas ==="))
                 .hasSize(2);
         // deuxieme passage : le de de 1 reussit, la boucle s'arrete
         execution.advance(START.plus(Duration.ofSeconds(2)));
         assertThat(execution.evenementCourant()).isEqualTo("convaincre-la-famille");
-        assertThat(execution.logLines())
+        assertThat(textesDuJournal(execution))
                 .filteredOn(l -> l.contains("=== Recherche du cas ==="))
                 .hasSize(2);
     }
@@ -122,9 +122,40 @@ class MissionExecutionTest {
         Mission mission = Missions.fousDeGotheimRapide();
         MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_HIGH, START);
         execution.advance(START);
-        int lignes = execution.logLines().size();
+        int lignes = textesDuJournal(execution).size();
         execution.advance(START);
-        assertThat(execution.logLines()).hasSize(lignes);
+        assertThat(textesDuJournal(execution)).hasSize(lignes);
+    }
+
+    @Test
+    void laLigneDeTestPorteLeJetDeDeuxDes() {
+        Mission mission = Missions.fousDeGotheimRapide();
+        // jet fixe a 73 : dizaines 7, unites 3
+        RandomSource deFixe = new RandomSource() {
+            @Override
+            public int roll() {
+                return 73;
+            }
+
+            @Override
+            public JetDes jetD100() {
+                return JetDes.d100(73);
+            }
+        };
+        MissionExecution execution = MissionExecution.start(mission, List.of(agent()), deFixe, START);
+        execution.advance(START.plus(Duration.ofDays(1)));
+
+        assertThat(execution.logLines())
+                .filteredOn(LigneJournal::aUnJet)
+                .isNotEmpty()
+                .allSatisfy(l -> {
+                    assertThat(l.texte()).contains("obtient un 73");
+                    assertThat(l.jet()).isEqualTo(new JetDes(7, 3));
+                });
+        // les autres lignes (titres, introductions) n'ont pas de jet
+        assertThat(execution.logLines())
+                .filteredOn(l -> !l.aUnJet())
+                .isNotEmpty();
     }
 
     private Character agent() {
@@ -136,5 +167,9 @@ class MissionExecutionTest {
                 .withSkill(Competence.FORCE_MENTALE, 40)
                 .withSkill(Competence.VIGILANCE, 40)
                 .withSkill(Competence.MAGIE, 40);
+    }
+
+    private static java.util.List<String> textesDuJournal(MissionExecution execution) {
+        return execution.logLines().stream().map(LigneJournal::texte).toList();
     }
 }

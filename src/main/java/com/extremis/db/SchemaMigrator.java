@@ -46,6 +46,32 @@ public class SchemaMigrator implements ApplicationRunner {
         ajouterColonneBooleenneSiAbsente("execution_team_members", "exclu");
         ajouterColonneSiAbsente("execution_team_members", "sang_froid");
         deplacerSpecialitesDesTraits();
+        ajouterColonnesJetDeDesLogs();
+        ajouterColonneBigintSiAbsente("mission_executions", "jets_effectues");
+    }
+
+    private void ajouterColonneBigintSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " bigint NOT NULL DEFAULT 0");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        } else {
+            // Hibernate a pu creer la colonne en nullable avant ce
+            // migrateur : renseigne les NULL puis rends la colonne
+            // NOT NULL pour eviter les erreurs sur les anciennes lignes
+            jdbc.update("UPDATE " + table + " SET " + colonne + " = 0 WHERE " + colonne + " IS NULL");
+            jdbc.execute("ALTER TABLE " + table + " ALTER COLUMN " + colonne + " SET NOT NULL");
+        }
+    }
+
+    /**
+     * Les lignes de journal d'un test D100 conservent le jet sous forme
+     * de deux des a dix faces (dizaines + unites) pour pouvoir etre
+     * reaffichees sous forme d'images apres un redemarrage.
+     */
+    private void ajouterColonnesJetDeDesLogs() {
+        ajouterColonneTexteSiAbsente("execution_log_lines", "type", 16);
+        ajouterColonneEntiereSiAbsente("execution_log_lines", "de_dizaines");
+        ajouterColonneEntiereSiAbsente("execution_log_lines", "de_unites");
     }
 
     /**
@@ -64,8 +90,19 @@ public class SchemaMigrator implements ApplicationRunner {
     }
 
     private void ajouterColonneTexteSiAbsente(String table, String colonne) {
+        ajouterColonneTexteSiAbsente(table, colonne, 128);
+    }
+
+    private void ajouterColonneTexteSiAbsente(String table, String colonne, int longueur) {
         if (!colonneExiste(table, colonne)) {
-            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " varchar(128)");
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " varchar(" + longueur + ")");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
+    }
+
+    private void ajouterColonneEntiereSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " integer");
             log.info("Colonne {} ajoutee a la table {}", colonne, table);
         }
     }

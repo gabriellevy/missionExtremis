@@ -6,7 +6,7 @@ import java.util.List;
 public record OngletMissionView(
         Long id,
         String titre,
-        List<String> journal,
+        List<LigneJournalView> journal,
         List<TeamMemberView> equipe,
         String tempsAvantProchainEvenement,
         Long secondesAvantProchainEvenement,

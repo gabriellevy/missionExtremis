@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import com.extremis.core.LigneJournal;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,9 @@ public class MissionExecutionEntity {
 
     private boolean reussie;
 
+    @Column(name = "jets_effectues")
+    private Long jetsEffectues;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "execution")
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<ExecutionTeamMemberEntity> team = new ArrayList<>();
@@ -75,6 +80,7 @@ public class MissionExecutionEntity {
     public String getEvenementCourant() { return evenementCourant; }
     public Instant getHeureEffetCourant() { return heureEffetCourant; }
     public boolean isReussie() { return reussie; }
+    public long getJetsEffectues() { return jetsEffectues == null ? 0L : jetsEffectues; }
     public List<ExecutionAjustementEntity> getAjustements() { return ajustements; }
     public List<ExecutionTeamMemberEntity> getTeam() { return team; }
     public List<ExecutionLogLineEntity> getLogLines() { return logLines; }
@@ -85,6 +91,7 @@ public class MissionExecutionEntity {
     public void setEvenementCourant(String evenementCourant) { this.evenementCourant = evenementCourant; }
     public void setHeureEffetCourant(Instant heureEffetCourant) { this.heureEffetCourant = heureEffetCourant; }
     public void setReussie(boolean reussie) { this.reussie = reussie; }
+    public void setJetsEffectues(long jetsEffectues) { this.jetsEffectues = jetsEffectues; }
 
     public void addAjustement(String evenementId, int ajustement) {
         ajustements.stream()
@@ -97,6 +104,15 @@ public class MissionExecutionEntity {
 
     public void addLogLine(String line) {
         logLines.add(new ExecutionLogLineEntity(this, logLines.size(), line));
+    }
+
+    public void addLogLine(LigneJournal ligne) {
+        if (ligne.aUnJet()) {
+            logLines.add(new ExecutionLogLineEntity(this, logLines.size(), ligne.texte(),
+                    "jet", ligne.jet().dizaines(), ligne.jet().unites()));
+        } else {
+            addLogLine(ligne.texte());
+        }
     }
 
     public void addTeamMember(ExecutionTeamMemberEntity member) {
