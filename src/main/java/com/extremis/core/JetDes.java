@@ -1,9 +1,9 @@
 package com.extremis.core;
 
 /**
- * Resultat d'un jet de D100 affiche sous forme de deux des a dix
- * faces (style jeu de role) : un de pour les dizaines, un de pour
- * les unites. La convention du D100 en percentiles est que le de des
+ * Résultat d'un jet de D100 affiché sous forme de deux dés à dix
+ * faces (style jeu de rôle) : un dé pour les dizaines, un dé pour
+ * les unités. La convention du D100 en percentiles est que le dé des
  * dizaines vaut 0 (et non 10) quand le jet tombe sur 100.
  */
 public record JetDes(int dizaines, unites) {
