@@ -81,6 +81,38 @@ class RepriseMissionPersistanceTest {
         assertThat(enBase).containsExactlyElementsOf(apres);
     }
 
+    @Test
+    @Transactional
+    void apresRedemarrageLaSequenceDeDesContinueSansRejouerLesMêmesJets() {
+        Mission mission = com.extremis.catalog.Missions.fousDeGotheimRapide();
+        Character agent = new Character("test-seq", "Alice")
+                .withSkill(Competence.DISCRETION, 90)
+                .withSkill(Competence.ARMES_CORPS_A_CORPS, 90);
+
+        MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
+        MissionExecution execution = game.rebuild(entity).orElseThrow();
+        execution.advance(START.plus(Duration.ofHours(1)));
+        game.saveProgress(entity, execution, START);
+        List<Integer> jetsAvant = execution.logLines().stream()
+                .filter(LigneJournal::aUnJet)
+                .map(l -> l.jet().valeur())
+                .toList();
+        assertThat(jetsAvant).isNotEmpty();
+
+        // "redemarrage" puis nouveau jet : il doit différer de tous les
+        // jets précédents (la séquence aléatoire n'est pas rejouée)
+        MissionExecutionEntity rechargee = executions.findById(entity.getId()).orElseThrow();
+        MissionExecution repris = game.rebuild(rechargee).orElseThrow();
+        repris.advance(START.plus(Duration.ofDays(3)));
+        List<Integer> jetsApres = repris.logLines().stream()
+                .filter(LigneJournal::aUnJet)
+                .map(l -> l.jet().valeur())
+                .toList();
+        assertThat(jetsApres.subList(0, jetsAvant.size())).containsExactlyElementsOf(jetsAvant);
+        assertThat(jetsApres.subList(jetsAvant.size(), jetsApres.size()))
+                .doesNotContainAnyElementsOf(jetsAvant);
+    }
+
     @TestConfiguration
     static class MissionDeTestConfig {
         @Bean
