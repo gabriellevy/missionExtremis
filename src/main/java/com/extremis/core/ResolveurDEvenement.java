@@ -24,6 +24,10 @@ public final class ResolveurDEvenement {
         this.random = random;
     }
 
+    public RandomSource sourceAleatoire() {
+        return random;
+    }
+
     /**
      * Etat mutable porte par la resolution : exclusions,
      * ajustements de difficulte par evenement, essais de boucles.

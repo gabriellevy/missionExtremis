@@ -193,6 +193,10 @@ public final class MissionExecution {
         return List.copyOf(logLines);
     }
 
+    public RandomSource sourceAleatoire() {
+        return resolveur.sourceAleatoire();
+    }
+
     public List<Character> teamSnapshot() {
         return List.copyOf(team);
     }

@@ -47,6 +47,14 @@ public class SchemaMigrator implements ApplicationRunner {
         ajouterColonneSiAbsente("execution_team_members", "sang_froid");
         deplacerSpecialitesDesTraits();
         ajouterColonnesJetDeDesLogs();
+        ajouterColonneBigintSiAbsente("mission_executions", "jets_effectues");
+    }
+
+    private void ajouterColonneBigintSiAbsente(String table, String colonne) {
+        if (!colonneExiste(table, colonne)) {
+            jdbc.execute("ALTER TABLE " + table + " ADD COLUMN " + colonne + " bigint NOT NULL DEFAULT 0");
+            log.info("Colonne {} ajoutee a la table {}", colonne, table);
+        }
     }
 
     /**

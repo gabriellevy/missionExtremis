@@ -160,7 +160,7 @@ public class GameService {
             team.add(c);
         }
         MissionExecution execution = MissionExecution.start(def.get(), team,
-                new SeededRandom(42L), entity.getStartedAt());
+                new SeededRandom(42L, entity.getJetsEffectues()), entity.getStartedAt());
         if (entity.getEvenementCourant() != null) {
             java.util.Map<String, Integer> ajustements = new java.util.LinkedHashMap<>();
             for (com.extremis.db.ExecutionAjustementEntity a : entity.getAjustements()) {
@@ -252,6 +252,9 @@ public class GameService {
         entity.setEvenementCourant(execution.evenementCourant());
         entity.setHeureEffetCourant(execution.heureEffetCourant());
         entity.setReussie(execution.isReussie());
+        if (execution.sourceAleatoire() instanceof SeededRandom seeded) {
+            entity.setJetsEffectues(seeded.getJetsEffectues());
+        }
         execution.ajustementsDifficulte().forEach(entity::addAjustement);
         List<LigneJournal> lignes = execution.logLines();
         while (entity.getLogLines().size() < lignes.size()) {
