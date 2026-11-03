@@ -61,6 +61,7 @@ public class GameService {
     public void recruit(Character recruit, Instant now) {
         Character copy = new Character("rec-" + recruit.id() + "-" + System.nanoTime(), recruit.name());
         copy.withSkillBase(recruit.skillBase()); recruit.skillsSnapshot().forEach((skill, value) -> copy.withSkill(skill, value));
+        recruit.sorts().forEach(copy::withSort);
         CharacterEntity source = characters.findById(recruit.id()).orElse(null);
         if (source != null) {
             copy.withVitaliteDepart(source.getVitaliteDepart());

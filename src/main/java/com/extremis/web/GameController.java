@@ -148,6 +148,7 @@ public class GameController {
                     traits,
                     new ArrayList<>(c.specialites()),
                     new ArrayList<>(c.maitrises()),
+                    new ArrayList<>(c.sorts()),
                     c.inventory()));
         }
         return profils;

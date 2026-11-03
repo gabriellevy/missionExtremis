@@ -242,6 +242,13 @@
         <li th:each="m : ${p.maitrises}" th:text="${m}"/>
       </ul>
     </dd>
+    <dt>Sorts</dt>
+    <dd>
+      <ul>
+        <li th:if="${p.sorts.isEmpty()}">&#8212;</li>
+        <li th:each="s : ${p.sorts}" th:text="${s}"/>
+      </ul>
+    </dd>
     <dt>Inventaire</dt>
     <dd>
       <ul>

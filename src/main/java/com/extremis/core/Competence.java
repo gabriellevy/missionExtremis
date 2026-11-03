@@ -34,7 +34,8 @@ public enum Competence {
     SURVIE_EXTERIEUR("Survie en extérieur"),
     TIR("Tir"),
     TROMPERIE("Tromperie"),
-    VIGILANCE("Vigilance");
+    VIGILANCE("Vigilance"),
+    VOLONTE("Volont\u00e9");
 
     private final String label;
 

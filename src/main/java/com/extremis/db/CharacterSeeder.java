@@ -67,6 +67,15 @@ public class CharacterSeeder implements ApplicationRunner {
             genereJeanTrenton();
             ajoute[0] = true;
         }
+        repository.findById("seed-05").filter(c -> c.getName().equals("Arsene Lupin")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-05 (Arsene Lupin) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-05")) {
+            genereDavid();
+            ajoute[0] = true;
+        }
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
@@ -164,6 +173,30 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereDavid() {
+        seed("seed-05", "David", "Ach\u00e9ron", "Lyc\u00e9en",
+                new Competence[]{Competence.CHARME, Competence.FORCE, Competence.FORCE_MENTALE,
+                        Competence.INTELLIGENCE, Competence.INTIMIDATION, Competence.PROTECTION_DU_CONSUL,
+                        Competence.VOLONTE},
+                new int[]{-16, -8, 16, 8, 8, -10, 16},
+                new String[]{ViceEtVertu.EMPATHIQUE.vice(), ViceEtVertu.BIENVEILLANT.vice()}, 33);
+        repository.findById("seed-05").ifPresent(c -> {
+            c.addMaitrise("Mentaliste");
+            c.addSort("Lecture de pens\u00e9es");
+            c.addSort("Connaissance du temps \u00e9coul\u00e9");
+            c.addSort("Influence insidieuse");
+            c.addSort("Domination");
+            c.setVitaliteDepart(15);
+            c.setVitalite(15);
+            c.setSangFroidDepart(18);
+            c.setSangFroid(18);
+            c.setDescription("Enfant sociopathique de 13 ans, \u00e0 la nature inconnue et aux \u00e9tranges pouvoirs mentaux. "
+                    + "Il sent qu\u2019il n\u2019est pas de nature humaine, qu\u2019il est n\u00e9 par accident parmi cette rare "
+                    + "infanterie et qu\u2019il doit l\u2019\u00e9viter ou la dominer.");
+            repository.save(c);
+        });
+    }
+
     private void genereBaptisteLeMime() {
         seed("seed-04", "Baptiste le mime", "esthete", "mime",
                 new Competence[]{Competence.BAGARRE, Competence.CHARME, Competence.DISCRETION,
@@ -185,9 +218,7 @@ public class CharacterSeeder implements ApplicationRunner {
     public void semerCatalogue() {
         genereLacenaire();
         genereBaptisteLeMime();
-        seed("seed-05", "Arsene Lupin", "esthete", "enqueteur",
-                new Competence[]{Competence.DISCRETION, Competence.MOUVEMENT, Competence.REFLEXES}, new int[]{10, 8, 6},
-                new String[]{"Cambrioleur"});
+        genereDavid();
         seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
                 new Competence[]{Competence.ELOQUENCE, Competence.INTUITION}, new int[]{8, 5},
                 new String[]{"Barde"});
