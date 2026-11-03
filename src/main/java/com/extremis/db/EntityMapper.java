@@ -24,6 +24,9 @@ public final class EntityMapper {
         for (CharacterMaitriseEntity m : e.getMaitrises()) {
             c.withMaitrise(m.getNom());
         }
+        for (CharacterSortEntity s : e.getSorts()) {
+            c.withSort(s.getNom());
+        }
         for (CharacterItemEntity i : e.getInventory()) {
             c.addItem(i.getLabel());
         }
@@ -52,6 +55,9 @@ public final class EntityMapper {
         }
         for (String maitrise : c.maitrises()) {
             e.addMaitrise(maitrise);
+        }
+        for (String sort : c.sorts()) {
+            e.addSort(sort);
         }
         for (String item : c.inventory()) {
             e.addItem(item);

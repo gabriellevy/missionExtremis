@@ -9,6 +9,7 @@ public final class Character {
     private final List<Trait> traits = new ArrayList<>();
     private final List<String> specialites = new ArrayList<>();
     private final List<String> maitrises = new ArrayList<>();
+    private final List<String> sorts = new ArrayList<>();
     private final java.util.EnumMap<Competence, Integer> skills = new java.util.EnumMap<>(Competence.class);
     private final List<String> inventory = new ArrayList<>();
     private int skillBase = DEFAULT_SKILL_BASE;
@@ -48,6 +49,7 @@ public final class Character {
     public List<Trait> traits() { return traits; }
     public List<String> specialites() { return specialites; }
     public List<String> maitrises() { return maitrises; }
+    public List<String> sorts() { return sorts; }
     public List<String> inventory() { return inventory; }
     public int skillBase() { return skillBase; }
 
@@ -88,6 +90,11 @@ public final class Character {
 
     public Character withMaitrise(String maitrise) {
         maitrises.add(maitrise);
+        return this;
+    }
+
+    public Character withSort(String sort) {
+        sorts.add(sort);
         return this;
     }
 
