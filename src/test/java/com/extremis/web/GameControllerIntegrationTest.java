@@ -40,6 +40,15 @@ class GameControllerIntegrationTest {
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
     }
 
+    @org.junit.jupiter.api.Test
+    void laPageDAccueilAvecOngletExtremisSeRendSansErreur() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
+                        .param("onglet", "extremis"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Wiki Extremis")));
+    }
+
     @Test
     void reinitialisationUsineSupprimeLesActionsUtilisateur() {
         controller.recrutementRapide("Alice");
