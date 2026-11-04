@@ -76,6 +76,18 @@ public class CharacterSeeder implements ApplicationRunner {
             genereDavid();
             ajoute[0] = true;
         }
+        if (!repository.existsById("seed-13")) {
+            genereKarimBenAmara();
+            ajoute[0] = true;
+        }
+        if (!repository.existsById("seed-14")) {
+            genereYasminaKhelifi();
+            ajoute[0] = true;
+        }
+        if (!repository.existsById("seed-15")) {
+            genereNadiaSorkani();
+            ajoute[0] = true;
+        }
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
@@ -197,6 +209,69 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereKarimBenAmara() {
+        seed("seed-13", "Karim Ben Amara", "Saabi", "marchand",
+                new Competence[]{Competence.CHARME, Competence.DISCRETION, Competence.ELOQUENCE,
+                        Competence.ENDURANCE, Competence.EVALUATION, Competence.HABILETE,
+                        Competence.MARCHANDAGE, Competence.RAGOT, Competence.RICHESSE},
+                new int[]{10, 10, -5, -10, 10, 5, 20, 15, 15},
+                new String[]{ViceEtVertu.SOCIABLE.vertu(), ViceEtVertu.PRODIGUE.vertu()}, 36);
+        repository.findById("seed-13").ifPresent(c -> {
+            c.addSpecialite("Estimation des marchandises + 10");
+            c.setVitaliteDepart(12);
+            c.setVitalite(12);
+            c.setSangFroidDepart(14);
+            c.setSangFroid(14);
+            c.setDescription("N\u00e9gociant des souks de SaintOuen, Karim est l\u2019arch\u00e9type de l\u2019homme des souks : "
+                    + "chaleureux, sympathique et entreprenant, toujours pr\u00eat \u00e0 faire affaire. Derri\u00e8re son sourire "
+                    + "de commer\u00e7ant se cache un fin connaisseur des hommes et des marchandises, membre influent "
+                    + "de sa coterie les Saabi.");
+            repository.save(c);
+        });
+    }
+
+    private void genereYasminaKhelifi() {
+        seed("seed-14", "Yasmina Khelifi", "Saabi", "voleuse",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.DISCRETION, Competence.ELOQUENCE,
+                        Competence.ENDURANCE, Competence.HABILETE, Competence.MOUVEMENT,
+                        Competence.PERCEPTION, Competence.REFLEXES, Competence.TROMPERIE},
+                new int[]{5, 20, -5, -10, 15, 10, 10, 5, 15},
+                new String[]{ViceEtVertu.LOYAL.vice(), ViceEtVertu.SOCIABLE.vertu()}, 30);
+        repository.findById("seed-14").ifPresent(c -> {
+            c.addSpecialite("Pickpocket + 10");
+            c.addSpecialite("Crochetage + 10");
+            c.setVitaliteDepart(12);
+            c.setVitalite(12);
+            c.setSangFroidDepart(15);
+            c.setSangFroid(15);
+            c.setDescription("Roublarde agile et espi\u00e8gle des souks de SaintOuen, Yasmina a la faconde facile et le geste s\u00fbr. "
+                    + "Issue des bas-fonds de la coterie des Saabi, elle passe du rire \u00e0 la lame avec une aisance "
+                    + "qui fait sa r\u00e9putation.");
+            repository.save(c);
+        });
+    }
+
+    private void genereNadiaSorkani() {
+        seed("seed-15", "Nadia Sorkani", "Saabi", "assassin",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.DISCRETION, Competence.ELOQUENCE,
+                        Competence.ENDURANCE, Competence.HABILETE, Competence.INTIMIDATION,
+                        Competence.MARCHANDAGE, Competence.MOUVEMENT, Competence.PERCEPTION, Competence.VIGILANCE},
+                new int[]{15, 20, -5, -10, 5, 15, 10, 10, 10, 10},
+                new String[]{ViceEtVertu.EMPATHIQUE.vice(), ViceEtVertu.LOYAL.vice(2)}, 33);
+        repository.findById("seed-15").ifPresent(c -> {
+            c.addSpecialite("Embuscade + 10");
+            c.addSpecialite("Poison + 10");
+            c.setVitaliteDepart(14);
+            c.setVitalite(14);
+            c.setSangFroidDepart(18);
+            c.setSangFroid(18);
+            c.setDescription("Membre d\u2019une sous-secte extr\u00e9miste des Saabi, Nadia exerce le m\u00e9tier d\u2019assassin "
+                    + "avec un sang-froid de glace. Jamais elle ne trahit sa coterie, les Saabi, pour qui elle "
+                    + "tuerait sans h\u00e9siter.");
+            repository.save(c);
+        });
+    }
+
     private void genereBaptisteLeMime() {
         seed("seed-04", "Baptiste le mime", "esthete", "mime",
                 new Competence[]{Competence.BAGARRE, Competence.CHARME, Competence.DISCRETION,
@@ -246,6 +321,9 @@ public class CharacterSeeder implements ApplicationRunner {
                 new String[]{"Trackeur"});
         generePereDamianKarras();
         genereJeanTrenton();
+        genereKarimBenAmara();
+        genereYasminaKhelifi();
+        genereNadiaSorkani();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());
     }
 
