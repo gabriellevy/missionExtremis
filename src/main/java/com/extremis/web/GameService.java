@@ -218,19 +218,23 @@ public class GameService {
                     });
         }
         syncRosterAfterMission(report);
-        syncSangFroidRoster(entity);
+        syncEquipeRoster(entity);
         executions.save(entity);
     }
 
     /**
-     * Repercute le sang-froid final de l'execution sur le roster : les
-     * pertes de sang-froid subies en mission persistent (wiki, page
+     * Repercute la vitalite et le sang-froid finaux de l'execution sur le
+     * roster : les pertes subies en mission persistent (wiki, page
      * "Personnage jdr").
      */
-    private void syncSangFroidRoster(MissionExecutionEntity entity) {
+    private void syncEquipeRoster(MissionExecutionEntity entity) {
         for (ExecutionTeamMemberEntity m : entity.getTeam()) {
             characters.findById(m.getCharacterId()).ifPresent(c -> {
+                c.setVitalite(m.getVitalite());
                 c.setSangFroid(m.getSangFroid());
+                if (!m.isAlive()) {
+                    c.setAlive(false);
+                }
                 characters.save(c);
             });
         }
