@@ -106,7 +106,7 @@ public final class ResolveurDEvenement {
         if (resultat.estReussite()) {
             return appliquerReussite(evenement, resultat, joueur, journal);
         }
-        return appliquerEchec(evenement, resultat, joueur, etat, journal);
+        return appliquerEchec(evenement, resultat, joueur, equipe, etat, journal);
     }
 
     private static String libelle(ResultatTest resultat) {
@@ -183,7 +183,8 @@ public final class ResolveurDEvenement {
     }
 
     private ResultatEvenement appliquerEchec(MissionEvent evenement, ResultatTest resultat,
-                                             Character joueur, EtatMission etat, Consumer<LigneJournal> journal) {
+                                             Character joueur, List<Character> equipe, EtatMission etat,
+                                             Consumer<LigneJournal> journal) {
         EffetEchec echec = evenement.echec().orElse(null);
         String suivant = null;
         if (echec != null) {
@@ -199,25 +200,39 @@ public final class ResolveurDEvenement {
                 joueur.exclure();
                 journal.accept(new LigneJournal(joueur.name() + " est exclu de l'aventure."));
             }
-            if (echec.degats() != null && echec.degats() > 0) {
-                joueur.applyDamage(echec.degats());
-                journal.accept(new LigneJournal(joueur.name() + " subit " + echec.degats()
+            int degatsSubis = resultat == ResultatTest.ECHEC_CRITIQUE && echec.degatsCritique() != null
+                    ? echec.degatsCritique() : (echec.degats() != null ? echec.degats() : 0);
+            if (degatsSubis > 0) {
+                joueur.applyDamage(degatsSubis);
+                journal.accept(new LigneJournal(joueur.name() + " subit " + degatsSubis
                         + " degats (vitalite restante : " + joueur.vitalite() + ")."));
                 if (!joueur.isAlive()) {
                     journal.accept(new LigneJournal(joueur.name() + " succombe."));
                 }
             }
             if (echec.degatsAleatoires() != null) {
-                MissionEvent.DesDegats des = echec.degatsAleatoires();
-                int total = 0;
-                for (int i = 0; i < des.nombreDeDes(); i++) {
-                    total += random.roll() % des.faces() + 1;
-                }
+                int total = lancerDes(echec.degatsAleatoires());
                 joueur.applyDamage(total);
-                journal.accept(new LigneJournal(joueur.name() + " subit " + des.nombreDeDes() + "D" + des.faces()
+                journal.accept(new LigneJournal(joueur.name() + " subit " + echec.degatsAleatoires().nombreDeDes()
+                        + "D" + echec.degatsAleatoires().faces()
                         + " degats (" + total + ", vitalite restante : " + joueur.vitalite() + ")."));
                 if (!joueur.isAlive()) {
                     journal.accept(new LigneJournal(joueur.name() + " succombe."));
+                }
+            }
+            if (echec.degatsAleatoiresMembreAuHasard() != null) {
+                List<Character> actifs = equipe.stream().filter(Character::isActif).toList();
+                if (!actifs.isEmpty()) {
+                    Character victime = actifs.get(Math.floorMod(random.roll(), actifs.size()));
+                    int total = lancerDes(echec.degatsAleatoiresMembreAuHasard());
+                    victime.applyDamage(total);
+                    journal.accept(new LigneJournal(victime.name() + " subit "
+                            + echec.degatsAleatoiresMembreAuHasard().nombreDeDes() + "D"
+                            + echec.degatsAleatoiresMembreAuHasard().faces()
+                            + " degats (" + total + ", vitalite restante : " + victime.vitalite() + ")."));
+                    if (!victime.isAlive()) {
+                        journal.accept(new LigneJournal(victime.name() + " succombe."));
+                    }
                 }
             }
             if (echec.perteSangFroid() != null && echec.perteSangFroid() > 0) {
@@ -234,6 +249,14 @@ public final class ResolveurDEvenement {
             suivant = echec.evenementSuivant();
         }
         return new ResultatEvenement(suivant, false);
+    }
+
+    private int lancerDes(MissionEvent.DesDegats des) {
+        int total = 0;
+        for (int i = 0; i < des.nombreDeDes(); i++) {
+            total += random.roll() % des.faces() + 1;
+        }
+        return total;
     }
 
     /**

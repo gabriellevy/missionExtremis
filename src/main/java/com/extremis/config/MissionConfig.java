@@ -19,4 +19,9 @@ public class MissionConfig {
     public Mission rumeursDePossessionDemoniaque() {
         return Missions.rumeursDePossessionDemoniaque();
     }
+
+    @Bean
+    public Mission constructionDeCheminDeFer() {
+        return Missions.constructionDeCheminDeFer();
+    }
 }

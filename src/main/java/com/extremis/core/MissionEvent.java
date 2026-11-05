@@ -87,7 +87,9 @@ public final class MissionEvent {
             String texteSimple,
             String texteCritique,
             Integer degats,
+            Integer degatsCritique,
             DesDegats degatsAleatoires,
+            DesDegats degatsAleatoiresMembreAuHasard,
             Integer perteSangFroid,
             boolean exclureJoueur,
             Integer ajustementDifficulte,
@@ -102,7 +104,9 @@ public final class MissionEvent {
             private String texteSimple;
             private String texteCritique;
             private Integer degats;
+            private Integer degatsCritique;
             private DesDegats degatsAleatoires;
+            private DesDegats degatsAleatoiresMembreAuHasard;
             private Integer perteSangFroid;
             private boolean exclureJoueur;
             private Integer ajustementDifficulte;
@@ -124,8 +128,18 @@ public final class MissionEvent {
                 return this;
             }
 
+            public Builder degatsCritique(int degats) {
+                this.degatsCritique = degats;
+                return this;
+            }
+
             public Builder degatsAleatoires(int nombreDeDes, int faces) {
                 this.degatsAleatoires = new DesDegats(nombreDeDes, faces);
+                return this;
+            }
+
+            public Builder degatsAleatoiresMembreAuHasard(int nombreDeDes, int faces) {
+                this.degatsAleatoiresMembreAuHasard = new DesDegats(nombreDeDes, faces);
                 return this;
             }
 
@@ -155,8 +169,9 @@ public final class MissionEvent {
             }
 
             public EffetEchec build() {
-                return new EffetEchec(texteSimple, texteCritique, degats, degatsAleatoires, perteSangFroid,
-                        exclureJoueur, ajustementDifficulte, evenementAjuste, evenementSuivant);
+                return new EffetEchec(texteSimple, texteCritique, degats, degatsCritique, degatsAleatoires,
+                        degatsAleatoiresMembreAuHasard, perteSangFroid, exclureJoueur, ajustementDifficulte,
+                        evenementAjuste, evenementSuivant);
             }
         }
     }
