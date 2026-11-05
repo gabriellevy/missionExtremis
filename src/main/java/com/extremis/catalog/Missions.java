@@ -1,8 +1,10 @@
 package com.extremis.catalog;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extremis.catalog.BoitesEvenementsGeneriques.Boite;
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Mission;
@@ -209,6 +211,122 @@ public final class Missions {
                                 .introduction("Votre \u00e9quipe n\u2019a pas de quoi remplir la mission.")
                                 .duree(Duration.ZERO)
                                 .build()));
+    }
+
+    /**
+     * "Construction de chemin de fer" (wiki, page du meme nom) : les
+     * villages de zaporogues ont un besoin urgent de bois pour passer
+     * l'hiver. La mission reference les boites d'evenements generiques
+     * du wiki ("Marche epuisante", "Travail epuisant" et "Escarmouches
+     * de bandits") sans les integrer : elles restent reutilisables par
+     * d'autres missions.
+     */
+    public static Mission constructionDeCheminDeFer() {
+        return cheminDeFer(Duration.ofHours(24), Duration.ofHours(4), Duration.ofHours(20),
+                Duration.ofHours(10));
+    }
+
+    public static Mission constructionDeCheminDeFerRapide() {
+        return cheminDeFer(Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1),
+                Duration.ofSeconds(1));
+    }
+
+    private static Mission cheminDeFer(Duration dMarche, Duration dSite, Duration dDesertion,
+                                       Duration dTravailSupplementaire) {
+        Boite marche = BoitesEvenementsGeneriques.marcheEpuisante("marche", "site-atteint");
+        Boite travailSupplementaire = BoitesEvenementsGeneriques.travailEpuisant("travail-supplementaire",
+                dTravailSupplementaire, "au-boulot");
+        Boite travailDesertion = BoitesEvenementsGeneriques.travailEpuisant("travail-desertion",
+                Duration.ofHours(4), travailSupplementaire.entree());
+        Boite travail = BoitesEvenementsGeneriques.travailEpuisant("travail", Duration.ofHours(4),
+                "surveillance-bandits");
+        Boite escarmouche = BoitesEvenementsGeneriques.escarmouchesDeBandits("escarmouche", "victoire");
+
+        List<MissionEvent> evenements = new ArrayList<>();
+        evenements.add(MissionEvent.builder("atteindre-le-site", "Atteindre le site")
+                .introduction("Les arrangeurs partent pour le chantier de chemin de fer, "
+                        + "\u00e0 travers les plaines enneig\u00e9es.")
+                .duree(dMarche)
+                .succes(EffetReussite.builder()
+                        .evenementSuivant(marche.entree())
+                        .build())
+                .build());
+        evenements.addAll(marche.evenements());
+        evenements.add(MissionEvent.builder("site-atteint", "Vous avez atteint le chantier")
+                .introduction("Vous avez atteint le chantier.")
+                .duree(dSite)
+                .succes(EffetReussite.builder()
+                        .evenementSuivant("commandement")
+                        .build())
+                .build());
+        evenements.add(MissionEvent.builder("commandement", "Test de commandement")
+                .introduction("Il faut mener les ouvriers du chantier d'une main de fer.")
+                .test(new SimpleTest(Competence.COMMANDEMENT, 0))
+                .succes(EffetReussite.builder()
+                        .texteSimple("Les ouvriers ob\u00e9issent aux arrangeurs.")
+                        .evenementSuivant("au-boulot")
+                        .build())
+                .echec(EffetEchec.builder()
+                        .texteSimple("De nombreux ouvriers ont d\u00e9sert\u00e9, ce qui va retarder le travail "
+                                + "et obliger les arrangeurs \u00e0 participer.")
+                        .evenementSuivant("desertion")
+                        .build())
+                .build());
+        evenements.add(MissionEvent.builder("desertion", "D\u00e9sertion des ouvriers")
+                .introduction("De nombreux ouvriers ont d\u00e9sert\u00e9 le chantier.")
+                .duree(dDesertion)
+                .succes(EffetReussite.builder()
+                        .evenementSuivant(travailDesertion.entree())
+                        .build())
+                .build());
+        evenements.addAll(travailDesertion.evenements());
+        evenements.addAll(travailSupplementaire.evenements());
+        evenements.add(MissionEvent.builder("au-boulot", "Au boulot")
+                .introduction("La neige commence \u00e0 tomber et le sol \u00e0 geler, "
+                        + "rendant le travail encore plus \u00e9puisant.")
+                .succes(EffetReussite.builder()
+                        .evenementSuivant(travail.entree())
+                        .build())
+                .build());
+        evenements.addAll(travail.evenements());
+        evenements.add(MissionEvent.builder("surveillance-bandits", "Surveillance des environs")
+                .introduction("Il faut sans cesse surveiller les environs pour pr\u00e9venir "
+                        + "les attaques de bandits.")
+                .succes(EffetReussite.builder()
+                        .evenementSuivant("vigilance")
+                        .build())
+                .build());
+        evenements.add(MissionEvent.builder("vigilance", "Test de vigilance")
+                .introduction("Les arrangeurs scrutent les environs \u00e0 la recherche de bandits.")
+                .test(new SimpleTest(Competence.VIGILANCE, 0))
+                .succes(EffetReussite.builder()
+                        .texteSimple("Les environs sont s\u00fbrs pour l'instant.")
+                        .evenementSuivant("victoire")
+                        .build())
+                .echec(EffetEchec.builder()
+                        .texteSimple("Les bandits profitent d'un moment d'inattention !")
+                        .evenementSuivant(escarmouche.entree())
+                        .build())
+                .build());
+        evenements.addAll(escarmouche.evenements());
+        evenements.add(MissionEvent.builder("victoire", "Victoire")
+                .effet("Le chantier a \u00e9t\u00e9 men\u00e9 \u00e0 son terme.")
+                .succes(EffetReussite.builder()
+                        .evenementSuivant(null)
+                        .build())
+                .build());
+
+        return new Mission(
+                "construction-chemin-de-fer",
+                "Construction de chemin de fer",
+                "Les villages de zaporogues dans les plaines d'Ukraine ont un besoin urgent de bois "
+                        + "pour passer l'hiver mais les travaux n'en finissent pas. Allez mettre de l'ordre "
+                        + "sur le chantier. Attention, les conditions sont rudes : pas d'\u00e9lectricit\u00e9, "
+                        + "pas d'engins de chantier et la neige commence \u00e0 tomber. Il y a m\u00eame des "
+                        + "rumeurs de bandits en maraude.",
+                List.of(Competence.PERIPLE, Competence.COMMANDEMENT, Competence.ENDURANCE,
+                        Competence.VIGILANCE),
+                evenements);
     }
 
     private static boolean aLaSpecialite(Character personnage, String prefixe) {

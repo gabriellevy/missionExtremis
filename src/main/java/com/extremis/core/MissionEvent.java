@@ -21,6 +21,7 @@ public final class MissionEvent {
     private final String effet;
     private final Duration duree;
     private final SkillTest test;
+    private final boolean testPourTous;
     private final EffetReussite succes;
     private final EffetEchec echec;
     private final Integer perteSangFroidEquipe;
@@ -87,7 +88,9 @@ public final class MissionEvent {
             String texteSimple,
             String texteCritique,
             Integer degats,
+            Integer degatsCritique,
             DesDegats degatsAleatoires,
+            DesDegats degatsAleatoiresMembreAuHasard,
             Integer perteSangFroid,
             boolean exclureJoueur,
             Integer ajustementDifficulte,
@@ -102,7 +105,9 @@ public final class MissionEvent {
             private String texteSimple;
             private String texteCritique;
             private Integer degats;
+            private Integer degatsCritique;
             private DesDegats degatsAleatoires;
+            private DesDegats degatsAleatoiresMembreAuHasard;
             private Integer perteSangFroid;
             private boolean exclureJoueur;
             private Integer ajustementDifficulte;
@@ -124,8 +129,18 @@ public final class MissionEvent {
                 return this;
             }
 
+            public Builder degatsCritique(int degats) {
+                this.degatsCritique = degats;
+                return this;
+            }
+
             public Builder degatsAleatoires(int nombreDeDes, int faces) {
                 this.degatsAleatoires = new DesDegats(nombreDeDes, faces);
+                return this;
+            }
+
+            public Builder degatsAleatoiresMembreAuHasard(int nombreDeDes, int faces) {
+                this.degatsAleatoiresMembreAuHasard = new DesDegats(nombreDeDes, faces);
                 return this;
             }
 
@@ -155,8 +170,9 @@ public final class MissionEvent {
             }
 
             public EffetEchec build() {
-                return new EffetEchec(texteSimple, texteCritique, degats, degatsAleatoires, perteSangFroid,
-                        exclureJoueur, ajustementDifficulte, evenementAjuste, evenementSuivant);
+                return new EffetEchec(texteSimple, texteCritique, degats, degatsCritique, degatsAleatoires,
+                        degatsAleatoiresMembreAuHasard, perteSangFroid, exclureJoueur, ajustementDifficulte,
+                        evenementAjuste, evenementSuivant);
             }
         }
     }
@@ -168,6 +184,7 @@ public final class MissionEvent {
         this.effet = builder.effet;
         this.duree = builder.duree;
         this.test = builder.test;
+        this.testPourTous = builder.testPourTous;
         this.succes = builder.succes;
         this.echec = builder.echec;
         this.perteSangFroidEquipe = builder.perteSangFroidEquipe;
@@ -183,6 +200,14 @@ public final class MissionEvent {
     public String effet() { return effet; }
     public Duration duree() { return duree; }
     public Optional<SkillTest> test() { return Optional.ofNullable(test); }
+
+    /**
+     * Quand un test est "pour tous" (wiki, boites generiques) : chaque
+     * personnage actif de l'equipe tente le test individuellement,
+     * avec ses propres reussite/echec et effets, au lieu qu'un seul
+     * personnage (le meilleur) ne tente le test.
+     */
+    public boolean testPourTous() { return testPourTous; }
     public Optional<EffetReussite> succes() { return Optional.ofNullable(succes); }
     public Optional<EffetEchec> echec() { return Optional.ofNullable(echec); }
     public Optional<Integer> perteSangFroidEquipe() { return Optional.ofNullable(perteSangFroidEquipe); }
@@ -202,6 +227,7 @@ public final class MissionEvent {
         private String effet;
         private Duration duree = Duration.ZERO;
         private SkillTest test;
+        private boolean testPourTous;
         private EffetReussite succes;
         private EffetEchec echec;
         private Integer perteSangFroidEquipe;
@@ -232,6 +258,11 @@ public final class MissionEvent {
 
         public Builder test(SkillTest test) {
             this.test = test;
+            return this;
+        }
+
+        public Builder testPourTous() {
+            this.testPourTous = true;
             return this;
         }
 
