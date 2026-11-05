@@ -60,10 +60,11 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(endurance)
                                 .build())
                         .build(),
-                MissionEvent.builder(endurance, "Souffrance (endurance)")
-                        .introduction("Le froid et la fatigue p\u00e8sent sur les arrangeurs.")
+                MissionEvent.builder(endurance, "Souffrance (endurance, pour tous les personnages)")
+                        .introduction("Le froid et la fatigue p\u00e8sent sur chaque arrangeur.")
                         .duree(Duration.ofHours(2))
                         .test(new SimpleTest(Competence.ENDURANCE, 0))
+                        .testPourTous()
                         .succes(EffetReussite.builder()
                                 .texteSimple("Les arrangeurs tiennent le coup.")
                                 .evenementSuivant(forceMentale)
@@ -74,10 +75,11 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(forceMentale)
                                 .build())
                         .build(),
-                MissionEvent.builder(forceMentale, "Souffrance (force mentale)")
-                        .introduction("La peur de se perdre glace le sang des arrangeurs.")
+                MissionEvent.builder(forceMentale, "Souffrance (force mentale, pour tous les personnages)")
+                        .introduction("La peur de se perdre glace le sang de chaque arrangeur.")
                         .duree(Duration.ofHours(2))
                         .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
+                        .testPourTous()
                         .succes(EffetReussite.builder()
                                 .texteSimple("Les arrangeurs se ressaisissent et repartent.")
                                 .evenementSuivant(periple)
@@ -98,10 +100,11 @@ public final class BoitesEvenementsGeneriques {
     public static Boite travailEpuisant(String prefixe, Duration duree, String evenementEnCasDeReussite) {
         String travail = prefixe + "-travail";
         return new Boite(List.of(
-                MissionEvent.builder(travail, "Travail \u00e9puisant")
-                        .introduction("Le travail sur le chantier, dans le froid.")
+                MissionEvent.builder(travail, "Travail \u00e9puisant (pour tous les personnages)")
+                        .introduction("Chaque arrangeur travaille sur le chantier, dans le froid.")
                         .duree(duree)
                         .test(new SimpleTest(Competence.ENDURANCE, 0))
+                        .testPourTous()
                         .succes(EffetReussite.builder()
                                 .texteSimple("Travail termin\u00e9.")
                                 .evenementSuivant(evenementEnCasDeReussite)

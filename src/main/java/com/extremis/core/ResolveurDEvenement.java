@@ -83,6 +83,9 @@ public final class ResolveurDEvenement {
         int ajustement = etat.ajustement(evenement.id());
         SkillTest testAjuste = ajustement == 0 ? test
                 : new TestAjuste(test, ajustement);
+        if (evenement.testPourTous()) {
+            return resoudreTestPourTous(evenement, testAjuste, equipe, etat, journal);
+        }
         Predicate<Character> filtre = evenement.testeurFiltre().orElse(c -> true);
         Optional<Character> candidat = testAjuste.bestCandidate(equipe.stream()
                 .filter(filtre).toList());
@@ -182,12 +185,86 @@ public final class ResolveurDEvenement {
         return new ResultatEvenement(suivant, suivant == null && succes != null);
     }
 
+    /**
+     * Test "pour tous" (wiki, boites generiques) : chaque personnage
+     * actif tente le test individuellement, avec ses propres effets de
+     * reussite ou d'echec. L'evenement suivant est celui de l'echec si
+     * au moins un personnage a echoue, celui de la reussite sinon.
+     */
+    private ResultatEvenement resoudreTestPourTous(MissionEvent evenement, SkillTest test,
+                                                   List<Character> equipe, EtatMission etat,
+                                                   Consumer<LigneJournal> journal) {
+        Predicate<Character> filtre = evenement.testeurFiltre().orElse(c -> true);
+        List<Character> testeurs = equipe.stream().filter(Character::isActif).filter(filtre).toList();
+        if (testeurs.isEmpty()) {
+            journal.accept(new LigneJournal("Aucun membre de l'equipe n'est en état de tenter le test de "
+                    + test.skill().label() + "."));
+            return new ResultatEvenement(evenement.echec().map(EffetEchec::evenementSuivant).orElse(null), false);
+        }
+        boolean auMoinsUnEchec = false;
+        for (Character joueur : testeurs) {
+            JetDes jet = random.jetD100();
+            int de = jet.valeur();
+            ResultatTest resultat = ResultatTest.duJet(test.target(joueur), de);
+            evenement.coutSangFroidTesteur().ifPresent(cout -> {
+                joueur.perteSangFroid(cout);
+                journal.accept(new LigneJournal(joueur.name() + " perd " + cout
+                        + " de sang-froid avant le test (restant : " + joueur.sangFroid() + ")."));
+            });
+            journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
+                    + " (cible " + test.target(joueur) + " sur D100) et obtient un " + de
+                    + " : " + libelle(resultat) + ".", jet));
+            if (resultat.estReussite()) {
+                appliquerReussite(evenement, resultat, joueur, journal);
+            } else {
+                auMoinsUnEchec = true;
+                appliquerEchecIndividuel(evenement, resultat, joueur, equipe, journal);
+            }
+        }
+        EffetEchec echec = evenement.echec().orElse(null);
+        EffetReussite succes = evenement.succes().orElse(null);
+        if (auMoinsUnEchec && echec != null && echec.ajustementDifficulte() != null) {
+            String cible = echec.evenementAjuste() != null ? echec.evenementAjuste() : evenement.id();
+            etat.appliquerAjustement(cible, echec.ajustementDifficulte());
+            journal.accept(new LigneJournal("La difficulté du test de l'événement " + cible
+                    + " sera baissée de " + Math.abs(echec.ajustementDifficulte()) + "."));
+        }
+        String suivant;
+        if (auMoinsUnEchec && echec != null && echec.evenementSuivant() != null) {
+            suivant = echec.evenementSuivant();
+        } else if (succes != null) {
+            suivant = succes.evenementSuivant();
+        } else {
+            suivant = null;
+        }
+        return new ResultatEvenement(suivant, false);
+    }
+
     private ResultatEvenement appliquerEchec(MissionEvent evenement, ResultatTest resultat,
                                              Character joueur, List<Character> equipe, EtatMission etat,
                                              Consumer<LigneJournal> journal) {
         EffetEchec echec = evenement.echec().orElse(null);
         String suivant = null;
         if (echec != null) {
+            appliquerEchecIndividuel(evenement, resultat, joueur, equipe, journal);
+            if (echec.ajustementDifficulte() != null) {
+                String cible = echec.evenementAjuste() != null ? echec.evenementAjuste() : evenement.id();
+                etat.appliquerAjustement(cible, echec.ajustementDifficulte());
+                journal.accept(new LigneJournal("La difficulté du test de l'événement " + cible
+                        + " sera baissée de " + Math.abs(echec.ajustementDifficulte()) + "."));
+            }
+            suivant = echec.evenementSuivant();
+        }
+        return new ResultatEvenement(suivant, false);
+    }
+
+    private void appliquerEchecIndividuel(MissionEvent evenement, ResultatTest resultat,
+                                          Character joueur, List<Character> equipe,
+                                          Consumer<LigneJournal> journal) {
+        EffetEchec echec = evenement.echec().orElse(null);
+        if (echec == null) {
+            return;
+        }
             String texte = resultat == ResultatTest.ECHEC_CRITIQUE && echec.texteCritique() != null
                     ? echec.texteCritique() : echec.texteSimple();
             if (texte == null && evenement.effet() != null) {
@@ -240,15 +317,6 @@ public final class ResolveurDEvenement {
                 journal.accept(new LigneJournal(joueur.name() + " perd " + echec.perteSangFroid()
                         + " de sang-froid (restant : " + joueur.sangFroid() + ")."));
             }
-            if (echec.ajustementDifficulte() != null) {
-                String cible = echec.evenementAjuste() != null ? echec.evenementAjuste() : evenement.id();
-                etat.appliquerAjustement(cible, echec.ajustementDifficulte());
-                journal.accept(new LigneJournal("La difficulté du test de l'événement " + cible
-                        + " sera baissée de " + Math.abs(echec.ajustementDifficulte()) + "."));
-            }
-            suivant = echec.evenementSuivant();
-        }
-        return new ResultatEvenement(suivant, false);
     }
 
     private int lancerDes(MissionEvent.DesDegats des) {

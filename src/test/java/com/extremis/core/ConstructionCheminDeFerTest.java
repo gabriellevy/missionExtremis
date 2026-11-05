@@ -124,6 +124,50 @@ class ConstructionCheminDeFerTest {
         assertThat(agent.vitalite()).isEqualTo(5);
     }
 
+    @Test
+    void leTravailEpuisantFaitTesterChaquePersonnageIndividuellement() {
+        Character alice = agent();
+        Character bob = new Character("b", "Bob");
+        // periple et commandement ok (Alice, la meilleure), travail : Alice reussit, Bob echoue critiquement
+        Mission mission = Missions.constructionDeCheminDeFerRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(alice, bob),
+                script(1, 1, 1, 100, 1), START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isReussie()).isTrue();
+        // chaque personnage a tente le test d'endurance individuellement
+        assertThat(textesDuJournal(execution).stream()
+                .filter(l -> l.contains("tente le test de Endurance")).count()).isEqualTo(2);
+        assertThat(textesDuJournal(execution))
+                .anyMatch(l -> l.startsWith("Bob tente le test de Endurance") && l.contains("\u00e9chec critique"));
+        // Bob seul subit les 5 degats de l'echec critique
+        assertThat(bob.vitalite()).isEqualTo(5);
+        assertThat(alice.vitalite()).isEqualTo(10);
+    }
+
+    @Test
+    void laMarcheEpuisanteFaitTesterEnduranceEtForceMentalePourTousLesPersonnages() {
+        Character alice = agent();
+        Character bob = new Character("b", "Bob");
+        // periple echoue (Alice), puis endurance et force mentale pour tous : Bob echoue les deux,
+        // periple retente avec +20 reussit, le reste reussit
+        Mission mission = Missions.constructionDeCheminDeFerRapide();
+        MissionExecution execution = MissionExecution.start(mission, List.of(alice, bob),
+                script(100, 1, 100, 1, 100, 1, 1, 1, 1, 1), START);
+
+        assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
+        assertThat(execution.isReussie()).isTrue();
+        assertThat(textesDuJournal(execution).stream()
+                .filter(l -> l.contains("tente le test de Endurance")).count()).isEqualTo(2);
+        assertThat(textesDuJournal(execution).stream()
+                .filter(l -> l.contains("tente le test de Force mentale")).count()).isEqualTo(2);
+        // Bob subit -2 vitalite (endurance) et -2 sang-froid (force mentale), Alice rien
+        assertThat(bob.vitalite()).isEqualTo(8);
+        assertThat(bob.sangFroid()).isEqualTo(8);
+        assertThat(alice.vitalite()).isEqualTo(10);
+        assertThat(alice.sangFroid()).isEqualTo(10);
+    }
+
     private Character agent() {
         return new Character("a", "Alice")
                 .withSkill(Competence.PERIPLE, 50)
