@@ -139,7 +139,7 @@ class ConstructionCheminDeFerTest {
         assertThat(textesDuJournal(execution).stream()
                 .filter(l -> l.contains("tente le test de Endurance")).count()).isEqualTo(2);
         assertThat(textesDuJournal(execution))
-                .anyMatch(l -> l.startsWith("Bob tente le test de Endurance") && l.contains("\u00e9chec critique"));
+                .anyMatch(l -> l.contains("Bob tente le test de Endurance") && l.contains("\u00e9chec critique"));
         // Bob seul subit les 5 degats de l'echec critique
         assertThat(bob.vitalite()).isEqualTo(5);
         assertThat(alice.vitalite()).isEqualTo(10);
@@ -157,8 +157,14 @@ class ConstructionCheminDeFerTest {
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
+        // endurance testee individuellement dans la marche ET dans le travail (2 boites : 2 x 2 jets)
         assertThat(textesDuJournal(execution).stream()
-                .filter(l -> l.contains("tente le test de Endurance")).count()).isEqualTo(2);
+                .filter(l -> l.contains("tente le test de Endurance")).count()).isEqualTo(4);
+        assertThat(textesDuJournal(execution))
+                .anyMatch(l -> l.contains("Alice tente le test de Endurance"));
+        assertThat(textesDuJournal(execution))
+                .anyMatch(l -> l.contains("Bob tente le test de Endurance"));
+        // force mentale testee individuellement dans la seule boite de marche
         assertThat(textesDuJournal(execution).stream()
                 .filter(l -> l.contains("tente le test de Force mentale")).count()).isEqualTo(2);
         // Bob subit -2 vitalite (endurance) et -2 sang-froid (force mentale), Alice rien
