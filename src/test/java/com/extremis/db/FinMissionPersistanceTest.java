@@ -57,7 +57,7 @@ class FinMissionPersistanceTest {
 
         game.finish(entity, report, START);
 
-        Character apres = characters.findById("test-david").orElseThrow();
+        CharacterEntity apres = characters.findById("test-david").orElseThrow();
         assertThat(apres.getVitalite()).isEqualTo(vitaliteDepart - 9);
         assertThat(apres.getSangFroid()).isEqualTo(sangFroidDepart - 3);
         assertThat(apres.isAlive()).isTrue();
@@ -81,7 +81,7 @@ class FinMissionPersistanceTest {
         game.finish(entity, execution.report(), maintenant);
 
         Character snapshot = execution.teamSnapshot().get(0);
-        Character apres = characters.findById("test-fin").orElseThrow();
+        CharacterEntity apres = characters.findById("test-fin").orElseThrow();
         assertThat(apres.getVitalite()).isEqualTo(snapshot.vitalite());
         assertThat(apres.getSangFroid()).isEqualTo(snapshot.sangFroid());
         assertThat(apres.isAlive()).isEqualTo(snapshot.isAlive());
