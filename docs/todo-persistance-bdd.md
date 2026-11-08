@@ -61,7 +61,7 @@ Créer un seeder (`db/CharacterSeeder`, profil `local` / `test-rapide`) inséran
 | seed-03 | Lacenaire | aucune | chef de bande | ARMES DE CORPS À CORPS 10, COMMANDEMENT 15, INTIMIDATION 20, INTUITION 5, PERCEPTION 10, RAGOT 20, TIR 10 (base 30) | Orgueilleux, Sociopathique |
 | seed-04 | Baptiste le mime | esthete | mime | BAGARRE -5, CHARME 5, DISCRETION 5, ÉVALUATION 5, HABILETÉ 10, INTUITION 5, MOUVEMENT 10, PERCEPTION 10, RÉFLEXES -10 (base 30) | Imaginatif, Esthète |
 | seed-05 | David | Achéron | Lycéen | CHARME -16, FORCE -8, FORCE MENTALE 16, INTELLIGENCE 8, INTIMIDATION 8, PROTECTION DU CONSUL -10, VOLONTÉ 16 (base 33) | Sociopathique, Cruel ; maîtrise Mentaliste ; sorts : Lecture de pensées, Connaissance du temps écoulé, Influence insidieuse, Domination |
-| seed-06 | Albios le barde | celte | specialistes-volonte | DIPLOMATIE 8, ERUDITION 5 | Barde |
+| seed-06 | Lune | Fériques | mendiante | ANIMAUX 10, CHANCE 20, COMMANDEMENT -5, DISCRÉTION 10, ÉVALUATION -16, INTELLIGENCE 0, INTUITION 20, RÉFLEXES 20, RICHESSE -30, VIGILANCE -20, VOLONTÉ 20 (base 24) | Naturaliste, Casanier, Rebelle ; spécialité Tromperie + 10 ; sorts : Brise légère, Sons et silence, Passe-muraille |
 | seed-07 | Casanova | Culte du plaisir | charlatan | CHARME 25, ÉLOQUENCE 15, ÉVALUATION 10, INTIMIDATION -20, INTUITION 10, MARCHANDAGE 15, PERCEPTION 20, PÉRIPLE 15, PROTECTION DU CONSUL 5, RAGOT 15, RICHESSE -20, VIGILANCE -10 (base 33) | très Luxurieux (Luxurieux/2), Esthète, Sociable |
 | seed-08 | Odysseus | demokratos | voyageur | DIPLOMATIE 7, COMBAT 6, TECHNIQUE 9 | Stratège |
 | seed-09 | Vidocq | citadin | enqueteur | PERCEPTION 8, DISCRETION 8, COMBAT 5 | Inspecteur |
