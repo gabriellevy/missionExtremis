@@ -4,6 +4,7 @@ import com.extremis.core.*;
 import com.extremis.core.LigneJournal;
 import com.extremis.core.Character;
 import com.extremis.db.CharacterEntity;
+import com.extremis.db.EntityMapper;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,14 +123,9 @@ public class GameController {
     }
 
     private List<ProfilPersonnageView> profilsRoster() {
-        Map<String, Character> roster = game.roster().stream()
-                .collect(java.util.stream.Collectors.toMap(Character::name, c -> c, (a, b) -> a, LinkedHashMap::new));
         List<ProfilPersonnageView> profils = new ArrayList<>();
-        for (CharacterEntity entity : game.personnagesRecrutes()) {
-            Character c = roster.get(entity.getName());
-            if (c == null) {
-                continue;
-            }
+        for (CharacterEntity entity : game.tousLesPersonnages()) {
+            Character c = EntityMapper.toCore(entity);
             Map<String, Integer> competences = new LinkedHashMap<>();
             c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), c.skillTarget(skill)));
             List<String> traits = new ArrayList<>();

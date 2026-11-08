@@ -41,6 +41,19 @@ class OngletPersonnagesTest {
     }
 
     @Test
+    void lesRecrutablesSontCliquablesCommeLesRecrutesEtSansCoterie() throws Exception {
+        CharacterEntity recrutable = game.availableCharacters().get(0);
+
+        String html = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
+                        .param("onglet", "personnages"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(html).contains("data-nom=\"" + recrutable.getName() + "\"");
+        assertThat(html).doesNotContain(recrutable.getName() + " (" + recrutable.getCoterie() + ")");
+    }
+
+    @Test
     @Transactional
     void apresReinitialisationUsineTroisPersonnagesSontRecrutesAuHasard() {
         game.reinitialiserUsine();

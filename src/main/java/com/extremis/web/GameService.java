@@ -60,8 +60,8 @@ public class GameService {
     }
 
     @Transactional(readOnly = true)
-    public List<CharacterEntity> personnagesRecrutes() {
-        return characters.findByRecruteTrue();
+    public List<CharacterEntity> tousLesPersonnages() {
+        return characters.findAll();
     }
 
     @Transactional(readOnly = true)
