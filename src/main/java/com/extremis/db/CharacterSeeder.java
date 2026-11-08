@@ -76,6 +76,15 @@ public class CharacterSeeder implements ApplicationRunner {
             genereDavid();
             ajoute[0] = true;
         }
+        repository.findById("seed-06").filter(c -> c.getName().equals("Albios le barde")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-06 (Albios le barde) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-06")) {
+            genereLune();
+            ajoute[0] = true;
+        }
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
@@ -197,6 +206,30 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereLune() {
+        seed("seed-06", "Lune", "F\u00e9riques", "mendiante",
+                new Competence[]{Competence.ANIMAUX, Competence.CHANCE, Competence.COMMANDEMENT,
+                        Competence.DISCRETION, Competence.EVALUATION, Competence.INTELLIGENCE,
+                        Competence.INTUITION, Competence.REFLEXES, Competence.RICHESSE,
+                        Competence.VIGILANCE, Competence.VOLONTE},
+                new int[]{10, 20, -5, 10, -16, 0, 20, 20, -30, -20, 20},
+                new String[]{ViceEtVertu.ARTIFICIALISTE.vice(), ViceEtVertu.CASANIER.vertu(),
+                        ViceEtVertu.DISCIPLINE.vice()}, 24);
+        repository.findById("seed-06").ifPresent(c -> {
+            c.addSpecialite("Tromperie + 10");
+            c.addSort("Brise l\u00e9g\u00e8re");
+            c.addSort("Sons et silence");
+            c.addSort("Passe-muraille");
+            c.setVitaliteDepart(12);
+            c.setVitalite(12);
+            c.setSangFroidDepart(14);
+            c.setSangFroid(14);
+            c.setDescription("Mendiante de 14 ans membre de la coterie des F\u00e9riques, "
+                    + "elle ma\u00eetrise les sorts de l'air.");
+            repository.save(c);
+        });
+    }
+
     private void genereBaptisteLeMime() {
         seed("seed-04", "Baptiste le mime", "esthete", "mime",
                 new Competence[]{Competence.BAGARRE, Competence.CHARME, Competence.DISCRETION,
@@ -219,9 +252,7 @@ public class CharacterSeeder implements ApplicationRunner {
         genereLacenaire();
         genereBaptisteLeMime();
         genereDavid();
-        seed("seed-06", "Albios le barde", "celte", "specialiste-volonte",
-                new Competence[]{Competence.ELOQUENCE, Competence.INTUITION}, new int[]{8, 5},
-                new String[]{"Barde"});
+        genereLune();
         seed("seed-07", "Casanova", "Culte du plaisir", "charlatan",
                 new Competence[]{Competence.CHARME, Competence.ELOQUENCE, Competence.EVALUATION, Competence.INTIMIDATION,
                         Competence.INTUITION, Competence.MARCHANDAGE, Competence.PERCEPTION, Competence.PERIPLE,
