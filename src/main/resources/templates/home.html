@@ -41,6 +41,9 @@
     .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
     .roster-liste { list-style: none; padding: 0; }
     .roster-liste li { margin: 0.2rem 0; }
+    .personnages-layout { display: flex; gap: 2rem; align-items: flex-start; }
+    .personnages-colonne { flex: 1; min-width: 0; }
+    .form-recruter { display: inline; margin-left: 0.5rem; }
     .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
     .nom-personnage:hover { color: #f0d080; }
     .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
@@ -81,26 +84,37 @@
 </div>
 
 <section th:if="${ongletPersonnages}">
-  <h2>Personnages recrut&#233;s</h2>
-  <p>
-    Simulations restantes : <span th:text="${simulations}"></span>
-  </p>
-  <ul class="roster-liste">
-    <li th:each="c : ${roster}">
-      <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
-      <span class="en-mission"
-            th:if="${rosterAvecMission.containsKey(c.name())}"
-            th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
-    </li>
-  </ul>
-  <form method="post" action="/recruter">
-    <select name="characterId">
-      <option th:each="c : ${disponibles}"
-              th:value="${c.getId()}"
-              th:text="${c.getName()} + ' (' + ${c.getCoterie()} + ')'"/>
-    </select>
-    <button type="submit">Recruter (1 / 24h)</button>
-  </form>
+  <div class="personnages-layout">
+    <div class="personnages-colonne">
+      <h2>Personnages recrut&#233;s</h2>
+      <p>
+        Simulations restantes : <span th:text="${simulations}"></span>
+      </p>
+      <ul class="roster-liste" th:if="${!roster.isEmpty()}">
+        <li th:each="c : ${roster}">
+          <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+          <span class="en-mission"
+                th:if="${rosterAvecMission.containsKey(c.name())}"
+                th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
+        </li>
+      </ul>
+      <p th:if="${roster.isEmpty()}"><em>Aucun personnage recrut&#233; pour le moment.</em></p>
+    </div>
+    <div class="personnages-colonne">
+      <h2>Personnages recrutables</h2>
+      <p><em>Un seul recrutement par jour.</em></p>
+      <ul class="roster-liste" th:if="${!disponibles.isEmpty()}">
+        <li th:each="c : ${disponibles}">
+          <span class="nom-personnage" th:attr="data-nom=${c.getName()}" th:text="${c.getName()}"></span>
+          <form method="post" action="/recruter" class="form-recruter">
+            <input type="hidden" name="characterId" th:value="${c.getId()}"/>
+            <button type="submit" th:disabled="${!recrutementDisponible}">Recruter</button>
+          </form>
+        </li>
+      </ul>
+      <p th:if="${disponibles.isEmpty()}"><em>Aucun personnage recrutable pour le moment.</em></p>
+    </div>
+  </div>
 </section>
 
 <section th:if="${ongletMissions}">

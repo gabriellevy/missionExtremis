@@ -20,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Etat du jeu persiste en base : roster, etat du consul et execution
@@ -49,35 +51,38 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public List<Character> roster() {
-        return EntityMapper.toCoreList(characters.findAll());
+        return EntityMapper.toCoreList(characters.findByRecruteTrue());
     }
 
     @Transactional(readOnly = true)
     public List<CharacterEntity> availableCharacters() {
+        return characters.findByRecruteFalse();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CharacterEntity> tousLesPersonnages() {
         return characters.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public boolean peutRecruter(Instant now) {
+        Instant dernier = consul().getLastRecruitment();
+        return dernier == null || !now.isBefore(dernier.plusSeconds(24 * 3600));
+    }
+
     @Transactional
-    public void recruit(Character recruit, Instant now) {
-        Character copy = new Character("rec-" + recruit.id() + "-" + System.nanoTime(), recruit.name());
-        copy.withSkillBase(recruit.skillBase()); recruit.skillsSnapshot().forEach((skill, value) -> copy.withSkill(skill, value));
-        recruit.sorts().forEach(copy::withSort);
-        CharacterEntity source = characters.findById(recruit.id()).orElse(null);
-        if (source != null) {
-            copy.withVitaliteDepart(source.getVitaliteDepart());
-            copy.withSangFroidDepart(source.getSangFroidDepart());
-            copy.setVitalite(source.getVitalite());
-            copy.setSangFroid(source.getSangFroid());
-        }
-        CharacterEntity entity = EntityMapper.toEntity(copy,
-                source != null ? source.getCoterie() : null,
-                source != null ? source.getCarriere() : null);
-        characters.save(entity);
+    public void recruit(String characterId, Instant now) {
         ConsulStateEntity state = consul();
         if (state.getLastRecruitment() != null
                 && now.isBefore(state.getLastRecruitment().plusSeconds(24 * 3600))) {
             throw new IllegalStateException("Un seul recrutement par 24h.");
         }
+        CharacterEntity entity = characters.findById(characterId).orElseThrow();
+        if (entity.isRecrute()) {
+            throw new IllegalStateException("Personnage deja recrute.");
+        }
+        entity.setRecrute(true);
+        characters.save(entity);
         state.setLastRecruitment(now);
         consulState.save(state);
     }
@@ -276,10 +281,17 @@ public class GameService {
     }
 
     @Transactional
-    public void clearRoster() {
-        characters.deleteAll();
+    public void viderRoster() {
+        characters.findAll().forEach(c -> {
+            c.setRecrute(false);
+            characters.save(c);
+        });
     }
 
+    /**
+     * Remise a zero usine : tous les personnages redeviennent recrutables,
+     * puis 3 sont tires au hasard pour rejoindre les personnages recrutes.
+     */
     @Transactional
     public void reinitialiserUsine() {
         executions.deleteAll();
@@ -287,11 +299,19 @@ public class GameService {
         consulState.deleteAll();
         consulState.save(new ConsulStateEntity());
         seeder.semerCatalogue();
+        List<CharacterEntity> catalogue = new ArrayList<>(characters.findByRecruteFalse());
+        Collections.shuffle(catalogue, new Random());
+        catalogue.stream().limit(3).forEach(c -> {
+            c.setRecrute(true);
+            characters.save(c);
+        });
     }
 
     @Transactional
     public void saveQuickRecruit(Character recruit) {
-        characters.save(EntityMapper.toEntity(recruit, "test", "test"));
+        CharacterEntity entity = EntityMapper.toEntity(recruit, "test", "test");
+        entity.setRecrute(true);
+        characters.save(entity);
     }
 
     private ConsulStateEntity consul() {

@@ -48,6 +48,20 @@ public class SchemaMigrator implements ApplicationRunner {
         deplacerSpecialitesDesTraits();
         ajouterColonnesJetDeDesLogs();
         ajouterColonneBigintSiAbsente("mission_executions", "jets_effectues");
+        ajouterColonneBooleenneSiAbsente("characters", "recrute");
+        marquerRecrutesExistants();
+    }
+
+    /**
+     * Avant l'onglet personnages en deux colonnes, le recrutement creait une
+     * copie "rec-..." du personnage : ces copies sont les personnages deja
+     * recrutes, on les marque comme tels.
+     */
+    private void marquerRecrutesExistants() {
+        int lignes = jdbc.update("UPDATE characters SET recrute = true WHERE id LIKE 'rec-%'");
+        if (lignes > 0) {
+            log.info("{} personnages recrutes marques d'apres leurs anciennes copies rec-", lignes);
+        }
     }
 
     private void ajouterColonneBigintSiAbsente(String table, String colonne) {

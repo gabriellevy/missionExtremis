@@ -4,6 +4,7 @@ import com.extremis.core.*;
 import com.extremis.core.LigneJournal;
 import com.extremis.core.Character;
 import com.extremis.db.CharacterEntity;
+import com.extremis.db.EntityMapper;
 import com.extremis.db.MissionExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,7 @@ public class GameController {
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
+        model.addAttribute("recrutementDisponible", game.peutRecruter(Instant.now()));
         model.addAttribute("missions", missionsDisponibles());
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
@@ -121,14 +123,9 @@ public class GameController {
     }
 
     private List<ProfilPersonnageView> profilsRoster() {
-        Map<String, Character> roster = game.roster().stream()
-                .collect(java.util.stream.Collectors.toMap(Character::name, c -> c, (a, b) -> a, LinkedHashMap::new));
         List<ProfilPersonnageView> profils = new ArrayList<>();
-        for (CharacterEntity entity : game.availableCharacters()) {
-            Character c = roster.get(entity.getName());
-            if (c == null) {
-                continue;
-            }
+        for (CharacterEntity entity : game.tousLesPersonnages()) {
+            Character c = EntityMapper.toCore(entity);
             Map<String, Integer> competences = new LinkedHashMap<>();
             c.skillsSnapshot().forEach((skill, value) -> competences.put(skill.label(), c.skillTarget(skill)));
             List<String> traits = new ArrayList<>();
@@ -262,13 +259,9 @@ public class GameController {
 
     @PostMapping("/recruter")
     public String recruter(@RequestParam String characterId) {
-        Character recrue = game.characterById(characterId).orElse(null);
-        if (recrue == null) {
-            return "redirect:/";
-        }
         try {
-            game.recruit(recrue, Instant.now());
-        } catch (IllegalStateException e) {
+            game.recruit(characterId, Instant.now());
+        } catch (IllegalStateException | java.util.NoSuchElementException e) {
             log.info("Recrutement refuse : {}", e.getMessage());
         }
         return "redirect:/";
@@ -439,7 +432,7 @@ public class GameController {
     }
 
     void recrutementRapide(String name) {
-        game.clearRoster();
+        game.viderRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
                 .withSkill(Competence.DISCRETION, 30)
                 .withSkill(Competence.ARMES_CORPS_A_CORPS, 30));
