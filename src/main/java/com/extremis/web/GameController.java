@@ -25,9 +25,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/")
@@ -159,6 +161,20 @@ public class GameController {
         return missions.stream().filter(m -> !enCours.contains(m.id())).toList();
     }
 
+    private Set<String> personnagesOccupes() {
+        Set<String> occupes = new HashSet<>();
+        for (EtatMission etat : missionsActives.values()) {
+            if (etat.fini) {
+                continue;
+            }
+            for (Character c : etat.execution.teamSnapshot()) {
+                occupes.add(c.id());
+                occupes.add(c.name());
+            }
+        }
+        return occupes;
+    }
+
     private Map<String, String> rosterAvecMission() {
         Map<String, String> resultat = new LinkedHashMap<>();
         for (EtatMission etat : missionsActives.values()) {
@@ -286,6 +302,11 @@ public class GameController {
         }
         if (equipe.isEmpty() || equipe.size() > 4) {
             log.info("Lancement de mission refuse : equipe invalide ({} membres).", equipe.size());
+            return "redirect:/";
+        }
+        Set<String> occupes = personnagesOccupes();
+        if (equipe.stream().anyMatch(c -> occupes.contains(c.id()) || occupes.contains(c.name()))) {
+            log.info("Lancement de mission refuse : un personnage de l'equipe est deja en mission.");
             return "redirect:/";
         }
         MissionExecutionEntity entity = game.startMission(mission, equipe, Instant.now());
