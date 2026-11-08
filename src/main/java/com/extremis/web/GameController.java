@@ -108,6 +108,7 @@ public class GameController {
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
+        model.addAttribute("recrutementDisponible", game.peutRecruter(Instant.now()));
         model.addAttribute("missions", missionsDisponibles());
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
@@ -124,7 +125,7 @@ public class GameController {
         Map<String, Character> roster = game.roster().stream()
                 .collect(java.util.stream.Collectors.toMap(Character::name, c -> c, (a, b) -> a, LinkedHashMap::new));
         List<ProfilPersonnageView> profils = new ArrayList<>();
-        for (CharacterEntity entity : game.availableCharacters()) {
+        for (CharacterEntity entity : game.personnagesRecrutes()) {
             Character c = roster.get(entity.getName());
             if (c == null) {
                 continue;
@@ -262,13 +263,9 @@ public class GameController {
 
     @PostMapping("/recruter")
     public String recruter(@RequestParam String characterId) {
-        Character recrue = game.characterById(characterId).orElse(null);
-        if (recrue == null) {
-            return "redirect:/";
-        }
         try {
-            game.recruit(recrue, Instant.now());
-        } catch (IllegalStateException e) {
+            game.recruit(characterId, Instant.now());
+        } catch (IllegalStateException | java.util.NoSuchElementException e) {
             log.info("Recrutement refuse : {}", e.getMessage());
         }
         return "redirect:/";
@@ -439,7 +436,7 @@ public class GameController {
     }
 
     void recrutementRapide(String name) {
-        game.clearRoster();
+        game.viderRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
                 .withSkill(Competence.DISCRETION, 30)
                 .withSkill(Competence.ARMES_CORPS_A_CORPS, 30));

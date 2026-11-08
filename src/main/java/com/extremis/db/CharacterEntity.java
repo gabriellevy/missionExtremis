@@ -42,6 +42,8 @@ public class CharacterEntity {
 
     private boolean alive = true;
 
+    private boolean recrute = false;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     private List<CharacterSkillEntity> skills = new ArrayList<>();
 
@@ -77,6 +79,7 @@ public class CharacterEntity {
     public int getVitaliteDepart() { return vitaliteDepart; }
     public int getSangFroidDepart() { return sangFroidDepart; }
     public boolean isAlive() { return alive; }
+    public boolean isRecrute() { return recrute; }
     public List<CharacterSkillEntity> getSkills() { return skills; }
     public List<CharacterTraitEntity> getTraits() { return traits; }
     public List<CharacterSpecialiteEntity> getSpecialites() { return specialites; }
@@ -93,6 +96,7 @@ public class CharacterEntity {
     public void setVitaliteDepart(int vitaliteDepart) { this.vitaliteDepart = vitaliteDepart; }
     public void setSangFroidDepart(int sangFroidDepart) { this.sangFroidDepart = sangFroidDepart; }
     public void setAlive(boolean alive) { this.alive = alive; }
+    public void setRecrute(boolean recrute) { this.recrute = recrute; }
 
     public void addSkill(Competence skill, int value) {
         skills.removeIf(s -> s.getSkill() == skill);
