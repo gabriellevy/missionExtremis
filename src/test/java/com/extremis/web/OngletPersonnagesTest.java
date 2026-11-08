@@ -35,7 +35,7 @@ class OngletPersonnagesTest {
                         .param("onglet", "personnages"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
-                        .string(org.hamcrest.Matchers.containsString("Personnages recrut\u00e9s")))
+                        .string(org.hamcrest.Matchers.containsString("Personnages recrut&#233;s")))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
                         .string(org.hamcrest.Matchers.containsString("Personnages recrutables")));
     }
