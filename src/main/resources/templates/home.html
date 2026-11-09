@@ -30,8 +30,10 @@
     .portrait-tooltip .etat { font-weight: bold; }
     .portrait-tooltip .etat.blesse { color: #e07040; }
     .portrait-tooltip .etat.mort { color: #c04040; }
-    .mission-log { background: #1c1710; border: 1px solid #5a4a30; border-radius: 6px; padding: 1rem; min-height: 240px; font-family: "Courier New", monospace; font-size: 0.9rem; }
-    .ligne-journal { white-space: pre-wrap; margin: 0.15rem 0; }
+    .mission-log { background: #1c1710; border: 1px solid #5a4a30; border-radius: 6px; padding: 1rem; min-height: 240px; font-family: "Courier New", monospace; font-size: 0.9rem; line-height: 1.25; }
+    .ligne-journal { white-space: pre-wrap; margin: 0.05rem 0; }
+    .titre-log { font-size: 1rem; font-weight: bold; color: #e0c060; font-variant: small-caps; letter-spacing: 0.5px; margin: 0.3rem 0 0.05rem; }
+    .ligne-journal em { color: #bfae8d; }
     .des-d100 { display: inline-block; vertical-align: middle; margin: 0.1rem 0.15rem 0.1rem 0.5rem; }
     .des-d100 img { width: 40px; height: 40px; display: inline-block; vertical-align: middle; }
     .next-event { margin: 0.6rem 0 0; font-style: italic; }
@@ -200,9 +202,7 @@
     </div>
     <div class="log-column">
       <div class="mission-log">
-        <div class="ligne-journal" th:each="ligne : ${m.journal}">
-          <span th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'dé des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'dé des unités : ' + ${ligne.deUnites}"/></span>
-        </div>
+        <div class="ligne-journal" th:each="ligne : ${m.journal}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'dé des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'dé des unités : ' + ${ligne.deUnites}"/></span></div>
       </div>
       <p class="next-event" th:if="${!m.terminee}">
         Prochain &#233;v&#233;nement aura lieu dans

@@ -317,7 +317,7 @@ public class GameController {
         EtatMission etat = new EtatMission();
         etat.entity = entity;
         etat.execution = execution;
-        etat.journal.add(LigneJournalView.texte("=== " + mission.titre() + " ==="));
+        etat.journal.add(LigneJournalView.titre("=== " + mission.titre() + " ==="));
         etat.journal.add(LigneJournalView.texte("Mission lancée à " + Instant.now() + ". Les événements suivront leur délai prévu."));
         missionsActives.put(entity.getId(), etat);
         tick();
@@ -385,6 +385,12 @@ public class GameController {
         if ("jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null) {
             return LigneJournalView.jet(l.getLine(), l.getDeDizaines(), l.getDeUnites());
         }
+        if ("titre".equals(l.getType())) {
+            return LigneJournalView.titre(l.getLine());
+        }
+        if ("ambiance".equals(l.getType())) {
+            return LigneJournalView.ambiance(l.getLine());
+        }
         return LigneJournalView.texte(l.getLine());
     }
 
@@ -392,7 +398,11 @@ public class GameController {
         if (l.aUnJet()) {
             return LigneJournalView.jet(l.texte(), l.jet().dizaines(), l.jet().unites());
         }
-        return LigneJournalView.texte(l.texte());
+        return switch (l.type()) {
+            case TITRE -> LigneJournalView.titre(l.texte());
+            case AMBIANCE -> LigneJournalView.ambiance(l.texte());
+            case TEXTE -> LigneJournalView.texte(l.texte());
+        };
     }
 
     private void rechargerMissionsActives() {
