@@ -173,10 +173,18 @@ public class GameService {
                 ajustements.put(a.getEvenementId(), a.getAjustement());
             }
             List<LigneJournal> historique = entity.getLogLines().stream()
-                    .map(l -> "jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null
-                            ? new LigneJournal(l.getLine(),
-                                    new com.extremis.core.JetDes(l.getDeDizaines(), l.getDeUnites()))
-                            : new LigneJournal(l.getLine()))
+                    .map(l -> {
+                        com.extremis.core.TypeLigne type = "titre".equals(l.getType())
+                                ? com.extremis.core.TypeLigne.TITRE
+                                : "ambiance".equals(l.getType())
+                                        ? com.extremis.core.TypeLigne.AMBIANCE
+                                        : com.extremis.core.TypeLigne.TEXTE;
+                        if ("jet".equals(l.getType()) && l.getDeDizaines() != null && l.getDeUnites() != null) {
+                            return new LigneJournal(l.getLine(),
+                                    new com.extremis.core.JetDes(l.getDeDizaines(), l.getDeUnites()), type);
+                        }
+                        return new LigneJournal(l.getLine(), null, type);
+                    })
                     .toList();
             execution.reprendre(entity.getEvenementCourant(), entity.getHeureEffetCourant(),
                     ajustements, historique);

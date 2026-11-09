@@ -111,16 +111,16 @@ public final class MissionExecution {
         String cle = evenement.id() + "#" + passagesIntroduction;
         if (!cle.equals(introductionPublieePour)) {
             introductionPublieePour = cle;
-            logLines.add(new LigneJournal("=== " + evenement.titre() + " ==="));
+            logLines.add(LigneJournal.titre("=== " + evenement.titre() + " ==="));
             if (evenement.introduction() != null) {
-                logLines.add(new LigneJournal(evenement.introduction()));
+                logLines.add(LigneJournal.ambiance(evenement.introduction()));
             }
         }
     }
 
     private java.util.function.Consumer<LigneJournal> avecHorodatage(Instant heureEvenement) {
         String prefixe = "[" + FORMAT_HEURE_EVENEMENT.format(heureEvenement) + "] ";
-        return ligne -> logLines.add(new LigneJournal(prefixe + ligne.texte(), ligne.jet()));
+        return ligne -> logLines.add(new LigneJournal(prefixe + ligne.texte(), ligne.jet(), ligne.type()));
     }
 
     public boolean teamWiped() {

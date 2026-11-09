@@ -111,7 +111,12 @@ public class MissionExecutionEntity {
             logLines.add(new ExecutionLogLineEntity(this, logLines.size(), ligne.texte(),
                     "jet", ligne.jet().dizaines(), ligne.jet().unites()));
         } else {
-            addLogLine(ligne.texte());
+            String type = switch (ligne.type()) {
+                case TITRE -> "titre";
+                case AMBIANCE -> "ambiance";
+                case TEXTE -> null;
+            };
+            logLines.add(new ExecutionLogLineEntity(this, logLines.size(), ligne.texte(), type, null, null));
         }
     }
 
