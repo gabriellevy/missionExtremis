@@ -153,7 +153,7 @@
 </section>
 
 <section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">
-  <h2 th:text="'Ex&#233;cution &#8212; ' + ${m.titre} + (${m.terminee} ? ' (termin&#233;e)' : '')"/>
+  <h2 th:if="${m.terminee}">Mission termin&#233;e</h2>
   <p>
     <th:block th:if="${modeDebug}">
       Heure virtuelle : <span th:text="${m.heureVirtuelle}"></span> &#8594;
