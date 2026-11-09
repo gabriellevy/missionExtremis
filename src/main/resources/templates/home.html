@@ -202,11 +202,7 @@
     </div>
     <div class="log-column">
       <div class="mission-log">
-        <div class="ligne-journal" th:each="ligne : ${m.journal}">
-          <h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3>
-          <em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em>
-          <span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'dé des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'dé des unités : ' + ${ligne.deUnites}"/></span>
-        </div>
+        <div class="ligne-journal" th:each="ligne : ${m.journal}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'dé des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'dé des unités : ' + ${ligne.deUnites}"/></span></div>
       </div>
       <p class="next-event" th:if="${!m.terminee}">
         Prochain &#233;v&#233;nement aura lieu dans
