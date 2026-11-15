@@ -94,6 +94,15 @@ public class CharacterSeeder implements ApplicationRunner {
             genereMamieMahjong();
             ajoute[0] = true;
         }
+        repository.findById("seed-10").filter(c -> c.getName().equals("Welf Schwarzschutze")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-10 (Welf Schwarzschutze) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-10")) {
+            generePavelKortchagine();
+            ajoute[0] = true;
+        }
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
@@ -144,6 +153,28 @@ public class CharacterSeeder implements ApplicationRunner {
             c.setSangFroid(13);
             c.setDescription("Jean Trenton est un reflet, c'est à dire un personnage créé par un génie du divertissement "
                     + "au point d'être incarné par la volonté de ses innombrables fans.");
+            repository.save(c);
+        });
+    }
+
+    private void generePavelKortchagine() {
+        seed("seed-10", "Pavel Kortchagine", "jacobin", "Lyc\u00e9en",
+                new Competence[]{Competence.ANIMAUX, Competence.CHANCE, Competence.COMMANDEMENT,
+                        Competence.ELOQUENCE, Competence.INTELLIGENCE, Competence.INTIMIDATION,
+                        Competence.MARCHANDAGE, Competence.VIGILANCE, Competence.VOLONTE},
+                new int[]{-5, 30, 10, 10, 1, 5, -5, 5, -10},
+                new String[]{ViceEtVertu.LOYAL.vertu(), ViceEtVertu.NAIF.vice()}, 30);
+        repository.findById("seed-10").ifPresent(c -> {
+            c.addMaitrise("Accord\u00e9on");
+            c.addItem("Accord\u00e9on");
+            c.addItem("Pistolet");
+            c.setVitaliteDepart(18);
+            c.setVitalite(18);
+            c.setSangFroidDepart(18);
+            c.setSangFroid(18);
+            c.setDescription("H\u00e9ros du roman \u00ab Et l'acier fut tremp\u00e9 \u00bb de Nicolas Ostrovski : "
+                    + "lyc\u00e9en de 16 ans de la coterie des jacobins, volontaire et d\u00e9vou\u00e9 \u00e0 la cause r\u00e9volutionnaire. "
+                    + "Loyal mais m\u00e9fiant, il joue de l'accord\u00e9on et porte un pistolet.");
             repository.save(c);
         });
     }
@@ -304,9 +335,7 @@ public class CharacterSeeder implements ApplicationRunner {
         seed("seed-09", "Vidocq", "citadin", "enqueteur",
                 new Competence[]{Competence.PERCEPTION, Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
                 new String[]{"Inspecteur"});
-        seed("seed-10", "Welf Schwarzschutze", "elfe", "voyageur",
-                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.PERCEPTION, Competence.MOUVEMENT}, new int[]{8, 7, 6},
-                new String[]{"Trackeur"});
+        generePavelKortchagine();
         generePereDamianKarras();
         genereJeanTrenton();
         log.info("Catalogue de personnages initialise : {} personnages", repository.count());

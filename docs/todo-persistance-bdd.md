@@ -65,7 +65,7 @@ Créer un seeder (`db/CharacterSeeder`, profil `local` / `test-rapide`) inséran
 | seed-07 | Casanova | Culte du plaisir | charlatan | CHARME 25, ÉLOQUENCE 15, ÉVALUATION 10, INTIMIDATION -20, INTUITION 10, MARCHANDAGE 15, PERCEPTION 20, PÉRIPLE 15, PROTECTION DU CONSUL 5, RAGOT 15, RICHESSE -20, VIGILANCE -10 (base 33) | très Luxurieux (Luxurieux/2), Esthète, Sociable |
 | seed-08 | Mamie mahjong | Lotus blanc | receleuse | BAGARRE 10, CHANCE -5, DISCRETION 20, HABILETE -3, INTIMIDATION 3, MARCHANDAGE 20, RAGOT 20, RICHESSE -3, VOLONTE 5 (base 30) ; vitalité 14, sang-froid 14 | Gourmand, Cupide, Méfiant ; possessions : bijoux de grande valeur, perruques avec épingles à cheveux |
 | seed-09 | Vidocq | citadin | enqueteur | PERCEPTION 8, DISCRETION 8, COMBAT 5 | Inspecteur |
-| seed-10 | Welf Schwarzschütze | elfe | voyageur | COMBAT 8, PERCEPTION 7, AGILITE 6 | Traqueur |
+| seed-10 | Pavel Kortchagine | jacobin | lycéen | ANIMAUX -5, CHANCE 30, COMMANDEMENT 10, ÉLOQUENCE 10, INTELLIGENCE 1, INTIMIDATION 5, MARCHANDAGE -5, VIGILANCE 5, VOLONTÉ -10 (base 30) ; vitalité 18, sang-froid 18 | Loyal, Méfiant ; maîtrise Accordéon ; possessions : accordéon, pistolet |
 
 Ces données sont **temporaires** : à remplacer progressivement par le vrai catalogue une fois les fiches du wiki saisies. Le seeder doit être idempotent (`INSERT ... ON CONFLICT DO NOTHING` / `existsById` avant insertion).
 
