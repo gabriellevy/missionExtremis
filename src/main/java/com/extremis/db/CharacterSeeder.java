@@ -85,6 +85,15 @@ public class CharacterSeeder implements ApplicationRunner {
             genereLune();
             ajoute[0] = true;
         }
+        repository.findById("seed-08").filter(c -> c.getName().equals("Odysseus")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-08 (Odysseus) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-08")) {
+            genereMamieMahjong();
+            ajoute[0] = true;
+        }
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
@@ -230,6 +239,31 @@ public class CharacterSeeder implements ApplicationRunner {
         });
     }
 
+    private void genereMamieMahjong() {
+        seed("seed-08", "Mamie mahjong", "Lotus blanc", "receleuse",
+                new Competence[]{Competence.BAGARRE, Competence.CHANCE, Competence.DISCRETION,
+                        Competence.HABILETE, Competence.INTIMIDATION, Competence.MARCHANDAGE,
+                        Competence.RAGOT, Competence.RICHESSE, Competence.VOLONTE},
+                new int[]{10, -5, 20, -3, 3, 20, 20, -3, 5},
+                new String[]{ViceEtVertu.SOBRE.vice(), ViceEtVertu.PRODIGUE.vice(), ViceEtVertu.NAIF.vice()}, 30);
+        repository.findById("seed-08").ifPresent(c -> {
+            c.setVitaliteDepart(14);
+            c.setVitalite(14);
+            c.setSangFroidDepart(14);
+            c.setSangFroid(14);
+            c.addItem("Bijoux de grande valeur");
+            c.addItem("Perruques de tous types avec \u00e9pingles \u00e0 cheveux de tous types");
+            c.setDescription("Chinoise de 67 ans, grosse voire ob\u00e8se, tr\u00e8s maquill\u00e9e avec des ongles "
+                    + "tr\u00e8s longs vernis en rouge. Elle est chauve et porte des perruques extravagantes coiff\u00e9es "
+                    + "de piques \u00e0 cheveux chinois. Elle porte une profusion de bijoux : colliers de perles, "
+                    + "colliers de jade, bagues \u00e0 chaque doigt, bras charg\u00e9s de bracelets d'or. Elle porte une "
+                    + "tenue traditionnelle chinoise de couleur jaune. Elle se tient toujours assise, avec une amulette "
+                    + "porte chance dans la main et un jeu de cartes sur elle. Handicaps : grosse (44), joueuse "
+                    + "compulsive (34), doigts cass\u00e9s par un client m\u00e9content il y a longtemps.");
+            repository.save(c);
+        });
+    }
+
     private void genereBaptisteLeMime() {
         seed("seed-04", "Baptiste le mime", "esthete", "mime",
                 new Competence[]{Competence.BAGARRE, Competence.CHARME, Competence.DISCRETION,
@@ -266,9 +300,7 @@ public class CharacterSeeder implements ApplicationRunner {
             c.setSangFroid(15);
             repository.save(c);
         });
-        seed("seed-08", "Odysseus", "demokratos", "voyageur",
-                new Competence[]{Competence.COMMANDEMENT, Competence.ARMES_CORPS_A_CORPS, Competence.INTELLIGENCE}, new int[]{7, 6, 9},
-                new String[]{"Stratege"});
+        genereMamieMahjong();
         seed("seed-09", "Vidocq", "citadin", "enqueteur",
                 new Competence[]{Competence.PERCEPTION, Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
                 new String[]{"Inspecteur"});
