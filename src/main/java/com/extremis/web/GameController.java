@@ -172,8 +172,10 @@ public class GameController {
                 continue;
             }
             for (Character c : etat.execution.teamSnapshot()) {
-                occupes.add(c.id());
-                occupes.add(c.name());
+                if (c.isActif()) {
+                    occupes.add(c.id());
+                    occupes.add(c.name());
+                }
             }
         }
         return occupes;
@@ -185,7 +187,10 @@ public class GameController {
             if (etat.fini) {
                 continue;
             }
-            for (String nom : etat.execution.teamSnapshot().stream().map(Character::name).toList()) {
+            for (String nom : etat.execution.teamSnapshot().stream()
+                    .filter(Character::isActif)
+                    .map(Character::name)
+                    .toList()) {
                 resultat.put(nom, etat.entity.getMissionTitle());
             }
         }
@@ -306,6 +311,10 @@ public class GameController {
         }
         if (equipe.isEmpty() || equipe.size() > 4) {
             log.info("Lancement de mission refuse : equipe invalide ({} membres).", equipe.size());
+            return "redirect:/";
+        }
+        if (equipe.stream().anyMatch(c -> !c.isAlive())) {
+            log.info("Lancement de mission refuse : un personnage de l'equipe est mort.");
             return "redirect:/";
         }
         Set<String> occupes = personnagesOccupes();
