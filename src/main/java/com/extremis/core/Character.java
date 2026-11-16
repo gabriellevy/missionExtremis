@@ -155,4 +155,17 @@ public final class Character {
     public void exclure() {
         excluDeLAventure = true;
     }
+
+    public record EtatPersonnage(int vitalite, int sangFroid, boolean vivant, boolean exclu) {}
+
+    public EtatPersonnage etatActuel() {
+        return new EtatPersonnage(vitalite, sangFroid, alive, excluDeLAventure);
+    }
+
+    public void restaurer(EtatPersonnage etat) {
+        this.vitalite = etat.vitalite();
+        this.sangFroid = etat.sangFroid();
+        this.alive = etat.vivant();
+        this.excluDeLAventure = etat.exclu();
+    }
 }

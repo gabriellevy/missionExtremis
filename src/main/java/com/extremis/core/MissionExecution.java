@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Execution incrementale d'une mission conforme aux regles du wiki
@@ -32,6 +33,9 @@ public final class MissionExecution {
     private boolean finished;
     private boolean reussie;
     private int evenementsResolus = 0;
+    private SnapshotTest snapshotCorrigeable;
+    private DernierTestRate dernierTestRate;
+    private boolean forcerProchaineReussite;
 
     private static final int MAX_EVENEMENTS = 1000;
 
@@ -49,7 +53,7 @@ public final class MissionExecution {
 
     public static MissionExecution start(Mission mission, List<Character> team, RandomSource random, Instant startTime) {
         ResolveurDEvenement resolveur = new ResolveurDEvenement(random);
-        MissionExecution execution = new MissionExecution(mission, List.copyOf(team), resolveur,
+        MissionExecution execution = new MissionExecution(mission, new ArrayList<>(team), resolveur,
                 new ResolveurDEvenement.EtatMission(), mission.evenements().get(0).id());
         execution.heureEffetCourant = startTime.plus(mission.evenements().get(0).duree());
         execution.attenteEffet = true;
@@ -72,9 +76,19 @@ public final class MissionExecution {
                 return false;
             }
             if (attenteEffet) {
+                SnapshotTest snapshot = evenement.test().isPresent() ? prendreSnapshot() : null;
                 attenteEffet = false;
-                ResolveurDEvenement.ResultatEvenement resultat =
-                        resolveur.resoudre(evenement, team, etat, avecHorodatage(heureEffetCourant));
+                ResolveurDEvenement.ResultatEvenement resultat;
+                if (forcerProchaineReussite) {
+                    forcerProchaineReussite = false;
+                    resultat = resolveur.resoudreAvecReussiteForcee(evenement, team, etat,
+                            avecHorodatage(heureEffetCourant));
+                } else {
+                    resultat = resolveur.resoudre(evenement, team, etat, avecHorodatage(heureEffetCourant));
+                }
+                if (snapshot != null) {
+                    enregistrerDernierTest(evenement, resultat, snapshot);
+                }
                 if (resultat.victoire()) {
                     reussie = true;
                     finished = true;
@@ -208,5 +222,98 @@ public final class MissionExecution {
                 team.stream().filter(Character::isAlive).count(),
                 teamWiped(),
                 String.join("\n", logLines.stream().map(LigneJournal::texte).toList()));
+    }
+
+    public record DernierTestRate(String evenementTitre, String competence, String testeurNom) {}
+
+    private static final class SnapshotTest {
+        String evenementCourant;
+        Instant heureEffetCourant;
+        int passagesIntroduction;
+        String introductionPublieePour;
+        int evenementsResolus;
+        int tailleJournal;
+        Map<String, Integer> ajustements;
+        List<Character.EtatPersonnage> etatEquipe;
+    }
+
+    private SnapshotTest prendreSnapshot() {
+        SnapshotTest s = new SnapshotTest();
+        s.evenementCourant = evenementCourant;
+        s.heureEffetCourant = heureEffetCourant;
+        s.passagesIntroduction = passagesIntroduction;
+        s.introductionPublieePour = introductionPublieePour;
+        s.evenementsResolus = evenementsResolus;
+        s.tailleJournal = logLines.size();
+        s.ajustements = etat.snapshotAjustements();
+        s.etatEquipe = new ArrayList<>();
+        for (Character c : team) {
+            s.etatEquipe.add(c.etatActuel());
+        }
+        return s;
+    }
+
+    private void enregistrerDernierTest(MissionEvent evenement,
+                                        ResolveurDEvenement.ResultatEvenement resultat,
+                                        SnapshotTest snapshot) {
+        if (resultat.resultatTest() != null && !resultat.resultatTest().estReussite()) {
+            snapshotCorrigeable = snapshot;
+            String testeur = resultat.testeurId() == null ? "l'equipe" : team.stream()
+                    .filter(c -> c.id().equals(resultat.testeurId()))
+                    .findFirst()
+                    .map(Character::name)
+                    .orElse("l'equipe");
+            dernierTestRate = new DernierTestRate(evenement.titre(),
+                    evenement.test().orElseThrow().skill().label(), testeur);
+        } else {
+            snapshotCorrigeable = null;
+            dernierTestRate = null;
+        }
+    }
+
+    public boolean peutCorrigerDernierTest() {
+        return snapshotCorrigeable != null && !finished;
+    }
+
+    public DernierTestRate dernierTestRate() {
+        return peutCorrigerDernierTest() ? dernierTestRate : null;
+    }
+
+    public boolean corrigerDernierTestEnReussite(Instant maintenant) {
+        if (!peutCorrigerDernierTest()) {
+            return false;
+        }
+        SnapshotTest s = snapshotCorrigeable;
+        evenementCourant = s.evenementCourant;
+        heureEffetCourant = s.heureEffetCourant;
+        attenteEffet = true;
+        passagesIntroduction = s.passagesIntroduction;
+        introductionPublieePour = s.introductionPublieePour;
+        evenementsResolus = s.evenementsResolus;
+        while (logLines.size() > s.tailleJournal) {
+            logLines.remove(logLines.size() - 1);
+        }
+        etat.restaurerAjustements(s.ajustements);
+        for (int i = 0; i < team.size() && i < s.etatEquipe.size(); i++) {
+            team.get(i).restaurer(s.etatEquipe.get(i));
+        }
+        snapshotCorrigeable = null;
+        dernierTestRate = null;
+        logLines.add(new LigneJournal("Jeton joker d\u00e9pens\u00e9 \u2014 co\u00efncidence calcul\u00e9e :"
+                + " le dernier test est annul\u00e9 et r\u00e9ussi automatiquement."));
+        forcerProchaineReussite = true;
+        advance(maintenant);
+        return true;
+    }
+
+    public boolean remplacerMembre(int index, Character nouveau) {
+        if (finished || nouveau == null || index < 0 || index >= team.size()) {
+            return false;
+        }
+        Character ancien = team.get(index);
+        team.set(index, nouveau);
+        logLines.add(new LigneJournal("Co\u00efncidence calcul\u00e9e : " + nouveau.name()
+                + " rejoint l'\u00e9quipe \u00e0 la vol\u00e9e et remplace " + ancien.name() + "."));
+        return true;
     }
 }

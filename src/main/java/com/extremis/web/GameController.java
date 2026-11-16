@@ -75,6 +75,7 @@ public class GameController {
     @GetMapping
     @Transactional
     public String accueil(Model model, @RequestParam(required = false) String onglet) {
+        game.gagnerJokerQuotidien(Instant.now());
         rechargerMissionsActives();
         List<OngletMissionView> onglets = new ArrayList<>();
         for (Map.Entry<Long, EtatMission> e : missionsActives.entrySet()) {
@@ -88,7 +89,10 @@ public class GameController {
                     etat.fini ? null : secondesAvantProchainEvenement(etat),
                     etat.execution.nextEventTime(),
                     heureFrancaise(maintenant(etat)),
-                    etat.fini));
+                    etat.fini,
+                    !etat.fini && etat.execution.peutCorrigerDernierTest(),
+                    descriptionDernierTestRate(etat),
+                    remplacantsDisponibles()));
         }
         OngletMissionView ongletMission = null;
         if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
@@ -343,9 +347,101 @@ public class GameController {
         return "redirect:/?onglet=" + id;
     }
 
+    @PostMapping("/mission/{id}/joker/reussite")
+    @Transactional
+    public String depenserJokerPourReussiteAutomatique(@PathVariable Long id) {
+        rechargerMissionsActives();
+        EtatMission etat = missionsActives.get(id);
+        if (etat == null || etat.fini || etat.execution.isFinished()
+                || game.jokers() <= 0 || !etat.execution.peutCorrigerDernierTest()) {
+            return "redirect:/?onglet=" + id;
+        }
+        if (!game.spendJoker()) {
+            return "redirect:/?onglet=" + id;
+        }
+        etat.execution.corrigerDernierTestEnReussite(maintenant(etat));
+        game.saveProgress(etat.entity, etat.execution, maintenant(etat));
+        synchroniserJournal(etat);
+        terminerMissionSiFinie(etat);
+        return "redirect:/?onglet=" + id;
+    }
+
+    @PostMapping("/mission/{id}/joker/remplacer")
+    @Transactional
+    public String depenserJokerPourRemplacer(@PathVariable Long id,
+                                             @RequestParam String membreId,
+                                             @RequestParam String remplaceParId) {
+        rechargerMissionsActives();
+        EtatMission etat = missionsActives.get(id);
+        if (etat == null || etat.fini || etat.execution.isFinished() || game.jokers() <= 0) {
+            return "redirect:/?onglet=" + id;
+        }
+        List<Character> equipe = etat.execution.teamSnapshot();
+        int index = -1;
+        for (int i = 0; i < equipe.size(); i++) {
+            if (equipe.get(i).id().equals(membreId)) {
+                index = i;
+                break;
+            }
+        }
+        Character remplacant = game.characterById(remplaceParId).orElse(null);
+        Set<String> occupes = personnagesOccupes();
+        if (index < 0 || remplacant == null || !remplacant.isAlive()
+                || occupes.contains(remplacant.id()) || occupes.contains(remplacant.name())
+                || equipe.stream().anyMatch(c -> c.id().equals(remplacant.id()))) {
+            return "redirect:/?onglet=" + id;
+        }
+        if (!game.spendJoker()) {
+            return "redirect:/?onglet=" + id;
+        }
+        etat.execution.remplacerMembre(index, remplacant);
+        game.saveProgress(etat.entity, etat.execution, maintenant(etat));
+        synchroniserJournal(etat);
+        return "redirect:/?onglet=" + id;
+    }
+
+    private void synchroniserJournal(EtatMission etat) {
+        List<LigneJournal> lignes = etat.execution.logLines();
+        etat.journal.clear();
+        lignes.forEach(l -> etat.journal.add(versVue(l)));
+        etat.lignesPubliees = lignes.size();
+    }
+
+    private void terminerMissionSiFinie(EtatMission etat) {
+        if (etat.fini || !etat.execution.isFinished()) {
+            return;
+        }
+        MissionReport report = etat.execution.report();
+        etat.journal.add(LigneJournalView.texte(report.teamWiped()
+                ? "Équipe éliminée. Mission échouée."
+                : etat.execution.isReussie()
+                        ? "Mission réussie. Survivants : " + report.survivors()
+                        : "Mission terminée en échec. Survivants : " + report.survivors()));
+        game.finish(etat.entity, report, Instant.now());
+        etat.fini = true;
+    }
+
+    private String descriptionDernierTestRate(EtatMission etat) {
+        MissionExecution.DernierTestRate dt = etat.execution.dernierTestRate();
+        if (dt == null) {
+            return null;
+        }
+        return dt.evenementTitre() + " — " + dt.competence() + " (" + dt.testeurNom() + ")";
+    }
+
+    private List<RemplacantView> remplacantsDisponibles() {
+        Set<String> occupes = personnagesOccupes();
+        return game.roster().stream()
+                .filter(Character::isAlive)
+                .filter(c -> !occupes.contains(c.id()) && !occupes.contains(c.name()))
+                .map(c -> new RemplacantView(c.id(), c.name()))
+                .toList();
+    }
+
     @Scheduled(fixedRateString = "${mission.tick-rate-ms:60000}")
     @Transactional
     public void tick() {
+        game.gagnerJokerQuotidien(Instant.now());
         rechargerMissionsActives();
         if (missionsActives.isEmpty()) {
             return;
@@ -361,7 +457,7 @@ public class GameController {
         if (etat.fini) {
             return;
         }
-        boolean finished = etat.execution.advance(maintenant(etat));
+        etat.execution.advance(maintenant(etat));
         List<LigneJournal> lines = etat.execution.logLines();
         if (lines.size() > etat.lignesPubliees) {
             lines.subList(etat.lignesPubliees, lines.size()).forEach(l -> etat.journal.add(versVue(l)));
@@ -369,16 +465,7 @@ public class GameController {
             etat.lignesPubliees = lines.size();
         }
         game.saveProgress(etat.entity, etat.execution, maintenant(etat));
-        if (finished) {
-            MissionReport report = etat.execution.report();
-            etat.journal.add(LigneJournalView.texte(report.teamWiped()
-                    ? "Équipe éliminée. Mission échouée."
-                    : etat.execution.isReussie()
-                            ? "Mission réussie. Survivants : " + report.survivors()
-                            : "Mission terminée en échec. Survivants : " + report.survivors()));
-            game.finish(etat.entity, report, Instant.now());
-            etat.fini = true;
-        }
+        terminerMissionSiFinie(etat);
     }
 
     private static LigneJournalView versVue(com.extremis.db.ExecutionLogLineEntity l) {

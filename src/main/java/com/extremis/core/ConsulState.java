@@ -2,17 +2,23 @@ package com.extremis.core;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public final class ConsulState {
+    public static final int MAX_JOKERS = 3;
+    private static final ZoneId FUSEAU_JEU = ZoneId.of("Europe/Paris");
+
     private final List<Character> roster = new ArrayList<>();
     private final List<Mission> missions = new ArrayList<>();
     private int jokers = 1;
     private int simulationsLeft = 3;
     private Instant lastRecruitment;
     private Instant lastMissionTaken;
+    private Instant dernierJokerGagne;
     private static final Duration RECRUITMENT_COOLDOWN = Duration.ofHours(24);
     private static final Duration MISSION_COOLDOWN = Duration.ofHours(24);
 
@@ -33,7 +39,18 @@ public final class ConsulState {
     public int jokers() { return jokers; }
     public int simulationsLeft() { return simulationsLeft; }
 
-    public void addJoker() { jokers++; }
+    public void addJoker() { jokers = Math.min(MAX_JOKERS, jokers + 1); }
+
+    public int gagnerJokerQuotidien(Instant maintenant) {
+        LocalDate aujourdhui = LocalDate.ofInstant(maintenant, FUSEAU_JEU);
+        LocalDate dernierJour = dernierJokerGagne == null
+                ? null : LocalDate.ofInstant(dernierJokerGagne, FUSEAU_JEU);
+        if (dernierJour == null || !aujourdhui.isEqual(dernierJour)) {
+            addJoker();
+            dernierJokerGagne = maintenant;
+        }
+        return jokers;
+    }
 
     public boolean canTakeMission(Instant now) {
         return lastMissionTaken == null || !now.isBefore(lastMissionTaken.plus(MISSION_COOLDOWN));

@@ -20,6 +20,8 @@ public class ConsulStateEntity {
 
     private Instant lastMissionTaken;
 
+    private Instant dernierJokerGagne;
+
     private Instant gameClock;
 
     public String getId() { return id; }
@@ -27,11 +29,13 @@ public class ConsulStateEntity {
     public int getSimulationsLeft() { return simulationsLeft; }
     public Instant getLastRecruitment() { return lastRecruitment; }
     public Instant getLastMissionTaken() { return lastMissionTaken; }
+    public Instant getDernierJokerGagne() { return dernierJokerGagne; }
     public Instant getGameClock() { return gameClock; }
 
     public void setJokers(int jokers) { this.jokers = jokers; }
     public void setSimulationsLeft(int simulationsLeft) { this.simulationsLeft = simulationsLeft; }
     public void setLastRecruitment(Instant lastRecruitment) { this.lastRecruitment = lastRecruitment; }
     public void setLastMissionTaken(Instant lastMissionTaken) { this.lastMissionTaken = lastMissionTaken; }
+    public void setDernierJokerGagne(Instant dernierJokerGagne) { this.dernierJokerGagne = dernierJokerGagne; }
     public void setGameClock(Instant gameClock) { this.gameClock = gameClock; }
 }

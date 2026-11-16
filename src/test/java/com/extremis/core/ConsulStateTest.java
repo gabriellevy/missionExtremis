@@ -43,4 +43,23 @@ class ConsulStateTest {
         consul.spendJoker();
         assertThat(consul.spendJoker()).isFalse();
     }
+
+    @Test
+    void jokersSontPlafonnesATrois() {
+        ConsulState consul = new ConsulState();
+        for (int i = 0; i < 10; i++) {
+            consul.addJoker();
+        }
+        assertThat(ConsulState.MAX_JOKERS).isEqualTo(3);
+        assertThat(consul.jokers()).isEqualTo(3);
+    }
+
+    @Test
+    void unJokerEstGagneParJourCalendaireAuPlus() {
+        ConsulState consul = new ConsulState();
+        assertThat(consul.gagnerJokerQuotidien(now)).isEqualTo(2);
+        assertThat(consul.gagnerJokerQuotidien(now.plusSeconds(3600))).isEqualTo(2);
+        assertThat(consul.gagnerJokerQuotidien(now.plus(java.time.Duration.ofDays(1)))).isEqualTo(3);
+        assertThat(consul.gagnerJokerQuotidien(now.plus(java.time.Duration.ofDays(2)))).isEqualTo(3);
+    }
 }
