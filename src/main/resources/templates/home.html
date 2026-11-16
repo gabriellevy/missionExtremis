@@ -38,6 +38,10 @@
     .des-d100 img { width: 40px; height: 40px; display: inline-block; vertical-align: middle; }
     .next-event { margin: 0.6rem 0 0; font-style: italic; }
     .next-event strong { font-style: normal; color: #e0c060; }
+    .form-joker { margin: 0 0 0.6rem; }
+    .form-joker button { background: #2a2114; color: #e0c060; border: 1px solid #e0c060; border-radius: 4px; padding: 0.35rem 0.8rem; cursor: pointer; font-weight: bold; }
+    .form-remplacer { margin-top: 0.3rem; font-size: 0.75rem; text-align: center; }
+    .form-remplacer select, .form-remplacer button { font-size: 0.75rem; max-width: 100%; }
     .en-mission { color: #e07040; font-style: italic; }
     .mission-carte { border: 1px solid #5a4a30; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 1rem; background: #1c1710; }
     .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
@@ -131,7 +135,7 @@
       <input type="hidden" name="missionId" th:value="${m.id()}"/>
       <p class="message-limite-equipe" style="display:none; color: #e07040;"></p>
       <div class="champs-equipes">
-        <th:block th:each="c : ${roster}" th:if="${!rosterAvecMission.containsKey(c.name())}">
+        <th:block th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
           <label>
             <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
             <span th:text="${c.name()}"></span>
@@ -198,9 +202,21 @@
           </ul>
         </div>
         <div class="portrait-name" th:text="${p.name()}"/>
+        <form th:if="${jokers > 0 and !m.terminee and !m.remplacants.isEmpty()}" method="post"
+              th:action="@{/mission/{id}/joker/remplacer(id=${m.id})}" class="form-remplacer">
+          <input type="hidden" name="membreId" th:value="${p.id()}"/>
+          <select name="remplaceParId">
+            <option th:each="r : ${m.remplacants}" th:value="${r.id()}" th:text="${r.nom()}"></option>
+          </select>
+          <button type="submit">Utiliser un joker pour remplacer ce personnage</button>
+        </form>
       </div>
     </div>
     <div class="log-column">
+      <form th:if="${jokers > 0 and m.peutCorrigerDernierTest}" method="post"
+            th:action="@{/mission/{id}/joker/reussite(id=${m.id})}" class="form-joker">
+        <button type="submit">D&#233;penser un joker pour r&#233;ussir automatiquement le dernier test rat&#233;<span th:if="${m.dernierTestRate != null}" th:text="' (' + ${m.dernierTestRate} + ')'"></span></button>
+      </form>
       <div class="mission-log">
         <div class="ligne-journal" th:each="ligne : ${m.journal}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'dé des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'dé des unités : ' + ${ligne.deUnites}"/></span></div>
       </div>

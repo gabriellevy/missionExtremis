@@ -61,10 +61,26 @@ public final class ResolveurDEvenement {
      * @param evenementSuivant id de l'evenement suivant, null si la mission est terminee
      * @param victoire         true si l'evenement declare la victoire de la mission
      */
-    public record ResultatEvenement(String evenementSuivant, boolean victoire) {}
+    public record ResultatEvenement(String evenementSuivant, boolean victoire,
+                                    ResultatTest resultatTest, String testeurId) {
+        public ResultatEvenement(String evenementSuivant, boolean victoire) {
+            this(evenementSuivant, victoire, null, null);
+        }
+    }
 
     public ResultatEvenement resoudre(MissionEvent evenement, List<Character> equipe,
                                       EtatMission etat, Consumer<LigneJournal> journal) {
+        return resoudreInterne(evenement, equipe, etat, journal, null);
+    }
+
+    public ResultatEvenement resoudreAvecReussiteForcee(MissionEvent evenement, List<Character> equipe,
+                                                         EtatMission etat, Consumer<LigneJournal> journal) {
+        return resoudreInterne(evenement, equipe, etat, journal, ResultatTest.REUSSITE);
+    }
+
+    private ResultatEvenement resoudreInterne(MissionEvent evenement, List<Character> equipe,
+                                              EtatMission etat, Consumer<LigneJournal> journal,
+                                              ResultatTest reussiteForcee) {
         Optional<SkillTest> testOpt = evenement.test();
         if (testOpt.isEmpty()) {
             if (evenement.effet() != null) {
@@ -84,7 +100,7 @@ public final class ResolveurDEvenement {
         SkillTest testAjuste = ajustement == 0 ? test
                 : new TestAjuste(test, ajustement);
         if (evenement.testPourTous()) {
-            return resoudreTestPourTous(evenement, testAjuste, equipe, etat, journal);
+            return resoudreTestPourTous(evenement, testAjuste, equipe, etat, journal, reussiteForcee);
         }
         Predicate<Character> filtre = evenement.testeurFiltre().orElse(c -> true);
         Optional<Character> candidat = testAjuste.bestCandidate(equipe.stream()
@@ -95,21 +111,34 @@ public final class ResolveurDEvenement {
             return new ResultatEvenement(evenement.echec().map(EffetEchec::evenementSuivant).orElse(null), false);
         }
         Character joueur = candidat.get();
-        JetDes jet = random.jetD100();
-        int de = jet.valeur();
-        ResultatTest resultat = ResultatTest.duJet(testAjuste.target(joueur), de);
+        JetDes jet = null;
+        ResultatTest resultat;
+        if (reussiteForcee != null) {
+            resultat = reussiteForcee;
+        } else {
+            jet = random.jetD100();
+            resultat = ResultatTest.duJet(testAjuste.target(joueur), jet.valeur());
+        }
         evenement.coutSangFroidTesteur().ifPresent(cout -> {
             joueur.perteSangFroid(cout);
             journal.accept(new LigneJournal(joueur.name() + " perd " + cout
                     + " de sang-froid avant le test (restant : " + joueur.sangFroid() + ")."));
         });
-        journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                + " (cible " + testAjuste.target(joueur) + " sur D100) et obtient un " + de
-                + " : " + libelle(resultat) + ".", jet));
-        if (resultat.estReussite()) {
-            return appliquerReussite(evenement, resultat, joueur, journal);
+        if (jet != null) {
+            journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
+                    + " (cible " + testAjuste.target(joueur) + " sur D100) et obtient un " + jet.valeur()
+                    + " : " + libelle(resultat) + ".", jet));
+        } else {
+            journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
+                    + " (cible " + testAjuste.target(joueur) + " sur D100) : " + libelle(resultat)
+                    + " (co\u00efncidence calcul\u00e9e)."));
         }
-        return appliquerEchec(evenement, resultat, joueur, equipe, etat, journal);
+        if (resultat.estReussite()) {
+            ResultatEvenement r = appliquerReussite(evenement, resultat, joueur, journal);
+            return new ResultatEvenement(r.evenementSuivant(), r.victoire(), resultat, joueur.id());
+        }
+        ResultatEvenement r = appliquerEchec(evenement, resultat, joueur, equipe, etat, journal);
+        return new ResultatEvenement(r.evenementSuivant(), r.victoire(), resultat, joueur.id());
     }
 
     private static String libelle(ResultatTest resultat) {
@@ -193,7 +222,8 @@ public final class ResolveurDEvenement {
      */
     private ResultatEvenement resoudreTestPourTous(MissionEvent evenement, SkillTest test,
                                                    List<Character> equipe, EtatMission etat,
-                                                   Consumer<LigneJournal> journal) {
+                                                   Consumer<LigneJournal> journal,
+                                                   ResultatTest reussiteForcee) {
         Predicate<Character> filtre = evenement.testeurFiltre().orElse(c -> true);
         List<Character> testeurs = equipe.stream().filter(Character::isActif).filter(filtre).toList();
         if (testeurs.isEmpty()) {
@@ -202,22 +232,37 @@ public final class ResolveurDEvenement {
             return new ResultatEvenement(evenement.echec().map(EffetEchec::evenementSuivant).orElse(null), false);
         }
         boolean auMoinsUnEchec = false;
+        String premierTesteurEnEchec = null;
         for (Character joueur : testeurs) {
-            JetDes jet = random.jetD100();
-            int de = jet.valeur();
-            ResultatTest resultat = ResultatTest.duJet(test.target(joueur), de);
+            JetDes jet = null;
+            ResultatTest resultat;
+            if (reussiteForcee != null) {
+                resultat = reussiteForcee;
+            } else {
+                jet = random.jetD100();
+                resultat = ResultatTest.duJet(test.target(joueur), jet.valeur());
+            }
             evenement.coutSangFroidTesteur().ifPresent(cout -> {
                 joueur.perteSangFroid(cout);
                 journal.accept(new LigneJournal(joueur.name() + " perd " + cout
                         + " de sang-froid avant le test (restant : " + joueur.sangFroid() + ")."));
             });
-            journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                    + " (cible " + test.target(joueur) + " sur D100) et obtient un " + de
-                    + " : " + libelle(resultat) + ".", jet));
+            if (jet != null) {
+                journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
+                        + " (cible " + test.target(joueur) + " sur D100) et obtient un " + jet.valeur()
+                        + " : " + libelle(resultat) + ".", jet));
+            } else {
+                journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
+                        + " (cible " + test.target(joueur) + " sur D100) : " + libelle(resultat)
+                        + " (co\u00efncidence calcul\u00e9e)."));
+            }
             if (resultat.estReussite()) {
                 appliquerReussite(evenement, resultat, joueur, journal);
             } else {
                 auMoinsUnEchec = true;
+                if (premierTesteurEnEchec == null) {
+                    premierTesteurEnEchec = joueur.id();
+                }
                 appliquerEchecIndividuel(evenement, resultat, joueur, equipe, journal);
             }
         }
@@ -237,7 +282,8 @@ public final class ResolveurDEvenement {
         } else {
             suivant = null;
         }
-        return new ResultatEvenement(suivant, false);
+        return new ResultatEvenement(suivant, false,
+                auMoinsUnEchec ? ResultatTest.ECHEC : ResultatTest.REUSSITE, premierTesteurEnEchec);
     }
 
     private ResultatEvenement appliquerEchec(MissionEvent evenement, ResultatTest resultat,

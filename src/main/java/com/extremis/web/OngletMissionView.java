@@ -12,4 +12,7 @@ public record OngletMissionView(
         Long secondesAvantProchainEvenement,
         Instant heureProchainEvenement,
         String heureVirtuelle,
-        boolean terminee) {}
+        boolean terminee,
+        boolean peutCorrigerDernierTest,
+        String dernierTestRate,
+        List<RemplacantView> remplacants) {}

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,9 @@ import java.util.Random;
  */
 @Service
 public class GameService {
+    public static final int MAX_JOKERS = 3;
+    private static final ZoneId FUSEAU_JEU = ZoneId.of("Europe/Paris");
+
     private final CharacterRepository characters;
     private final ConsulStateRepository consulState;
     private final MissionExecutionRepository executions;
@@ -111,6 +116,27 @@ public class GameService {
         state.setJokers(state.getJokers() - 1);
         consulState.save(state);
         return true;
+    }
+
+    @Transactional
+    public int gagnerJokerQuotidien(Instant maintenant) {
+        ConsulStateEntity state = consul();
+        LocalDate aujourdhui = LocalDate.ofInstant(maintenant, FUSEAU_JEU);
+        Instant dernier = state.getDernierJokerGagne();
+        LocalDate dernierJour = dernier == null ? null : LocalDate.ofInstant(dernier, FUSEAU_JEU);
+        if (dernierJour == null || !aujourdhui.isEqual(dernierJour)) {
+            state.setJokers(Math.min(MAX_JOKERS, state.getJokers() + 1));
+            state.setDernierJokerGagne(maintenant);
+            consulState.save(state);
+        }
+        return state.getJokers();
+    }
+
+    @Transactional
+    public void ajouterJoker() {
+        ConsulStateEntity state = consul();
+        state.setJokers(Math.min(MAX_JOKERS, state.getJokers() + 1));
+        consulState.save(state);
     }
 
     @Transactional
@@ -275,16 +301,33 @@ public class GameService {
         }
         execution.ajustementsDifficulte().forEach(entity::addAjustement);
         List<LigneJournal> lignes = execution.logLines();
+        while (entity.getLogLines().size() > lignes.size()) {
+            entity.getLogLines().remove(entity.getLogLines().size() - 1);
+        }
         while (entity.getLogLines().size() < lignes.size()) {
             entity.addLogLine(lignes.get(entity.getLogLines().size()));
         }
-        for (int i = 0; i < entity.getTeam().size() && i < execution.teamSnapshot().size(); i++) {
-            ExecutionTeamMemberEntity m = entity.getTeam().get(i);
-            Character c = execution.teamSnapshot().get(i);
-            m.setVitalite(c.vitalite());
-            m.setSangFroid(c.sangFroid());
-            m.setAlive(c.isAlive());
-            m.setExclu(c.isExclu());
+        List<Character> snapshotEquipe = execution.teamSnapshot();
+        List<String> idsEnBase = entity.getTeam().stream()
+                .map(ExecutionTeamMemberEntity::getCharacterId).toList();
+        List<String> idsVoulus = snapshotEquipe.stream().map(Character::id).toList();
+        if (!idsEnBase.equals(idsVoulus)) {
+            entity.getTeam().clear();
+            for (Character c : snapshotEquipe) {
+                ExecutionTeamMemberEntity m = new ExecutionTeamMemberEntity(
+                        c.id(), c.name(), c.vitalite(), c.sangFroid(), c.isAlive());
+                m.setExclu(c.isExclu());
+                entity.addTeamMember(m);
+            }
+        } else {
+            for (int i = 0; i < entity.getTeam().size() && i < snapshotEquipe.size(); i++) {
+                ExecutionTeamMemberEntity m = entity.getTeam().get(i);
+                Character c = snapshotEquipe.get(i);
+                m.setVitalite(c.vitalite());
+                m.setSangFroid(c.sangFroid());
+                m.setAlive(c.isAlive());
+                m.setExclu(c.isExclu());
+            }
         }
     }
 
