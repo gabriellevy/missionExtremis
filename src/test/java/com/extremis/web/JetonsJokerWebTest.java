@@ -84,7 +84,7 @@ class JetonsJokerWebTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void gainQuotidienEtPlafondATroisJokers() {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         Instant maintenant = Instant.now();
         assertThat(game.jokers()).isEqualTo(1);
         assertThat(game.gagnerJokerQuotidien(maintenant)).isEqualTo(2);
@@ -96,7 +96,7 @@ class JetonsJokerWebTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void depenserUnJokerAnnuleLeDernierTestRateEnReussite() throws Exception {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         game.saveQuickRecruit(new Character("test-alice", "Alice")
                 .withSkill(Competence.DISCRETION, 50));
         Long id = lancerMissionAvecAlice();
@@ -121,7 +121,7 @@ class JetonsJokerWebTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void depenserUnJokerPourRemplacerUnMembreDeLEquipe() throws Exception {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         game.saveQuickRecruit(new Character("test-alice", "Alice")
                 .withSkill(Competence.DISCRETION, 50));
         game.saveQuickRecruit(new Character("test-bob", "Bob")
@@ -145,7 +145,7 @@ class JetonsJokerWebTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void lesBoutonsJokerSontCachesQuandIlNeRestePlusDeJoker() throws Exception {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         game.saveQuickRecruit(new Character("test-alice", "Alice")
                 .withSkill(Competence.DISCRETION, 50));
         Long id = lancerMissionAvecAlice();

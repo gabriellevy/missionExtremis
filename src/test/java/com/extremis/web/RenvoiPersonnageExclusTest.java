@@ -89,7 +89,7 @@ class RenvoiPersonnageExclusTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void unPersonnageExcluDuneMissionEnCoursPeutEtreRenvoyeImmediatement() throws Exception {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         recruterAliceEtBob();
         controller.lancerMission("mission-exclusion", List.of("test-alice", "test-bob"));
         Long idA = executions.findAll().get(0).getId();
@@ -111,7 +111,7 @@ class RenvoiPersonnageExclusTest {
     @Test
     @org.springframework.transaction.annotation.Transactional
     void unPersonnageRemplaceParJokerPeutEtreRenvoyeDansUneAutreMission() throws Exception {
-        game.reinitialiserUsine();
+        controller.reinitialiserUsine();
         recruterAliceEtBob();
         controller.lancerMission("gotheim", List.of("test-alice"));
         Long idA = executions.findAll().get(0).getId();
