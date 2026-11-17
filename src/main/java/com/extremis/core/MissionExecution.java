@@ -203,6 +203,11 @@ public final class MissionExecution {
         return heureEffetCourant;
     }
 
+    /** Le lieu ou se rendre pour accomplir la mission. */
+    public Lieu lieu() {
+        return mission.lieu();
+    }
+
     public List<LigneJournal> logLines() {
         return List.copyOf(logLines);
     }

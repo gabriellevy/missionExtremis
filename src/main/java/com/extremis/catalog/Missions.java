@@ -327,7 +327,7 @@ public final class Missions {
                         + "sur le chantier. Attention, les conditions sont rudes : pas d'\u00e9lectricit\u00e9, "
                         + "pas d'engins de chantier et la neige commence \u00e0 tomber. Il y a m\u00eame des "
                         + "rumeurs de bandits en maraude.",
-                Lieu.EVRY,
+                Lieu.UKRAINE,
                 List.of(Competence.PERIPLE, Competence.COMMANDEMENT, Competence.ENDURANCE,
                         Competence.VIGILANCE),
                 evenements);

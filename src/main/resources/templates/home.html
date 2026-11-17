@@ -99,6 +99,7 @@
       <ul class="roster-liste" th:if="${!roster.isEmpty()}">
         <li th:each="c : ${roster}">
           <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+          <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
           <span class="en-mission"
                 th:if="${rosterAvecMission.containsKey(c.name())}"
                 th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
@@ -161,6 +162,7 @@
 </section>
 
 <section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">
+  <p class="mission-lieu">Lieu : <span th:text="${m.lieu}"/></p>
   <h2 th:if="${m.terminee}">Mission termin&#233;e</h2>
   <p>
     <th:block th:if="${modeDebug}">

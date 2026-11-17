@@ -83,6 +83,7 @@ public class GameController {
             onglets.add(new OngletMissionView(
                     e.getKey(),
                     etat.entity.getMissionTitle(),
+                    etat.execution.lieu().label(),
                     etat.journal,
                     missionTeam(etat),
                     etat.fini ? null : tempsAvantProchainEvenement(etat),
