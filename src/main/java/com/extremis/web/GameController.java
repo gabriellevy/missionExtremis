@@ -140,6 +140,7 @@ public class GameController {
                     entity.getName(),
                     entity.getCoterie(),
                     entity.getCarriere(),
+                    entity.getLieu() == null ? "—" : entity.getLieu().label(),
                     entity.getDescription(),
                     c.isAlive(),
                     c.vitalite(),

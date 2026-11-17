@@ -7,6 +7,7 @@ import java.util.List;
 import com.extremis.catalog.BoitesEvenementsGeneriques.Boite;
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionEvent;
 import com.extremis.core.SimpleTest;
@@ -32,6 +33,7 @@ public final class Missions {
                 "gotheim",
                 "Les fous de Gotheim",
                 "Une secte agite la ville de Gotheim. Les arrangeurs doivent infiltrer puis neutraliser ses meneurs.",
+                Lieu.PARIS_3E,
                 List.of(Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS),
                 List.of(
                         MissionEvent.builder("arrivee", "Arrivee a Gotheim")
@@ -97,6 +99,7 @@ public final class Missions {
                         + "associ\u00e9s aux possessions d\u00e9moniaques : folie, langues inconnues, prescience, "
                         + "profanit\u00e9s\u2026 Rien n\u2019est prouv\u00e9 et les pistes sont faibles mais cela est plus "
                         + "prudent d\u2019enqu\u00eater.",
+                Lieu.SURESNES,
                 List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.FORCE_MENTALE),
                 List.of(
                         MissionEvent.builder("recherche-du-cas", "Recherche du cas")
@@ -324,6 +327,7 @@ public final class Missions {
                         + "sur le chantier. Attention, les conditions sont rudes : pas d'\u00e9lectricit\u00e9, "
                         + "pas d'engins de chantier et la neige commence \u00e0 tomber. Il y a m\u00eame des "
                         + "rumeurs de bandits en maraude.",
+                Lieu.EVRY,
                 List.of(Competence.PERIPLE, Competence.COMMANDEMENT, Competence.ENDURANCE,
                         Competence.VIGILANCE),
                 evenements);

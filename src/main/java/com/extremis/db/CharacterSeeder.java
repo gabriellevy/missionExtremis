@@ -1,6 +1,7 @@
 package com.extremis.db;
 
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import com.extremis.core.ViceEtVertu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,6 +350,7 @@ public class CharacterSeeder implements ApplicationRunner {
                       int baseDeCompetences) {
         CharacterEntity c = new CharacterEntity(id, name);
         c.setCoterie(coterie);
+        c.setLieu(Lieu.auHasard());
         c.setCarriere(carriere);
         c.setSkillBase(baseDeCompetences);
         for (int i = 0; i < skills.length; i++) {

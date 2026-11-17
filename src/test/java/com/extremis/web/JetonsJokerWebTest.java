@@ -2,6 +2,7 @@ package com.extremis.web;
 
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionEvent;
 import com.extremis.core.SimpleTest;
@@ -49,7 +50,7 @@ class JetonsJokerWebTest {
     static class MissionJokerConfig {
         @Bean
         public Mission missionJoker() {
-            return new Mission("mission-joker", "Mission joker", "brief",
+            return new Mission("mission-joker", "Mission joker", "brief", Lieu.PARIS_1ER,
                     List.of(Competence.DISCRETION),
                     List.of(
                             MissionEvent.builder("epreuve", "Epreuve")

@@ -50,6 +50,26 @@ public class SchemaMigrator implements ApplicationRunner {
         ajouterColonneBigintSiAbsente("mission_executions", "jets_effectues");
         ajouterColonneBooleenneSiAbsente("characters", "recrute");
         marquerRecrutesExistants();
+        attribuerLieuxAuHasardSiAbsents();
+    }
+
+    /**
+     * Les personnages anterieurs au concept de lieu n'en ont pas :
+     * on leur attribue un lieu tire au hasard, une seule fois.
+     */
+    private void attribuerLieuxAuHasardSiAbsents() {
+        if (!colonneExiste("characters", "lieu")) {
+            return;
+        }
+        List<String> ids = jdbc.queryForList(
+                "SELECT id FROM characters WHERE lieu IS NULL", String.class);
+        for (String id : ids) {
+            jdbc.update("UPDATE characters SET lieu = ? WHERE id = ?",
+                    com.extremis.core.Lieu.auHasard().name(), id);
+        }
+        if (!ids.isEmpty()) {
+            log.info("Lieu attribue au hasard a {} personnages", ids.size());
+        }
     }
 
     /**

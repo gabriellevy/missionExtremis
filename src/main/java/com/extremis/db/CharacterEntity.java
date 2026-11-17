@@ -1,9 +1,12 @@
 package com.extremis.db;
 
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -26,6 +29,10 @@ public class CharacterEntity {
 
     @Column(name = "carriere", length = 64)
     private String carriere;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 32)
+    private Lieu lieu;
     @Column(length = 2048)
     private String description;
 
@@ -72,6 +79,7 @@ public class CharacterEntity {
     public String getName() { return name; }
     public String getCoterie() { return coterie; }
     public String getCarriere() { return carriere; }
+    public Lieu getLieu() { return lieu; }
     public String getDescription() { return description; }
     public int getSkillBase() { return skillBase; }
     public int getVitalite() { return vitalite; }
@@ -89,6 +97,7 @@ public class CharacterEntity {
 
     public void setCoterie(String coterie) { this.coterie = coterie; }
     public void setCarriere(String carriere) { this.carriere = carriere; }
+    public void setLieu(Lieu lieu) { this.lieu = lieu; }
     public void setDescription(String description) { this.description = description; }
     public void setSkillBase(int skillBase) { this.skillBase = skillBase; }
     public void setVitalite(int vitalite) { this.vitalite = vitalite; }

@@ -3,6 +3,7 @@ package com.extremis.web;
 import com.extremis.catalog.Missions;
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionEvent;
 import com.extremis.core.SimpleTest;
@@ -47,7 +48,7 @@ class RenvoiPersonnageExclusTest {
     static class DeuxMissionsConfig {
         @Bean
         public Mission missionExclusion() {
-            return new Mission("mission-exclusion", "Mission exclusion", "brief",
+            return new Mission("mission-exclusion", "Mission exclusion", "brief", Lieu.PARIS_1ER,
                     List.of(Competence.DISCRETION),
                     List.of(
                             MissionEvent.builder("e1", "Epreuve")

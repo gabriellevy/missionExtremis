@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * l'echec ou la reussite finale. Chaque titre est une balise pouvant
  * etre ciblee par un "Aller a".
  */
-public record Mission(String id, String titre, String brief, List<Competence> competencesCritiques, List<MissionEvent> evenements) {
+public record Mission(String id, String titre, String brief, Lieu lieu, List<Competence> competencesCritiques, List<MissionEvent> evenements) {
 
     public Mission {
         evenements = List.copyOf(evenements);
