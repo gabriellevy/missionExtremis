@@ -7,6 +7,7 @@ public record ProfilPersonnageView(
         String nom,
         String coterie,
         String carriere,
+        String lieu,
         String description,
         boolean vivant,
         int vitalite,

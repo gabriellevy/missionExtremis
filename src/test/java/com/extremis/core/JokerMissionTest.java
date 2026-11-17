@@ -15,7 +15,7 @@ class JokerMissionTest {
     private static final RandomSource ALWAYS_LOW = () -> 1;
 
     private static Mission missionEpreuve() {
-        return new Mission("mission-joker", "Mission joker", "brief",
+        return new Mission("mission-joker", "Mission joker", "brief", Lieu.PARIS_1ER,
                 List.of(Competence.DISCRETION),
                 List.of(
                         MissionEvent.builder("epreuve", "Epreuve")

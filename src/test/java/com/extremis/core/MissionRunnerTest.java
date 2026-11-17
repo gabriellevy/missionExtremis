@@ -84,6 +84,7 @@ class MissionRunnerTest {
                 "m",
                 "Test mission",
                 "Brief",
+                Lieu.PARIS_1ER,
                 List.of(Competence.DISCRETION),
                 List.of(MissionEvent.builder("e1", "Infiltration")
                         .introduction("Les arrangeurs s'infiltrent.")

@@ -2,6 +2,7 @@ package com.extremis.db;
 
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
+import com.extremis.core.Lieu;
 import com.extremis.core.Trait;
 
 import java.util.LinkedHashSet;
@@ -12,6 +13,7 @@ public final class EntityMapper {
 
     public static Character toCore(CharacterEntity e) {
         Character c = new Character(e.getId(), e.getName()); c.withSkillBase(e.getSkillBase());
+        c.withLieu(e.getLieu());
         for (CharacterSkillEntity s : e.getSkills()) {
             c.withSkill(s.getSkill(), s.getValue());
         }
@@ -44,6 +46,7 @@ public final class EntityMapper {
         CharacterEntity e = new CharacterEntity(c.id(), c.name());
         e.setCoterie(coterie);
         e.setCarriere(carriere); e.setSkillBase(c.skillBase());
+        e.setLieu(c.lieu() != null ? c.lieu() : Lieu.auHasard());
         for (java.util.Map.Entry<Competence, Integer> entry : c.skillsSnapshot().entrySet()) {
             e.addSkill(entry.getKey(), entry.getValue());
         }

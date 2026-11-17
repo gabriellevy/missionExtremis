@@ -19,6 +19,7 @@ public final class Character {
     private int sangFroidDepart = SANG_FROID_DEFAUT;
     private boolean alive = true;
     private boolean excluDeLAventure = false;
+    private Lieu lieu;
 
     public static final int VITALITE_DEFAUT = 10;
     public static final int SANG_FROID_DEFAUT = 10;
@@ -46,6 +47,7 @@ public final class Character {
     public boolean isActif() { return alive && !excluDeLAventure; }
 
     public boolean isExclu() { return excluDeLAventure; }
+    public Lieu lieu() { return lieu; }
     public List<Trait> traits() { return traits; }
     public List<String> specialites() { return specialites; }
     public List<String> maitrises() { return maitrises; }
@@ -70,6 +72,11 @@ public final class Character {
 
     public Character withSkillBase(int base) {
         this.skillBase = base;
+        return this;
+    }
+
+    public Character withLieu(Lieu lieu) {
+        this.lieu = lieu;
         return this;
     }
 
