@@ -289,7 +289,7 @@ public class GameController {
         } catch (IllegalStateException | java.util.NoSuchElementException e) {
             log.info("Recrutement refuse : {}", e.getMessage());
         }
-        return "redirect:/";
+        return "redirect:/?onglet=" + ONGLET_PERSONNAGES;
     }
 
     @PostMapping("/mission/run")

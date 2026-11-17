@@ -67,6 +67,17 @@ class OngletPersonnagesTest {
 
     @Test
     @Transactional
+    void recruterRedirigeVersLongletPersonnages() throws Exception {
+        CharacterEntity cible = personnages.findByRecruteFalse().get(0);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/recruter")
+                        .param("characterId", cible.getId()))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/?onglet=personnages"));
+    }
+
+    @Test
+    @Transactional
     void recruterRetireLePersonnageDeLaListeDesRecrutables() {
         CharacterEntity cible = personnages.findByRecruteFalse().get(0);
         String id = cible.getId();
