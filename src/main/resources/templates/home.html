@@ -141,7 +141,7 @@
         <th:block th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
           <label>
             <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
-            <span th:text="${c.name()}"></span>
+            <span class="nom-personnage nom-personnage-survol" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
           </label>
         </th:block>
       </div>
@@ -314,6 +314,10 @@
   }
   document.querySelectorAll('.nom-personnage').forEach(el =>
       el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
+  document.querySelectorAll('.nom-personnage-survol').forEach(el => {
+    el.addEventListener('mouseenter', () => ouvrirProfil(el.dataset.nom));
+    el.addEventListener('mouseleave', fermerProfils);
+  });
   function formaterDecompte(totalSecondes) {
     if (totalSecondes <= 0) {
       return '0h00mn00s';
