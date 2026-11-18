@@ -51,6 +51,7 @@
     .personnages-colonne { flex: 1; min-width: 0; }
     .form-recruter { display: inline; margin-left: 0.5rem; }
     .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
+    .cible-profil { cursor: pointer; }
     .nom-personnage:hover { color: #f0d080; }
     .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
     .profil-panneau.ouvert { display: block; }
@@ -175,10 +176,10 @@
   </p>
   <div class="mission-layout">
     <div class="team-column">
-      <div class="portrait-wrap" th:each="p : ${m.equipe}">
+        <div class="portrait-wrap cible-profil" th:each="p : ${m.equipe}" th:attr="data-nom=${p.name()}">
         <img th:src="${portraitService.dataUri(p.name(), p.alive())}"
              th:alt="${p.name()}"
-             th:class="'portrait' + (${p.alive()} ? '' : ' dead')"/>
+             th:class="'portrait cible-profil' + (${p.alive()} ? '' : ' dead')"/>
         <div class="portrait-tooltip">
           <h4 th:text="${p.name()}"/>
           <div>&#201;tat :
@@ -205,7 +206,7 @@
             </li>
           </ul>
         </div>
-        <div class="portrait-name" th:text="${p.name()}"/>
+        <div class="portrait-name nom-personnage cible-profil" th:attr="data-nom=${p.name()}" th:text="${p.name()}"/>
         <form th:if="${jokers > 0 and !m.terminee and !m.remplacants.isEmpty()}" method="post"
               th:action="@{/mission/{id}/joker/remplacer(id=${m.id})}" class="form-remplacer">
           <input type="hidden" name="membreId" th:value="${p.id()}"/>
@@ -312,7 +313,9 @@
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.remove('ouvert'));
   }
-  document.querySelectorAll('.nom-personnage').forEach(el =>
+  document.querySelectorAll('.form-remplacer').forEach(el =>
+      el.addEventListener('click', event => event.stopPropagation()));
+  document.querySelectorAll('.nom-personnage, .cible-profil').forEach(el =>
       el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
   document.querySelectorAll('.nom-personnage-survol').forEach(el => {
     el.addEventListener('mouseenter', () => ouvrirProfil(el.dataset.nom));
