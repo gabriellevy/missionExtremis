@@ -141,7 +141,7 @@
         <th:block th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
           <label>
             <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
-            <span th:text="${c.name()}"></span>
+            <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
           </label>
         </th:block>
       </div>
