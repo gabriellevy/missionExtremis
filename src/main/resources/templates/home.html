@@ -23,13 +23,6 @@
     .portrait { height: 250px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; }
     .portrait.dead { filter: grayscale(1); border-color: #7a1f1f; }
     .portrait-name { text-align: center; font-size: 0.85rem; margin-top: 0.25rem; }
-    .portrait-tooltip { display: none; position: absolute; left: 105%; top: 0; z-index: 10; width: 240px; background: #241c12; border: 1px solid #8a744a; border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.8rem; color: #e8dcc0; box-shadow: 0 4px 12px rgba(0,0,0,0.7); }
-    .portrait-wrap:hover .portrait-tooltip { display: block; }
-    .portrait-tooltip h4 { margin: 0 0 0.3rem; font-size: 0.9rem; color: #e0c060; }
-    .portrait-tooltip ul { margin: 0.2rem 0 0.4rem; padding-left: 1rem; }
-    .portrait-tooltip .etat { font-weight: bold; }
-    .portrait-tooltip .etat.blesse { color: #e07040; }
-    .portrait-tooltip .etat.mort { color: #c04040; }
     .mission-log { background: #1c1710; border: 1px solid #5a4a30; border-radius: 6px; padding: 1rem; min-height: 240px; font-family: "Courier New", monospace; font-size: 0.9rem; line-height: 1.25; }
     .ligne-journal { white-space: pre-wrap; margin: 0.05rem 0; }
     .titre-log { font-size: 1rem; font-weight: bold; color: #e0c060; font-variant: small-caps; letter-spacing: 0.5px; margin: 0.3rem 0 0.05rem; }
@@ -51,6 +44,7 @@
     .personnages-colonne { flex: 1; min-width: 0; }
     .form-recruter { display: inline; margin-left: 0.5rem; }
     .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
+    .cible-profil { cursor: pointer; }
     .nom-personnage:hover { color: #f0d080; }
     .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
     .profil-panneau.ouvert { display: block; }
@@ -175,37 +169,11 @@
   </p>
   <div class="mission-layout">
     <div class="team-column">
-      <div class="portrait-wrap" th:each="p : ${m.equipe}">
+      <div class="portrait-wrap cible-profil" th:each="p : ${m.equipe}" th:attr="data-nom=${p.name()}">
         <img th:src="${portraitService.dataUri(p.name(), p.alive())}"
              th:alt="${p.name()}"
-             th:class="'portrait' + (${p.alive()} ? '' : ' dead')"/>
-        <div class="portrait-tooltip">
-          <h4 th:text="${p.name()}"/>
-          <div>&#201;tat :
-            <span th:if="${!p.alive()}" class="etat mort">mort</span>
-            <span th:if="${p.alive() and p.vitalite < p.vitaliteDepart}" class="etat blesse"
-                  th:text="'bless&#233; (' + ${p.vitalite} + '/' + ${p.vitaliteDepart} + ')'"/>
-            <span th:if="${p.alive() and p.vitalite == p.vitaliteDepart}" class="etat">indemne</span>
-            <div>Vitalit&#233; : <span th:text="${p.vitalite + '/' + p.vitaliteDepart}"></span></div>
-            <div>Sang-froid : <span th:text="${p.sangFroid + '/' + p.sangFroidDepart}"></span></div>
-          </div>
-          <div th:if="${!p.traits.isEmpty()}">Vices / vertus :
-            <span th:text="${#strings.listJoin(p.traits, ', ')}"></span>
-          </div>
-          <div th:if="${!p.specialites.isEmpty()}">Sp&#233;cialit&#233;s :
-            <span th:text="${#strings.listJoin(p.specialites, ', ')}"></span>
-          </div>
-          <div th:if="${!p.maitrises.isEmpty()}">Ma&#238;trises :
-            <span th:text="${#strings.listJoin(p.maitrises, ', ')}"></span>
-          </div>
-          <div>Comp&#233;tences (base <span th:text="${p.skillBase}"></span>) :</div>
-          <ul>
-            <li th:each="e : ${p.skills}">
-              <span th:text="${e.key}"></span> : <span th:text="${e.value}"></span>
-            </li>
-          </ul>
-        </div>
-        <div class="portrait-name" th:text="${p.name()}"/>
+             th:class="'portrait cible-profil' + (${p.alive()} ? '' : ' dead')"/>
+        <div class="portrait-name nom-personnage cible-profil" th:attr="data-nom=${p.name()}" th:text="${p.name()}"/>
         <form th:if="${jokers > 0 and !m.terminee and !m.remplacants.isEmpty()}" method="post"
               th:action="@{/mission/{id}/joker/remplacer(id=${m.id})}" class="form-remplacer">
           <input type="hidden" name="membreId" th:value="${p.id()}"/>
@@ -312,7 +280,9 @@
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.remove('ouvert'));
   }
-  document.querySelectorAll('.nom-personnage').forEach(el =>
+  document.querySelectorAll('.form-remplacer').forEach(el =>
+      el.addEventListener('click', event => event.stopPropagation()));
+  document.querySelectorAll('.nom-personnage, .cible-profil').forEach(el =>
       el.addEventListener('click', () => ouvrirProfil(el.dataset.nom)));
   document.querySelectorAll('.nom-personnage-survol').forEach(el => {
     el.addEventListener('mouseenter', () => ouvrirProfil(el.dataset.nom));
