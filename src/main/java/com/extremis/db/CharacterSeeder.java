@@ -115,9 +115,34 @@ public class CharacterSeeder implements ApplicationRunner {
         if (ajoute[0]) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
+        repository.findById("seed-09").filter(c -> c.getCarriere().equals("enqueteur")).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-09 (Vidocq, version enqueteur) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-09")) {
+            genereVidocq();
+            ajoute[0] = true;
+        }
         repository.findById("seed-01").ifPresent(c -> {
             repository.delete(c);
             log.info("Personnage seed-01 (Alphonse Hercule de Gascoigne) retire du catalogue");
+        });
+    }
+
+    private void genereVidocq() {
+        seed("seed-09", "Vidocq", "Saabi", "voyou",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.BAGARRE, Competence.DISCRETION,
+                        Competence.ELOQUENCE, Competence.ENDURANCE, Competence.HABILETE, Competence.INTIMIDATION,
+                        Competence.MARCHANDAGE, Competence.RAGOT, Competence.REFLEXES},
+                new int[]{10, 5, 10, -5, -10, 5, 5, 10, 10, -6},
+                new String[]{ViceEtVertu.LOYAL.vice(), ViceEtVertu.CHASTE.vice()}, 30);
+        repository.findById("seed-09").ifPresent(c -> {
+            c.setDescription("Fils de bourgeois aux penchants malhonn\u00eates, Vidocq va de vols en bagarre en passant "
+                    + "par les tripots et les bordels. Grand et costaud, de compagnie agr\u00e9able bien qu'un peu "
+                    + "rustaud. V\u00e9cus : po\u00e8te rat\u00e9, gros joueur malchanceux. Destin : 3. Vices : trompeur, "
+                    + "luxurieux. 19 ans.");
+            repository.save(c);
         });
     }
 
@@ -333,9 +358,7 @@ public class CharacterSeeder implements ApplicationRunner {
             repository.save(c);
         });
         genereMamieMahjong();
-        seed("seed-09", "Vidocq", "citadin", "enqueteur",
-                new Competence[]{Competence.PERCEPTION, Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
-                new String[]{"Inspecteur"});
+        genereVidocq();
         generePavelKortchagine();
         generePereDamianKarras();
         genereJeanTrenton();
