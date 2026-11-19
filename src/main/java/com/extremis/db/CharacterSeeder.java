@@ -115,9 +115,9 @@ public class CharacterSeeder implements ApplicationRunner {
         if (ajoute[0]) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
-        repository.findById("seed-09").filter(c -> c.getCarriere().equals("enqueteur")).ifPresent(c -> {
+        repository.findById("seed-09").filter(c -> !(c.getCarriere().equals("voyou") && c.getVitaliteDepart() == 13)).ifPresent(c -> {
             repository.delete(c);
-            log.info("Personnage seed-09 (Vidocq, version enqueteur) retire du catalogue");
+            log.info("Personnage seed-09 (Vidocq, ancienne version) retire du catalogue");
             ajoute[0] = true;
         });
         if (!repository.existsById("seed-09")) {
@@ -138,6 +138,10 @@ public class CharacterSeeder implements ApplicationRunner {
                 new int[]{10, 5, 10, -5, -10, 5, 5, 10, 10, -6},
                 new String[]{ViceEtVertu.LOYAL.vice(), ViceEtVertu.CHASTE.vice()}, 30);
         repository.findById("seed-09").ifPresent(c -> {
+            c.setVitaliteDepart(13);
+            c.setVitalite(13);
+            c.setSangFroidDepart(14);
+            c.setSangFroid(14);
             c.setDescription("Fils de bourgeois aux penchants malhonn\u00eates, Vidocq va de vols en bagarre en passant "
                     + "par les tripots et les bordels. Grand et costaud, de compagnie agr\u00e9able bien qu'un peu "
                     + "rustaud. V\u00e9cus : po\u00e8te rat\u00e9, gros joueur malchanceux. Destin : 3. Vices : trompeur, "
