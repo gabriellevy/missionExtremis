@@ -107,7 +107,7 @@ public class CharacterSeeder implements ApplicationRunner {
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
-                c.addMaitrise("Th\u00e9ologie");
+                c.addMaitrise("Théologie");
                 repository.save(c);
                 log.info("Ma\u00eetrises Exorcisme et Th\u00e9ologie ajoutees au P\u00e8re Damian Karras");
             }
@@ -144,8 +144,7 @@ public class CharacterSeeder implements ApplicationRunner {
             c.setSangFroid(14);
             c.setDescription("Fils de bourgeois aux penchants malhonn\u00eates, Vidocq va de vols en bagarre en passant "
                     + "par les tripots et les bordels. Grand et costaud, de compagnie agr\u00e9able bien qu'un peu "
-                    + "rustaud. V\u00e9cus : po\u00e8te rat\u00e9, gros joueur malchanceux. Destin : 3. Vices : trompeur, "
-                    + "luxurieux. 19 ans.");
+                    + "rustaud. V\u00e9cus : po\u00e8te rat\u00e9, gros joueur malchanceux.");
             repository.save(c);
         });
     }
