@@ -107,7 +107,7 @@ public class CharacterSeeder implements ApplicationRunner {
         repository.findById("seed-11").ifPresent(c -> {
             if (c.getMaitrises().isEmpty()) {
                 c.addMaitrise("Exorcisme");
-                c.addMaitrise("Th\u00e9ologie");
+                c.addMaitrise("Théologie");
                 repository.save(c);
                 log.info("Ma\u00eetrises Exorcisme et Th\u00e9ologie ajoutees au P\u00e8re Damian Karras");
             }
@@ -115,9 +115,37 @@ public class CharacterSeeder implements ApplicationRunner {
         if (ajoute[0]) {
             log.info("Personnages manquants ajoutes au catalogue");
         }
+        repository.findById("seed-09").filter(c -> !(c.getCarriere().equals("voyou") && c.getVitaliteDepart() == 13)).ifPresent(c -> {
+            repository.delete(c);
+            log.info("Personnage seed-09 (Vidocq, ancienne version) retire du catalogue");
+            ajoute[0] = true;
+        });
+        if (!repository.existsById("seed-09")) {
+            genereVidocq();
+            ajoute[0] = true;
+        }
         repository.findById("seed-01").ifPresent(c -> {
             repository.delete(c);
             log.info("Personnage seed-01 (Alphonse Hercule de Gascoigne) retire du catalogue");
+        });
+    }
+
+    private void genereVidocq() {
+        seed("seed-09", "Vidocq", "Saabi", "voyou",
+                new Competence[]{Competence.ARMES_CORPS_A_CORPS, Competence.BAGARRE, Competence.DISCRETION,
+                        Competence.ELOQUENCE, Competence.ENDURANCE, Competence.HABILETE, Competence.INTIMIDATION,
+                        Competence.MARCHANDAGE, Competence.RAGOT, Competence.REFLEXES},
+                new int[]{10, 5, 10, -5, -10, 5, 5, 10, 10, -6},
+                new String[]{ViceEtVertu.LOYAL.vice(), ViceEtVertu.CHASTE.vice()}, 30);
+        repository.findById("seed-09").ifPresent(c -> {
+            c.setVitaliteDepart(13);
+            c.setVitalite(13);
+            c.setSangFroidDepart(14);
+            c.setSangFroid(14);
+            c.setDescription("Fils de bourgeois aux penchants malhonn\u00eates, Vidocq va de vols en bagarre en passant "
+                    + "par les tripots et les bordels. Grand et costaud, de compagnie agr\u00e9able bien qu'un peu "
+                    + "rustaud. V\u00e9cus : po\u00e8te rat\u00e9, gros joueur malchanceux.");
+            repository.save(c);
         });
     }
 
@@ -333,9 +361,7 @@ public class CharacterSeeder implements ApplicationRunner {
             repository.save(c);
         });
         genereMamieMahjong();
-        seed("seed-09", "Vidocq", "citadin", "enqueteur",
-                new Competence[]{Competence.PERCEPTION, Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS}, new int[]{8, 8, 5},
-                new String[]{"Inspecteur"});
+        genereVidocq();
         generePavelKortchagine();
         generePereDamianKarras();
         genereJeanTrenton();
