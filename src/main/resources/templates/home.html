@@ -75,16 +75,14 @@
   </style>
 </head>
 <body>
-<h1>Mission Extremis &#8212; Console du Consul</h1>
-
 <div class="barre-onglets">
   <nav class="tabs">
+    <a class="tab" th:classappend="${ongletAccueil} ? active"
+       th:href="@{/(onglet='accueil')}">Accueil</a>
     <a class="tab" th:classappend="${ongletPersonnages} ? active"
        th:href="@{/(onglet='personnages')}">Personnages</a>
     <a class="tab" th:classappend="${ongletMissions} ? active"
        th:href="@{/(onglet='missions')}">Missions</a>
-    <a class="tab" th:classappend="${ongletExtremis} ? active"
-       th:href="@{/(onglet='extremis')}">Extremis</a>
     <a class="tab" th:each="m : ${missionsActives}"
        th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
        th:href="@{/(onglet=${m.id})}"
@@ -177,7 +175,7 @@
   </div>
 </section>
 
-<section th:if="${ongletExtremis}">
+<section th:if="${ongletAccueil}">
   <h2>Wiki Extremis &#8212; pages au hasard</h2>
   <p><em>Cinq pages tir&#233;es au hasard dans l'int&#233;gralit&#233; du wiki &#224; chaque affichage :</em></p>
   <ul class="roster-liste" th:if="${!liensWiki.isEmpty()}">
@@ -186,6 +184,19 @@
     </li>
   </ul>
   <p th:if="${liensWiki.isEmpty()}"><em>Aucune page du wiki &#224; afficher pour le moment.</em></p>
+
+  <h2>Missions en cours ou termin&#233;es</h2>
+  <p th:if="${missionsAccueil.isEmpty()}"><em>Aucune mission en cours ou termin&#233;e pour le moment.</em></p>
+  <div class="mission-carte" th:each="m : ${missionsAccueil}">
+    <h3><a th:href="@{/(onglet=${m.id})}" th:text="${m.titre}"></a></h3>
+    <p th:if="${m.terminee}"><em>Mission termin&#233;e</em></p>
+    <p th:if="${!m.terminee}"><em>Mission en cours</em></p>
+    <div class="mission-log" th:if="${!m.evenementsRecents.isEmpty()}">
+      <p style="margin-top:0"><em>&#201;v&#233;nements survenus depuis votre derni&#232;re visite :</em></p>
+      <div class="ligne-journal" th:each="ligne : ${m.evenementsRecents}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'d&#233; des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'d&#233; des unit&#233;s : ' + ${ligne.deUnites}"/></span></div>
+    </div>
+    <p th:if="${m.evenementsRecents.isEmpty()}"><em>Aucun nouvel &#233;v&#233;nement depuis votre derni&#232;re visite.</em></p>
+  </div>
 </section>
 
 <section th:if="${ongletActif != null}" th:with="m = ${ongletActif}">

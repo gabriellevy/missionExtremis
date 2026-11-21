@@ -41,9 +41,9 @@ class GameControllerIntegrationTest {
     }
 
     @org.junit.jupiter.api.Test
-    void laPageDAccueilAvecOngletExtremisSeRendSansErreur() throws Exception {
+    void laPageDAccueilAvecOngletAccueilSeRendSansErreur() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
-                        .param("onglet", "extremis"))
+                        .param("onglet", "accueil"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
                         .string(org.hamcrest.Matchers.containsString("Wiki Extremis")));
