@@ -1,0 +1,3 @@
+Tuiles de la carte du jeu.
+Regenerer avec : python3 tools/telecharger-tuiles.py
+Voir docs/carte-tuiles.md pour l edition manuelle.

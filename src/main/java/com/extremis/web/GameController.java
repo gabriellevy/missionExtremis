@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -93,7 +94,9 @@ public class GameController {
                     etat.fini,
                     !etat.fini && etat.execution.peutCorrigerDernierTest(),
                     descriptionDernierTestRate(etat),
-                    remplacantsDisponibles()));
+                    remplacantsDisponibles(),
+                    etat.execution.lieu().latitude(),
+                    etat.execution.lieu().longitude()));
         }
         OngletMissionView ongletMission = null;
         if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
@@ -121,6 +124,12 @@ public class GameController {
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
         model.addAttribute("rosterAvecMission", rosterAvecMission());
+        model.addAttribute("marqueursCarte", marqueursCarte());
+        model.addAttribute("carteLatitudeCentre", Lieu.CARTE_LATITUDE_CENTRE);
+        model.addAttribute("carteLongitudeCentre", Lieu.CARTE_LONGITUDE_CENTRE);
+        model.addAttribute("carteZoomInitial", Lieu.CARTE_ZOOM_INITIAL);
+        model.addAttribute("carteZoomPasLeger", Lieu.ZOOM_PAS_LEGER);
+        model.addAttribute("carteZoomPasFort", Lieu.ZOOM_PAS_FORTE);
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("modeDebug", modeDebug);
@@ -165,6 +174,70 @@ public class GameController {
                 .map(e -> e.entity.getMissionId())
                 .toList();
         return missions.stream().filter(m -> !enCours.contains(m.id())).toList();
+    }
+
+    private record CarteMarqueurView(
+            String type,
+            String nom,
+            String cible,
+            String titre,
+            boolean recrute,
+            boolean mort,
+            int decalage,
+            double latitude,
+            double longitude) {}
+
+    /**
+     * Construit les marqueurs de la carte du monde pour l'onglet Missions :
+     * tous les personnages (recrutés, recrutable et morts) à leur lieu réel,
+     * les missions disponibles et les missions actives.
+     */
+    private List<CarteMarqueurView> marqueursCarte() {
+        List<CarteMarqueurView> marqueurs = new ArrayList<>();
+
+        Map<Lieu, Integer> numerosAuMemeLieu = new EnumMap<>(Lieu.class);
+        for (CharacterEntity entity : game.tousLesPersonnages()) {
+            Lieu lieu = entity.getLieu();
+            if (lieu == null) {
+                continue;
+            }
+            int decalage = numerosAuMemeLieu.merge(lieu, 1, Integer::sum) - 1;
+            marqueurs.add(new CarteMarqueurView(
+                    "personnage",
+                    entity.getName(),
+                    entity.getName(),
+                    null,
+                    entity.isRecrute(),
+                    !entity.isAlive(),
+                    decalage,
+                    lieu.latitude(),
+                    lieu.longitude()));
+        }
+        for (Mission mission : missionsDisponibles()) {
+            marqueurs.add(new CarteMarqueurView(
+                    "mission",
+                    null,
+                    mission.id(),
+                    mission.titre(),
+                    false,
+                    false,
+                    0,
+                    mission.lieu().latitude(),
+                    mission.lieu().longitude()));
+        }
+        for (EtatMission etat : missionsActives.values()) {
+            marqueurs.add(new CarteMarqueurView(
+                    "mission-active",
+                    null,
+                    String.valueOf(etat.entity.getId()),
+                    etat.entity.getMissionTitle(),
+                    false,
+                    false,
+                    0,
+                    etat.execution.lieu().latitude(),
+                    etat.execution.lieu().longitude()));
+        }
+        return marqueurs;
     }
 
     private Set<String> personnagesOccupes() {

@@ -4,6 +4,8 @@
   <meta charset="UTF-8"/>
   <title>Mission Extremis</title>
   <meta http-equiv="refresh" content="30"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     body { font-family: Georgia, serif; background: #14100c; color: #d8c7a8; margin: 0; padding: 1rem 2rem; }
     h1 { font-variant: small-caps; letter-spacing: 1px; }
@@ -46,7 +48,7 @@
     .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
     .cible-profil { cursor: pointer; }
     .nom-personnage:hover { color: #f0d080; }
-    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
+    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 1500; }
     .profil-panneau.ouvert { display: block; }
     .profil-panneau h3 { color: #e0c060; margin: 0 0 0.4rem; font-variant: small-caps; }
     .profil-portrait { width: 150px; display: block; margin: 0 auto 0.6rem; border: 2px solid #5a4a30; border-radius: 6px; }
@@ -57,6 +59,20 @@
     .profil-panneau ul { margin: 0.2rem 0; padding-left: 1.2rem; }
     .profil-panneau .etat.mort { color: #c04040; font-weight: bold; }
     .profil-panneau .etat.vivant { color: #90c060; font-weight: bold; }
+    .carte { position: relative; z-index: 0; height: 480px; border: 1px solid #5a4a30; border-radius: 6px; overflow: hidden; background: #1a140d; margin-bottom: 0.4rem; font-family: Georgia, serif; }
+    .marqueur-xyz { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: auto; }
+    .marqueur-carte .marqueur-icone { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 0.05rem 0.4rem; border-radius: 10px; border: 1px solid #8a744a; color: #14100c; cursor: pointer; }
+    .marqueur-carte.personnage-recrute .marqueur-icone { background: #e0c060; }
+    .marqueur-carte.personnage-recrutable .marqueur-icone { background: #a89468; }
+    .marqueur-carte.personnage-mort .marqueur-icone { background: #7a1f1f; color: #d8c7a8; }
+    .marqueur-carte.mission .marqueur-icone { background: #c04040; border-color: #7a1f1f; color: #f0d0c0; }
+    .marqueur-carte.mission-active .marqueur-icone { background: #50a060; border-color: #2a5a30; color: #f0f0d0; }
+    .marqueur-carte .marqueur-etiquette { display: block; font-size: 0.72rem; text-align: center; color: #f0e8d0; text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.9); }
+    .marqueur-carte:hover .marqueur-icone { outline: 2px solid #f0d080; }
+    .marqueurs-donnees { display: none; }
+    .leaflet-container { background: #1a140d; }
+    .carte-legende { font-size: 0.72rem; color: #bfae8d; background: rgba(20, 16, 12, 0.8); padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1.2rem; }
+    .mission-carte.surbrillance { outline: 2px solid #e0c060; }
   </style>
 </head>
 <body>
@@ -120,11 +136,29 @@
 </section>
 
 <section th:if="${ongletMissions}">
+  <h2>Carte</h2>
+  <div class="carte" id="carte"
+       th:attr="data-latitude-centre=${carteLatitudeCentre}, data-longitude-centre=${carteLongitudeCentre},
+                data-zoom-initial=${carteZoomInitial}, data-zoom-pas-leger=${carteZoomPasLeger}, data-zoom-pas-fort=${carteZoomPasFort}"></div>
+  <div class="carte-legende">
+    <span style="color:#e0c060">&#9679; recrut&#233;</span> &#8226;
+    <span style="color:#a89468">&#9675; recrutable</span> &#8226;
+    <span style="color:#c04040">&#9873; mission disponible</span> &#8226;
+    <span style="color:#50a060">&#9873; mission active</span> &#8226;
+    molette : zoom, glisser : d&#233;placer, clic : s&#233;lectionner, touches + et &#8722; : zoom l&#233;ger, Shift + et Shift &#8722; : zoom fort
+  </div>
+  <div class="marqueurs-donnees" id="marqueurs-donnees">
+    <span th:each="m : ${marqueursCarte}"
+          th:attr="data-type=${m.type}, data-nom=${m.nom}, data-cible=${m.cible}, data-titre=${m.titre},
+                   data-recrute=${m.recrute}, data-mort=${m.mort}, data-decalage=${m.decalage},
+                   data-latitude=${m.latitude}, data-longitude=${m.longitude}"></span>
+  </div>
+
   <h2>Missions disponibles</h2>
   <div th:if="${missions.isEmpty()}">
     <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
   </div>
-  <div class="mission-carte" th:each="m : ${missions}">
+  <div class="mission-carte" th:each="m : ${missions}" th:attr="data-mission=${m.id()}">
     <h3 th:text="${m.titre()}"></h3>
     <p class="mission-lieu">Lieu : <span th:text="${m.lieu().label()}"/></p>
     <p th:text="${m.brief()}"/>
@@ -326,6 +360,87 @@
       }
     }));
   });
+  const conteneurCarte = document.getElementById('carte');
+  if (conteneurCarte && window.L) {
+    const carte = L.map('carte', { worldCopyJump: true, minZoom: 0, maxZoom: 16 }).setView([parseFloat(conteneurCarte.dataset.latitudeCentre), parseFloat(conteneurCarte.dataset.longitudeCentre)], parseInt(conteneurCarte.dataset.zoomInitial, 10));
+    const attributionTuiles = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+    const optionsTuiles = { minZoom: 0, maxZoom: 16, attribution: attributionTuiles };
+    const optionsCoucheMonde = { minZoom: 0, maxZoom: 5, attribution: attributionTuiles };
+    const optionsCoucheFrance = { minZoom: 6, maxZoom: 9, attribution: attributionTuiles };
+    const optionsCoucheElargie = { minZoom: 10, maxZoom: 11, attribution: attributionTuiles };
+    const optionsCoucheDetail = { minZoom: 12, maxZoom: 16, maxNativeZoom: 13, attribution: attributionTuiles };
+    Promise.all([
+      fetch('carte/tuiles/0/0/0.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false),
+      fetch('carte/tuiles/6/32/22.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false),
+      fetch('carte/tuiles/10/517/350.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false),
+      fetch('carte/tuiles/12/2074/1409.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false)
+    ]).then(([tuilesMonde, tuilesFrance, tuilesElargies, tuilesDetail]) => {
+      if (tuilesMonde && tuilesFrance && tuilesElargies && tuilesDetail) {
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheMonde).addTo(carte);
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheFrance).addTo(carte);
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheElargie).addTo(carte);
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheDetail).addTo(carte);
+      } else {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', optionsTuiles).addTo(carte);
+      }
+    });
+    const marqueurs = document.querySelectorAll('#marqueurs-donnees span');
+    marqueurs.forEach(donnees => {
+      const latitude = parseFloat(donnees.dataset.latitude);
+      const longitude = parseFloat(donnees.dataset.longitude) + (parseInt(donnees.dataset.decalage || '0', 10) * 0.003);
+      const type = donnees.dataset.type;
+      let classes = 'marqueur-carte ' + type;
+      if (type === 'personnage') {
+        classes += donnees.dataset.mort === 'true' ? ' personnage-mort'
+            : (donnees.dataset.recrute === 'true' ? ' personnage-recrute' : ' personnage-recrutable');
+      }
+      let icone;
+      if (type === 'personnage') {
+        icone = donnees.dataset.mort === 'true' ? '&#128193;'
+            : (donnees.dataset.recrute === 'true' ? '&#9679;' : '&#9675;');
+      } else {
+        icone = '&#9873;';
+      }
+      const etiquette = donnees.dataset.nom || donnees.dataset.titre || '';
+      const marqueur = L.marker([latitude, longitude], {
+        keyboard: false,
+        icon: L.divIcon({
+          className: '',
+          html: '<div class="marqueur-xyz ' + classes + '">'
+              + '<span class="marqueur-icone">' + icone + '</span>'
+              + '<span class="marqueur-etiquette">' + etiquette + '</span>'
+              + '</div>',
+          iconSize: null,
+          iconAnchor: [0, 0]
+        })
+      }).addTo(carte);
+      marqueur.on('click', () => {
+        if (type === 'personnage') {
+          ouvrirProfil(donnees.dataset.nom);
+        } else if (type === 'mission') {
+          const cible = document.querySelector('.mission-carte[data-mission="' + donnees.dataset.cible + '"]');
+          document.querySelectorAll('.mission-carte').forEach(el => el.classList.remove('surbrillance'));
+          if (cible) {
+            cible.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            cible.classList.add('surbrillance');
+          }
+        } else if (type === 'mission-active') {
+          window.location.href = window.location.origin + '/?onglet=' + donnees.dataset.cible;
+        }
+      });
+    });
+    document.addEventListener('keydown', evenement => {
+      if (evenement.target.closest('input, select, textarea, button')) {
+        return;
+      }
+      const pas = evenement.shiftKey ? parseInt(conteneurCarte.dataset.zoomPasFort, 10) : parseInt(conteneurCarte.dataset.zoomPasLeger, 10);
+      if (evenement.key === '+' || evenement.key === '=') {
+        carte.zoomIn(pas);
+      } else if (evenement.key === '-' || evenement.key === '_') {
+        carte.zoomOut(pas);
+      }
+    });
+  }
 </script>
 </body>
 </html>
