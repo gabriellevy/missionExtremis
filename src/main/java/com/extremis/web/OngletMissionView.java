@@ -16,4 +16,6 @@ public record OngletMissionView(
         boolean terminee,
         boolean peutCorrigerDernierTest,
         String dernierTestRate,
-        List<RemplacantView> remplacants) {}
+        List<RemplacantView> remplacants,
+        int lieuCarteX,
+        int lieuCarteY) {}

@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -93,7 +94,9 @@ public class GameController {
                     etat.fini,
                     !etat.fini && etat.execution.peutCorrigerDernierTest(),
                     descriptionDernierTestRate(etat),
-                    remplacantsDisponibles()));
+                    remplacantsDisponibles(),
+                    etat.execution.lieu().carteX(),
+                    etat.execution.lieu().carteY()));
         }
         OngletMissionView ongletMission = null;
         if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
@@ -121,6 +124,7 @@ public class GameController {
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
         model.addAttribute("rosterAvecMission", rosterAvecMission());
+        model.addAttribute("lieuxUtilises", marqueursCarte());
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("modeDebug", modeDebug);
@@ -165,6 +169,32 @@ public class GameController {
                 .map(e -> e.entity.getMissionId())
                 .toList();
         return missions.stream().filter(m -> !enCours.contains(m.id())).toList();
+    }
+
+    private record CartePersonnageView(String nom, boolean recrute, boolean mort) {}
+
+    private record CarteLieuView(List<CartePersonnageView> personnages) {}
+
+    /**
+     * Regroupe, par lieu, tous les personnages de la carte pour l'onglet Missions :
+     * recrutés, recrutables et morts.
+     */
+    private Map<Lieu, CarteLieuView> marqueursCarte() {
+        Map<Lieu, List<CartePersonnageView>> parLieu = new EnumMap<>(Lieu.class);
+        for (CharacterEntity entity : game.tousLesPersonnages()) {
+            Lieu lieu = entity.getLieu();
+            if (lieu == null) {
+                continue;
+            }
+            parLieu.computeIfAbsent(lieu, l -> new ArrayList<>())
+                    .add(new CartePersonnageView(
+                            entity.getName(),
+                            entity.isRecrute(),
+                            !entity.isAlive()));
+        }
+        Map<Lieu, CarteLieuView> marqueurs = new LinkedHashMap<>();
+        parLieu.forEach((lieu, personnages) -> marqueurs.put(lieu, new CarteLieuView(personnages)));
+        return marqueurs;
     }
 
     private Set<String> personnagesOccupes() {
