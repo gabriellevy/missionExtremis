@@ -89,7 +89,7 @@
     <a class="tab" th:each="m : ${missionsActives}"
        th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
        th:href="@{/(onglet=${m.id})}"
-       th:text="${m.titre}"/>
+       th:text="${m.titre}"></a>
   </nav>
   <div class="jetons-jokers">
     Jetons jokers : <span class="jetons-valeur" th:text="${jokers}"></span>
@@ -196,7 +196,6 @@
     </div>
     <aside class="accueil-wiki">
       <h2>Wiki Extremis &#8212; pages au hasard</h2>
-      <p><em>Cinq pages tir&#233;es au hasard dans l'int&#233;gralit&#233; du wiki &#224; chaque affichage :</em></p>
       <ul class="roster-liste" id="liens-wiki" data-message-vide="Aucune page du wiki &#224; afficher pour le moment.">
         <li id="liens-wiki-chargement"><em>D&#233;termination des pages en cours&#8230;</em></li>
       </ul>
