@@ -44,6 +44,8 @@ class CarteMissionsTest {
         assertThat(html).contains("id=\"carte\"");
         assertThat(html).contains("unpkg.com/leaflet@1.9.4/dist/leaflet.js");
         assertThat(html).contains("tile.openstreetmap.org/{z}/{x}/{y}.png");
+        assertThat(html).contains("carte/tuiles/{z}/{x}/{y}.png");
+        assertThat(html).contains("fetch('carte/tuiles/10/517/350.png'");
         assertThat(html).contains("L.map('carte'");
         assertThat(html).contains("carte.zoomIn(pas)");
         assertThat(html).contains("carte.zoomOut(pas)");
