@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.profiles.active=test-rapide"
 })
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+@org.springframework.context.annotation.Import(CarteMissionsTest.MissionsRapides.class)
 class CarteMissionsTest {
 
     @Autowired
@@ -29,6 +30,14 @@ class CarteMissionsTest {
 
     @Autowired
     private List<Mission> missions;
+
+    @org.springframework.boot.test.context.TestConfiguration
+    static class MissionsRapides {
+        @org.springframework.context.annotation.Bean
+        public Mission missionRapide() {
+            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+        }
+    }
 
     private String htmlOngletMissions() throws Exception {
         return mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
