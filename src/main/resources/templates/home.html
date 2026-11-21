@@ -48,7 +48,7 @@
     .nom-personnage { color: #e0c060; cursor: pointer; border-bottom: 1px dotted #8a744a; }
     .cible-profil { cursor: pointer; }
     .nom-personnage:hover { color: #f0d080; }
-    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 50; }
+    .profil-panneau { display: none; position: fixed; top: 0; right: 0; height: 100%; width: 340px; box-sizing: border-box; overflow-y: auto; background: #241c12; border-left: 1px solid #8a744a; box-shadow: -4px 0 12px rgba(0,0,0,0.7); padding: 1rem 1.2rem; z-index: 1500; }
     .profil-panneau.ouvert { display: block; }
     .profil-panneau h3 { color: #e0c060; margin: 0 0 0.4rem; font-variant: small-caps; }
     .profil-portrait { width: 150px; display: block; margin: 0 auto 0.6rem; border: 2px solid #5a4a30; border-radius: 6px; }
@@ -59,7 +59,7 @@
     .profil-panneau ul { margin: 0.2rem 0; padding-left: 1.2rem; }
     .profil-panneau .etat.mort { color: #c04040; font-weight: bold; }
     .profil-panneau .etat.vivant { color: #90c060; font-weight: bold; }
-    .carte { position: relative; height: 480px; border: 1px solid #5a4a30; border-radius: 6px; overflow: hidden; background: #1a140d; margin-bottom: 0.4rem; font-family: Georgia, serif; }
+    .carte { position: relative; z-index: 0; height: 480px; border: 1px solid #5a4a30; border-radius: 6px; overflow: hidden; background: #1a140d; margin-bottom: 0.4rem; font-family: Georgia, serif; }
     .marqueur-xyz { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: auto; }
     .marqueur-carte .marqueur-icone { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 0.05rem 0.4rem; border-radius: 10px; border: 1px solid #8a744a; color: #14100c; cursor: pointer; }
     .marqueur-carte.personnage-recrute .marqueur-icone { background: #e0c060; }
