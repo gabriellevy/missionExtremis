@@ -7,83 +7,89 @@ import java.util.concurrent.ThreadLocalRandom;
  * et l'Ukraine. Un lieu est l'endroit où vit un personnage ou l'endroit où
  * se rendre pour accomplir une mission.
  *
- * Chaque lieu porte des coordonnées dans le repère de la carte du jeu
- * (repère CARTES : 1600 x 1000), utilisées pour placer les marqueurs
- * de personnages et de missions.
+ * Chaque lieu porte ses coordonnées géographiques réelles (latitude,
+ * longitude en degrés décimaux, standard WGS84), utilisées pour placer
+ * les marqueurs sur la carte du monde affichée dans l'onglet Missions.
  */
 public enum Lieu {
-    PARIS_1ER("Paris 1er", 515, 369),
-    PARIS_2E("Paris 2e", 518, 363),
-    PARIS_3E("Paris 3e", 526, 368),
-    PARIS_4E("Paris 4e", 525, 376),
-    PARIS_5E("Paris 5e", 519, 386),
-    PARIS_6E("Paris 6e", 513, 380),
-    PARIS_7E("Paris 7e", 504, 375),
-    PARIS_8E("Paris 8e", 502, 358),
-    PARIS_9E("Paris 9e", 517, 355),
-    PARIS_10E("Paris 10e", 526, 356),
-    PARIS_11E("Paris 11e", 535, 371),
-    PARIS_12E("Paris 12e", 539, 394),
-    PARIS_13E("Paris 13e", 524, 400),
-    PARIS_14E("Paris 14e", 511, 399),
-    PARIS_15E("Paris 15e", 497, 389),
-    PARIS_16E("Paris 16e", 481, 367),
-    PARIS_17E("Paris 17e", 502, 345),
-    PARIS_18E("Paris 18e", 520, 340),
-    PARIS_19E("Paris 19e", 536, 344),
-    PARIS_20E("Paris 20e", 544, 367),
-    VERSAILLES("Versailles", 437, 437),
-    SAINT_DENIS("Saint-Denis", 522, 294),
-    BOULOGNE_BILLANCOURT("Boulogne-Billancourt", 471, 394),
-    ARGENTEUIL("Argenteuil", 474, 289),
-    MONTREUIL("Montreuil", 564, 367),
-    NANTERRE("Nanterre", 464, 340),
-    VITRY_SUR_SEINE("Vitry-sur-Seine", 541, 448),
-    CRETEIL("Créteil", 567, 446),
-    ASNIERES_SUR_SEINE("Asnières-sur-Seine", 490, 324),
-    COLOMBES("Colombes", 482, 309),
-    AUBERVILLIERS("Aubervilliers", 535, 321),
-    COURBEVOIE("Courbevoie", 472, 336),
-    EVRY("Évry", 558, 685),
-    MEAUX("Meaux", 820, 327),
-    MELUN("Melun", 709, 742),
-    FONTAINEBLEAU("Fontainebleau", 727, 882),
-    CERGY("Cergy", 405, 186),
-    POISSY("Poissy", 396, 310),
-    SURESNES("Suresnes", 466, 362),
-    IVRY_SUR_SEINE("Ivry-sur-Seine", 538, 416),
-    ANTONY("Antony", 600, 470),
-    CLAMART("Clamart", 483, 437),
-    SARCELLES("Sarcelles", 535, 265),
-    UKRAINE("Ukraine", 1450, 500);
+    PARIS_1ER("Paris 1er", 48.8622, 2.3364),
+    PARIS_2E("Paris 2e", 48.8686, 2.3413),
+    PARIS_3E("Paris 3e", 48.8631, 2.3600),
+    PARIS_4E("Paris 4e", 48.8543, 2.3572),
+    PARIS_5E("Paris 5e", 48.8443, 2.3455),
+    PARIS_6E("Paris 6e", 48.8494, 2.3325),
+    PARIS_7E("Paris 7e", 48.8560, 2.3124),
+    PARIS_8E("Paris 8e", 48.8734, 2.3077),
+    PARIS_9E("Paris 9e", 48.8774, 2.3398),
+    PARIS_10E("Paris 10e", 48.8760, 2.3602),
+    PARIS_11E("Paris 11e", 48.8589, 2.3800),
+    PARIS_12E("Paris 12e", 48.8355, 2.3895),
+    PARIS_13E("Paris 13e", 48.8290, 2.3555),
+    PARIS_14E("Paris 14e", 48.8300, 2.3267),
+    PARIS_15E("Paris 15e", 48.8393, 2.2977),
+    PARIS_16E("Paris 16e", 48.8637, 2.2634),
+    PARIS_17E("Paris 17e", 48.8867, 2.3074),
+    PARIS_18E("Paris 18e", 48.8925, 2.3477),
+    PARIS_19E("Paris 19e", 48.8882, 2.3818),
+    PARIS_20E("Paris 20e", 48.8637, 2.3990),
+    VERSAILLES("Versailles", 48.8014, 2.1350),
+    SAINT_DENIS("Saint-Denis", 48.9362, 2.3574),
+    BOULOGNE_BILLANCOURT("Boulogne-Billancourt", 48.8352, 2.2409),
+    ARGENTEUIL("Argenteuil", 48.9478, 2.2470),
+    MONTREUIL("Montreuil", 48.8636, 2.4436),
+    NANTERRE("Nanterre", 48.8920, 2.2064),
+    VITRY_SUR_SEINE("Vitry-sur-Seine", 48.7876, 2.3928),
+    CRETEIL("Créteil", 48.7904, 2.4557),
+    ASNIERES_SUR_SEINE("Asnières-sur-Seine", 48.9108, 2.2851),
+    COLOMBES("Colombes", 48.9254, 2.2653),
+    AUBERVILLIERS("Aubervilliers", 48.9133, 2.3812),
+    COURBEVOIE("Courbevoie", 48.8968, 2.2561),
+    EVRY("Évry", 48.6288, 2.4470),
+    MEAUX("Meaux", 48.9539, 2.8990),
+    MELUN("Melun", 48.5429, 2.6600),
+    FONTAINEBLEAU("Fontainebleau", 48.4036, 2.6989),
+    CERGY("Cergy", 49.0386, 2.0750),
+    POISSY("Poissy", 48.9243, 2.0440),
+    SURESNES("Suresnes", 48.8695, 2.2296),
+    IVRY_SUR_SEINE("Ivry-sur-Seine", 48.8125, 2.3880),
+    ANTONY("Antony", 48.7527, 2.5194),
+    CLAMART("Clamart", 48.7997, 2.2667),
+    SARCELLES("Sarcelles", 48.9730, 2.3780),
+    UKRAINE("Ukraine", 50.4501, 30.5234);
 
-    public static final int CARTE_LARGEUR = 1600;
-    public static final int CARTE_HAUTEUR = 1000;
+    /** Longitude par défaut de la vue initiale : Notre-Dame de Paris. */
+    public static final double CARTE_LONGITUDE_CENTRE = 2.3522;
+    /** Latitude par défaut de la vue initiale : Notre-Dame de Paris. */
+    public static final double CARTE_LATITUDE_CENTRE = 48.8566;
+    /** Niveau de zoom initial : la région parisienne entière est visible. */
+    public static final int CARTE_ZOOM_INITIAL = 10;
+    public static final int ZOOM_PAS_LEGER = 1;
+    public static final int ZOOM_PAS_FORTE = 10;
 
     private static final Lieu[] TOUS = values();
 
     private final String label;
-    private final int carteX;
-    private final int carteY;
+    private final double latitude;
+    private final double longitude;
 
-    Lieu(String label, int carteX, int carteY) {
+    Lieu(String label, double latitude, double longitude) {
         this.label = label;
-        this.carteX = carteX;
-        this.carteY = carteY;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String label() {
         return label;
     }
 
-    /** Abscisse du lieu sur la carte du jeu (repère CARTES_LARGEUR x CARTES_HAUTEUR). */
-    public int carteX() {
-        return carteX;
+    /** Latitude réelle du lieu en degrés décimaux (WGS84). */
+    public double latitude() {
+        return latitude;
     }
 
-    /** Ordonnée du lieu sur la carte du jeu (repère CARTES_LARGEUR x CARTES_HAUTEUR). */
-    public int carteY() {
-        return carteY;
+    /** Longitude réelle du lieu en degrés décimaux (WGS84). */
+    public double longitude() {
+        return longitude;
     }
 
     /** Tire un lieu au hasard parmi tous les lieux du jeu. */

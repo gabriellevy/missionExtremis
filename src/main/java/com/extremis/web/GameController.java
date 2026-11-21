@@ -95,8 +95,8 @@ public class GameController {
                     !etat.fini && etat.execution.peutCorrigerDernierTest(),
                     descriptionDernierTestRate(etat),
                     remplacantsDisponibles(),
-                    etat.execution.lieu().carteX(),
-                    etat.execution.lieu().carteY()));
+                    etat.execution.lieu().latitude(),
+                    etat.execution.lieu().longitude()));
         }
         OngletMissionView ongletMission = null;
         if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
@@ -124,7 +124,12 @@ public class GameController {
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
         model.addAttribute("rosterAvecMission", rosterAvecMission());
-        model.addAttribute("lieuxUtilises", marqueursCarte());
+        model.addAttribute("marqueursCarte", marqueursCarte());
+        model.addAttribute("carteLatitudeCentre", Lieu.CARTE_LATITUDE_CENTRE);
+        model.addAttribute("carteLongitudeCentre", Lieu.CARTE_LONGITUDE_CENTRE);
+        model.addAttribute("carteZoomInitial", Lieu.CARTE_ZOOM_INITIAL);
+        model.addAttribute("carteZoomPasLeger", Lieu.ZOOM_PAS_LEGER);
+        model.addAttribute("carteZoomPasFort", Lieu.ZOOM_PAS_FORTE);
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("modeDebug", modeDebug);
@@ -171,29 +176,67 @@ public class GameController {
         return missions.stream().filter(m -> !enCours.contains(m.id())).toList();
     }
 
-    private record CartePersonnageView(String nom, boolean recrute, boolean mort) {}
-
-    private record CarteLieuView(List<CartePersonnageView> personnages) {}
+    private record CarteMarqueurView(
+            String type,
+            String nom,
+            String cible,
+            String titre,
+            boolean recrute,
+            boolean mort,
+            int decalage,
+            double latitude,
+            double longitude) {}
 
     /**
-     * Regroupe, par lieu, tous les personnages de la carte pour l'onglet Missions :
-     * recrutés, recrutables et morts.
+     * Construit les marqueurs de la carte du monde pour l'onglet Missions :
+     * tous les personnages (recrutés, recrutable et morts) à leur lieu réel,
+     * les missions disponibles et les missions actives.
      */
-    private Map<Lieu, CarteLieuView> marqueursCarte() {
-        Map<Lieu, List<CartePersonnageView>> parLieu = new EnumMap<>(Lieu.class);
+    private List<CarteMarqueurView> marqueursCarte() {
+        List<CarteMarqueurView> marqueurs = new ArrayList<>();
+
+        Map<Lieu, Integer> numerosAuMemeLieu = new EnumMap<>(Lieu.class);
         for (CharacterEntity entity : game.tousLesPersonnages()) {
             Lieu lieu = entity.getLieu();
             if (lieu == null) {
                 continue;
             }
-            parLieu.computeIfAbsent(lieu, l -> new ArrayList<>())
-                    .add(new CartePersonnageView(
-                            entity.getName(),
-                            entity.isRecrute(),
-                            !entity.isAlive()));
+            int decalage = numerosAuMemeLieu.merge(lieu, 1, Integer::sum) - 1;
+            marqueurs.add(new CarteMarqueurView(
+                    "personnage",
+                    entity.getName(),
+                    entity.getName(),
+                    null,
+                    entity.isRecrute(),
+                    !entity.isAlive(),
+                    decalage,
+                    lieu.latitude(),
+                    lieu.longitude()));
         }
-        Map<Lieu, CarteLieuView> marqueurs = new LinkedHashMap<>();
-        parLieu.forEach((lieu, personnages) -> marqueurs.put(lieu, new CarteLieuView(personnages)));
+        for (Mission mission : missionsDisponibles()) {
+            marqueurs.add(new CarteMarqueurView(
+                    "mission",
+                    null,
+                    mission.id(),
+                    mission.titre(),
+                    false,
+                    false,
+                    0,
+                    mission.lieu().latitude(),
+                    mission.lieu().longitude()));
+        }
+        for (EtatMission etat : missionsActives.values()) {
+            marqueurs.add(new CarteMarqueurView(
+                    "mission-active",
+                    null,
+                    String.valueOf(etat.entity.getId()),
+                    etat.entity.getMissionTitle(),
+                    false,
+                    false,
+                    0,
+                    etat.execution.lieu().latitude(),
+                    etat.execution.lieu().longitude()));
+        }
         return marqueurs;
     }
 

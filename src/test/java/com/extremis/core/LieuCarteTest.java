@@ -9,32 +9,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LieuCarteTest {
 
     @Test
-    void tousLesLieuxOntDesCoordonneesDansLeRepereDeLaCarte() {
+    void tousLesLieuxOntDesCoordonneesGeographiquesPlausibles() {
         for (Lieu lieu : EnumSet.allOf(Lieu.class)) {
-            assertThat(lieu.carteX()).isBetween(0, Lieu.CARTE_LARGEUR);
-            assertThat(lieu.carteY()).isBetween(0, Lieu.CARTE_HAUTEUR);
+            assertThat(lieu.latitude()).isBetween(48.0, 51.0);
+            assertThat(lieu.longitude()).isBetween(2.0, 31.0);
             assertThat(lieu.label()).isNotBlank();
         }
     }
 
     @Test
-    void lesArrondissementsDeParisRestentGroupesSurLaCarte() {
-        int xMin = Lieu.PARIS_16E.carteX();
-        int xMax = Lieu.PARIS_20E.carteX();
-        int yMin = Lieu.PARIS_18E.carteY();
-        int yMax = Lieu.PARIS_13E.carteY();
-
-        assertThat(xMax - xMin).isLessThan(Lieu.CARTE_LARGEUR / 4);
-        assertThat(yMax - yMin).isLessThan(Lieu.CARTE_HAUTEUR / 4);
+    void lesArrondissementsDeParisRestentGroupesAutourDuCentreDeLaVueInitiale() {
+        for (Lieu lieu : EnumSet.allOf(Lieu.class)) {
+            if (lieu.name().startsWith("PARIS_")) {
+                assertThat(lieu.latitude())
+                        .isCloseTo(Lieu.CARTE_LATITUDE_CENTRE, org.assertj.core.data.Offset.offset(0.1));
+                assertThat(lieu.longitude())
+                        .isCloseTo(Lieu.CARTE_LONGITUDE_CENTRE, org.assertj.core.data.Offset.offset(0.2));
+            }
+        }
     }
 
     @Test
     void lUkraineEstLeLieuLePlusAEstDeLaCarte() {
-        int xMax = 0;
+        double longitudeMax = 0;
         for (Lieu lieu : EnumSet.allOf(Lieu.class)) {
-            xMax = Math.max(xMax, lieu.carteX());
+            longitudeMax = Math.max(longitudeMax, lieu.longitude());
         }
-        assertThat(xMax).isEqualTo(Lieu.UKRAINE.carteX());
-        assertThat(Lieu.UKRAINE.carteX()).isGreaterThan(2 * (Lieu.PARIS_1ER.carteX()));
+        assertThat(longitudeMax).isEqualTo(Lieu.UKRAINE.longitude());
+        assertThat(Lieu.UKRAINE.longitude()).isGreaterThan(20);
+    }
+
+    @Test
+    void laVueInitialeEstCentreeSurLaRegionParisienneAvecUnPasDeZoomClavier() {
+        assertThat(Lieu.CARTE_LATITUDE_CENTRE).isEqualTo(48.8566);
+        assertThat(Lieu.CARTE_LONGITUDE_CENTRE).isEqualTo(2.3522);
+        assertThat(Lieu.CARTE_ZOOM_INITIAL).isEqualTo(10);
+        assertThat(Lieu.ZOOM_PAS_LEGER).isEqualTo(1);
+        assertThat(Lieu.ZOOM_PAS_FORTE).isEqualTo(10);
     }
 }
