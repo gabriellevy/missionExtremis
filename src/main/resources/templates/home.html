@@ -71,6 +71,9 @@
     .marqueurs-donnees { display: none; }
     .leaflet-container { background: #1a140d; }
     .carte-legende { font-size: 0.72rem; color: #bfae8d; background: rgba(20, 16, 12, 0.8); padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1.2rem; }
+    .accueil-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .accueil-missions { flex: 1; min-width: 0; }
+    .accueil-wiki { flex: 0 0 250px; max-width: 250px; }
     .mission-carte.surbrillance { outline: 2px solid #e0c060; }
   </style>
 </head>
@@ -176,26 +179,28 @@
 </section>
 
 <section th:if="${ongletAccueil}">
-  <h2>Wiki Extremis &#8212; pages au hasard</h2>
-  <p><em>Cinq pages tir&#233;es au hasard dans l'int&#233;gralit&#233; du wiki &#224; chaque affichage :</em></p>
-  <ul class="roster-liste" th:if="${!liensWiki.isEmpty()}">
-    <li th:each="lien : ${liensWiki}">
-      <a th:href="${lien.url()}" th:text="${lien.titre()}" target="_blank" rel="noopener"></a>
-    </li>
-  </ul>
-  <p th:if="${liensWiki.isEmpty()}"><em>Aucune page du wiki &#224; afficher pour le moment.</em></p>
-
-  <h2>Missions en cours ou termin&#233;es</h2>
-  <p th:if="${missionsAccueil.isEmpty()}"><em>Aucune mission en cours ou termin&#233;e pour le moment.</em></p>
-  <div class="mission-carte" th:each="m : ${missionsAccueil}">
-    <h3><a th:href="@{/(onglet=${m.id})}" th:text="${m.titre}"></a></h3>
-    <p th:if="${m.terminee}"><em>Mission termin&#233;e</em></p>
-    <p th:if="${!m.terminee}"><em>Mission en cours</em></p>
-    <div class="mission-log" th:if="${!m.evenementsRecents.isEmpty()}">
-      <p style="margin-top:0"><em>&#201;v&#233;nements survenus depuis votre derni&#232;re visite :</em></p>
-      <div class="ligne-journal" th:each="ligne : ${m.evenementsRecents}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'d&#233; des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'d&#233; des unit&#233;s : ' + ${ligne.deUnites}"/></span></div>
+  <div class="accueil-layout">
+    <div class="accueil-missions">
+      <h2>Missions en cours ou termin&#233;es</h2>
+      <p th:if="${missionsAccueil.isEmpty()}"><em>Aucune mission en cours ou termin&#233;e pour le moment.</em></p>
+      <div class="mission-carte" th:each="m : ${missionsAccueil}">
+        <h3><a th:href="@{/(onglet=${m.id})}" th:text="${m.titre}"></a></h3>
+        <p th:if="${m.terminee}"><em>Mission termin&#233;e</em></p>
+        <p th:if="${!m.terminee}"><em>Mission en cours</em></p>
+        <div class="mission-log" th:if="${!m.evenementsRecents.isEmpty()}">
+          <p style="margin-top:0"><em>&#201;v&#233;nements survenus depuis votre derni&#232;re visite :</em></p>
+          <div class="ligne-journal" th:each="ligne : ${m.evenementsRecents}"><h3 class="titre-log" th:if="${ligne.estTitre()}" th:text="${ligne.texteAffiche}"></h3><em th:if="${ligne.estAmbiance()}" th:text="${ligne.texte}"></em><span th:if="${!ligne.estTitre() and !ligne.estAmbiance()}" th:text="${ligne.texte}"></span><span class="des-d100" th:if="${ligne.aUnJet}"><img th:src="${serviceDes.dataUri(ligne.deDizaines)}" th:alt="'d&#233; des dizaines : ' + ${ligne.deDizaines}"/><img th:src="${serviceDes.dataUri(ligne.deUnites)}" th:alt="'d&#233; des unit&#233;s : ' + ${ligne.deUnites}"/></span></div>
+        </div>
+        <p th:if="${m.evenementsRecents.isEmpty()}"><em>Aucun nouvel &#233;v&#233;nement depuis votre derni&#232;re visite.</em></p>
+      </div>
     </div>
-    <p th:if="${m.evenementsRecents.isEmpty()}"><em>Aucun nouvel &#233;v&#233;nement depuis votre derni&#232;re visite.</em></p>
+    <aside class="accueil-wiki">
+      <h2>Wiki Extremis &#8212; pages au hasard</h2>
+      <p><em>Cinq pages tir&#233;es au hasard dans l'int&#233;gralit&#233; du wiki &#224; chaque affichage :</em></p>
+      <ul class="roster-liste" id="liens-wiki" data-message-vide="Aucune page du wiki &#224; afficher pour le moment.">
+        <li id="liens-wiki-chargement"><em>D&#233;termination des pages en cours&#8230;</em></li>
+      </ul>
+    </aside>
   </div>
 </section>
 
@@ -370,6 +375,37 @@
       }
     }));
   });
+  const conteneurLiensWiki = document.getElementById('liens-wiki');
+  if (conteneurLiensWiki) {
+    fetch('wiki/liens')
+        .then(reponse => {
+          if (!reponse.ok) {
+            throw new Error('chargement des pages du wiki echoue');
+          }
+          return reponse.json();
+        })
+        .then(liens => {
+          conteneurLiensWiki.replaceChildren();
+          if (!liens || liens.length === 0) {
+            conteneurLiensWiki.appendChild(document.createElement('li')).textContent = conteneurLiensWiki.dataset.messageVide;
+            return;
+          }
+          liens.forEach(lien => {
+            const element = document.createElement('li');
+            const ancre = document.createElement('a');
+            ancre.href = lien.url;
+            ancre.textContent = lien.titre;
+            ancre.target = '_blank';
+            ancre.rel = 'noopener';
+            element.appendChild(ancre);
+            conteneurLiensWiki.appendChild(element);
+          });
+        })
+        .catch(() => {
+          conteneurLiensWiki.replaceChildren();
+          conteneurLiensWiki.appendChild(document.createElement('li')).textContent = conteneurLiensWiki.dataset.messageVide;
+        });
+  }
   const conteneurCarte = document.getElementById('carte');
   if (conteneurCarte && window.L) {
     const carte = L.map('carte', { worldCopyJump: true, minZoom: 0, maxZoom: 16 }).setView([parseFloat(conteneurCarte.dataset.latitudeCentre), parseFloat(conteneurCarte.dataset.longitudeCentre)], parseInt(conteneurCarte.dataset.zoomInitial, 10));

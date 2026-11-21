@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Duration;
@@ -139,7 +140,6 @@ public class GameController {
         model.addAttribute("ongletPersonnages", ongletPersonnages);
         model.addAttribute("ongletMissions", ongletMissions);
         model.addAttribute("ongletAccueil", ongletAccueil);
-        model.addAttribute("liensWiki", ongletAccueil ? serviceWiki.liensAleatoires(5) : List.of());
         model.addAttribute("missionsAccueil", ongletAccueil ? missionsAccueil() : List.of());
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
@@ -161,6 +161,12 @@ public class GameController {
         model.addAttribute("portraitService", portraits);
         model.addAttribute("serviceDes", serviceDes);
         return "home";
+    }
+
+    @GetMapping("/wiki/liens")
+    @ResponseBody
+    public List<LienWikiView> liensWiki() {
+        return serviceWiki.liensAleatoires(5);
     }
 
     private List<ProfilPersonnageView> profilsRoster() {
