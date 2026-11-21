@@ -362,18 +362,25 @@
   });
   const conteneurCarte = document.getElementById('carte');
   if (conteneurCarte && window.L) {
-    const carte = L.map('carte', { worldCopyJump: true, minZoom: 10, maxZoom: 16 }).setView([parseFloat(conteneurCarte.dataset.latitudeCentre), parseFloat(conteneurCarte.dataset.longitudeCentre)], parseInt(conteneurCarte.dataset.zoomInitial, 10));
-    const optionsTuiles = {
-      minZoom: 10,
-      maxZoom: 16,
-      maxNativeZoom: 13,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    };
-    fetch('carte/tuiles/10/517/350.png', { method: 'HEAD' })
-        .then(reponse => reponse.ok
-            ? L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsTuiles).addTo(carte)
-            : L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', optionsTuiles).addTo(carte))
-        .catch(() => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', optionsTuiles).addTo(carte));
+    const carte = L.map('carte', { worldCopyJump: true, minZoom: 0, maxZoom: 16 }).setView([parseFloat(conteneurCarte.dataset.latitudeCentre), parseFloat(conteneurCarte.dataset.longitudeCentre)], parseInt(conteneurCarte.dataset.zoomInitial, 10));
+    const attributionTuiles = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+    const optionsTuiles = { minZoom: 0, maxZoom: 16, attribution: attributionTuiles };
+    const optionsCoucheMonde = { minZoom: 0, maxZoom: 5, attribution: attributionTuiles };
+    const optionsCoucheFrance = { minZoom: 6, maxZoom: 9, attribution: attributionTuiles };
+    const optionsCoucheLocale = { minZoom: 10, maxZoom: 16, maxNativeZoom: 13, attribution: attributionTuiles };
+    Promise.all([
+      fetch('carte/tuiles/0/0/0.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false),
+      fetch('carte/tuiles/6/32/22.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false),
+      fetch('carte/tuiles/10/517/350.png', { method: 'HEAD' }).then(r => r.ok).catch(() => false)
+    ]).then(([tuilesMonde, tuilesFrance, tuilesLocales]) => {
+      if (tuilesMonde && tuilesFrance && tuilesLocales) {
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheMonde).addTo(carte);
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheFrance).addTo(carte);
+        L.tileLayer('carte/tuiles/{z}/{x}/{y}.png', optionsCoucheLocale).addTo(carte);
+      } else {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', optionsTuiles).addTo(carte);
+      }
+    });
     const marqueurs = document.querySelectorAll('#marqueurs-donnees span');
     marqueurs.forEach(donnees => {
       const latitude = parseFloat(donnees.dataset.latitude);

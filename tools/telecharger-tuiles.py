@@ -7,10 +7,11 @@ Web Mercator). Une fois téléchargées elles sont servies localement par
 l'application et peuvent être modifiées manuellement, image par image, dans
 n'importe quel éditeur.
 
-Zones couvertes (définies ci-dessous,modifiables) :
-  - Île-de-France : tous les lieux du jeu hors Ukraine ;
-  - Kyiv : le lieu « Ukraine ».
-Niveaux de zoom : 10 à 13.
+Zones couvertes (définies ci-dessous, modifiables) :
+  - le monde entier, zooms 0 à 5 (vue terrestre complète) ;
+  - la France, zooms 6 à 9 ;
+  - l'Île-de-France : tous les lieux du jeu hors Ukraine, zooms 10 à 13 ;
+  - Kyiv : le lieu « Ukraine », zooms 6 à 13.
 
 Utilisation :
     python3 tools/telecharger-tuiles.py [--zoom-max N] [--delai F]
@@ -34,11 +35,14 @@ DOSSIER_TUILES = RACINE / "src" / "main" / "resources" / "static" / "carte" / "t
 SERVEUR = "https://tile.openstreetmap.org"
 USER_AGENT_PROJET = "missionExtremis/1.0 (jeu personnel; https://github.com/gabriellevy/missionExtremis)"
 
+ZOOM_MIN = 0
+
 ZONES = {
-    "ile-de-france": {"lat_sud": 48.0, "lat_nord": 49.3, "ouest": 1.8, "est": 3.7},
-    "kyiv": {"lat_sud": 50.2, "lat_nord": 50.7, "ouest": 30.1, "est": 30.9},
+    "monde": {"entiere": True, "zoom_min": 0, "zoom_max": 5},
+    "france": {"lat_sud": 41.0, "lat_nord": 51.2, "ouest": -5.5, "est": 10.0, "zoom_min": 6, "zoom_max": 9},
+    "ile-de-france": {"lat_sud": 48.0, "lat_nord": 49.3, "ouest": 1.8, "est": 3.7, "zoom_min": 10, "zoom_max": 13},
+    "kyiv": {"lat_sud": 50.2, "lat_nord": 50.7, "ouest": 30.1, "est": 30.9, "zoom_min": 6, "zoom_max": 13},
 }
-ZOOM_MIN = 10
 
 
 def indice_x(longitude, zoom):
@@ -52,6 +56,8 @@ def indice_y(latitude, zoom):
 
 
 def intervalles_zone(zone, zoom):
+    if zone.get("entiere"):
+        return range(0, 2 ** zoom), range(0, 2 ** zoom)
     x1 = indice_x(zone["ouest"], zoom)
     x2 = indice_x(zone["est"], zoom)
     y1 = indice_y(zone["lat_nord"], zoom)
@@ -90,7 +96,7 @@ def main():
     sautees = 0
     erreurs = 0
     for zone_nom, zone in ZONES.items():
-        for zoom in range(ZOOM_MIN, arguments.zoom_max + 1):
+        for zoom in range(max(ZOOM_MIN, zone["zoom_min"]), min(arguments.zoom_max, zone["zoom_max"]) + 1):
             xs, ys = intervalles_zone(zone, zoom)
             for x in xs:
                 for y in ys:

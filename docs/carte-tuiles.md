@@ -12,18 +12,23 @@ Les tuiles sont stockées dans le projet, sous :
 src/main/resources/static/carte/tuiles/{z}/{x}/{y}.png
 ```
 
-- `z` : niveau de zoom (10 à 13) ;
+- `z` : niveau de zoom (0 à 13 : le monde entier jusqu'au zoom 5, la France jusqu'à 9, l'Île-de-France et Kyiv jusqu'à 13) ;
 - `x`, `y` : indices de la tuile dans le schéma OSM XYZ.
 
-La page charge d'abord les tuiles locales : dès que la tuile sentinelle
-`carte/tuiles/10/517/350.png` est présente, la couche locale est utilisée ;
-sinon, la carte se rabat sur le serveur de tuiles `tile.openstreetmap.org`
-(idéal pour un développement hors connexion pas encore peuplé).
+La page charge d'abord les tuiles locales : dès que les trois tuiles
+sentinelles (`carte/tuiles/0/0/0.png`, `carte/tuiles/6/32/22.png` et
+`carte/tuiles/10/517/350.png`) sont présentes, les couches locales sont
+utilisées — la terre entière est visible jusqu'au zoom 5, la France jusqu'à 9,
+les zones de jeu jusqu'à 13 (re amplifié jusqu'au zoom 16) ; sinon, la carte
+se rabat sur le serveur `tile.openstreetmap.org` (utile tant que les tuiles
+ne sont pas encore téléchargées). Le dézoom est possible jusqu'au niveau 0
+(vue terrestre entière).
 
 ## Télécharger / regénérer les tuiles
 
-Le script `tools/telecharger-tuiles.py` télécharge les tuiles des zones du jeu
-(Île-de-France et Kyiv) pour les zooms 10 à 13 :
+Le script `tools/telecharger-tuiles.py` télécharge les tuiles des zones du
+jeu (monde entier 0–5, France 6–9, Île-de-France 10–13 et Kyiv 6–13, soit
+environ 5350 tuiles) :
 
 ```
 python3 tools/telecharger-tuiles.py
