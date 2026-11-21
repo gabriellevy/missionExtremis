@@ -10,7 +10,8 @@ n'importe quel éditeur.
 Zones couvertes (définies ci-dessous, modifiables) :
   - le monde entier, zooms 0 à 5 (vue terrestre complète) ;
   - la France, zooms 6 à 9 ;
-  - l'Île-de-France : tous les lieux du jeu hors Ukraine, zooms 10 à 13 ;
+  - l'Île-de-France élargie (vue d'ensemble sans vide à l'écran), zooms 10 à 11 ;
+  - l'Île-de-France de détail : tous les lieux du jeu hors Ukraine, zooms 12 à 13 ;
   - Kyiv : le lieu « Ukraine », zooms 6 à 13.
 
 Utilisation :
@@ -40,7 +41,8 @@ ZOOM_MIN = 0
 ZONES = {
     "monde": {"entiere": True, "zoom_min": 0, "zoom_max": 5},
     "france": {"lat_sud": 41.0, "lat_nord": 51.2, "ouest": -5.5, "est": 10.0, "zoom_min": 6, "zoom_max": 9},
-    "ile-de-france": {"lat_sud": 48.0, "lat_nord": 49.3, "ouest": 1.8, "est": 3.7, "zoom_min": 10, "zoom_max": 13},
+    "idf-elargie": {"lat_sud": 47.6, "lat_nord": 49.8, "ouest": 0.0, "est": 5.0, "zoom_min": 10, "zoom_max": 11},
+    "idf-detail": {"lat_sud": 48.3, "lat_nord": 49.15, "ouest": 1.2, "est": 4.0, "zoom_min": 12, "zoom_max": 13},
     "kyiv": {"lat_sud": 50.2, "lat_nord": 50.7, "ouest": 30.1, "est": 30.9, "zoom_min": 6, "zoom_max": 13},
 }
 

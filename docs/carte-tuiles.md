@@ -15,14 +15,15 @@ src/main/resources/static/carte/tuiles/{z}/{x}/{y}.png
 - `z` : niveau de zoom (0 à 13 : le monde entier jusqu'au zoom 5, la France jusqu'à 9, l'Île-de-France et Kyiv jusqu'à 13) ;
 - `x`, `y` : indices de la tuile dans le schéma OSM XYZ.
 
-La page charge d'abord les tuiles locales : dès que les trois tuiles
-sentinelles (`carte/tuiles/0/0/0.png`, `carte/tuiles/6/32/22.png` et
-`carte/tuiles/10/517/350.png`) sont présentes, les couches locales sont
-utilisées — la terre entière est visible jusqu'au zoom 5, la France jusqu'à 9,
-les zones de jeu jusqu'à 13 (re amplifié jusqu'au zoom 16) ; sinon, la carte
-se rabat sur le serveur `tile.openstreetmap.org` (utile tant que les tuiles
-ne sont pas encore téléchargées). Le dézoom est possible jusqu'au niveau 0
-(vue terrestre entière).
+La page charge d'abord les tuiles locales : dès que les quatre tuiles
+sentinelles (`carte/tuiles/0/0/0.png`, `carte/tuiles/6/32/22.png`,
+`carte/tuiles/10/517/350.png` et `carte/tuiles/12/2074/1409.png`) sont
+présentes, les couches locales sont utilisées — la terre entière jusqu'au
+zoom 5, la France jusqu'à 9, l'Île-de-France élargie (sans vide à l'écran)
+jusqu'à 11, la zone de jeu en détail jusqu'à 13 (ré-amplifiée jusqu'au
+zoom 16) ; sinon, la carte se rabat sur le serveur `tile.openstreetmap.org`
+(utile tant que les tuiles ne sont pas encore téléchargées). Le dézoom est
+possible jusqu'au niveau 0 (vue terrestre entière).
 
 ## Télécharger / regénérer les tuiles
 

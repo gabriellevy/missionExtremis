@@ -49,6 +49,9 @@ class CarteMissionsTest {
         assertThat(html).contains("fetch('carte/tuiles/0/0/0.png'");
         assertThat(html).contains("fetch('carte/tuiles/6/32/22.png'");
         assertThat(html).contains("fetch('carte/tuiles/10/517/350.png'");
+        assertThat(html).contains("fetch('carte/tuiles/12/2074/1409.png'");
+        assertThat(html).contains("optionsCoucheElargie");
+        assertThat(html).contains("optionsCoucheDetail");
         assertThat(html).contains("L.map('carte'");
         assertThat(html).contains("carte.zoomIn(pas)");
         assertThat(html).contains("carte.zoomOut(pas)");
