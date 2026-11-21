@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Duration;
@@ -61,8 +62,31 @@ public class GameController {
         MissionExecutionEntity entity;
         List<LigneJournalView> journal = new ArrayList<>();
         int lignesPubliees = 0;
+        int lignesConstatesAccueil = -1;
         Duration decalageTemps = Duration.ZERO;
         boolean fini = false;
+    }
+
+    /**
+     * Missions en cours ou terminees avec les evenements survenus dans
+     * chacune depuis la derniere visite de l'onglet Accueil ; met a
+     * jour le repere de lecture pour la prochaine visite.
+     */
+    private List<MissionAccueilView> missionsAccueil() {
+        List<MissionAccueilView> missions = new ArrayList<>();
+        for (Map.Entry<Long, EtatMission> e : missionsActives.entrySet()) {
+            EtatMission etat = e.getValue();
+            List<LigneJournalView> recents = etat.lignesConstatesAccueil < 0
+                    ? etat.journal
+                    : etat.journal.subList(etat.lignesConstatesAccueil, etat.journal.size());
+            missions.add(new MissionAccueilView(
+                    e.getKey(),
+                    etat.entity.getMissionTitle(),
+                    etat.fini,
+                    new ArrayList<>(recents)));
+            etat.lignesConstatesAccueil = etat.journal.size();
+        }
+        return missions;
     }
 
     private Instant maintenant(EtatMission etat) {
@@ -71,7 +95,7 @@ public class GameController {
 
     public static final String ONGLET_PERSONNAGES = "personnages";
     public static final String ONGLET_MISSIONS = "missions";
-    public static final String ONGLET_EXTREMIS = "extremis";
+    public static final String ONGLET_ACCUEIL = "accueil";
 
     @GetMapping
     @Transactional
@@ -99,7 +123,8 @@ public class GameController {
                     etat.execution.lieu().longitude()));
         }
         OngletMissionView ongletMission = null;
-        if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)) {
+        if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)
+                && !ONGLET_ACCUEIL.equals(onglet)) {
             try {
                 long id = Long.parseLong(onglet);
                 ongletMission = onglets.stream().filter(o -> o.id() == id).findFirst().orElse(null);
@@ -108,14 +133,14 @@ public class GameController {
         }
         boolean ongletPersonnages = ONGLET_PERSONNAGES.equals(onglet);
         boolean ongletMissions = ONGLET_MISSIONS.equals(onglet);
-        boolean ongletExtremis = ONGLET_EXTREMIS.equals(onglet);
-        if (!ongletPersonnages && !ongletMissions && !ongletExtremis && ongletMission == null && onglet != null) {
+        boolean ongletAccueil = ONGLET_ACCUEIL.equals(onglet);
+        if (!ongletPersonnages && !ongletMissions && !ongletAccueil && ongletMission == null && onglet != null) {
             ongletMissions = true;
         }
         model.addAttribute("ongletPersonnages", ongletPersonnages);
         model.addAttribute("ongletMissions", ongletMissions);
-        model.addAttribute("ongletExtremis", ongletExtremis);
-        model.addAttribute("liensWiki", ongletExtremis ? serviceWiki.liensAleatoires(5) : List.of());
+        model.addAttribute("ongletAccueil", ongletAccueil);
+        model.addAttribute("missionsAccueil", ongletAccueil ? missionsAccueil() : List.of());
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
@@ -136,6 +161,12 @@ public class GameController {
         model.addAttribute("portraitService", portraits);
         model.addAttribute("serviceDes", serviceDes);
         return "home";
+    }
+
+    @GetMapping("/wiki/liens")
+    @ResponseBody
+    public List<LienWikiView> liensWiki() {
+        return serviceWiki.liensAleatoires(5);
     }
 
     private List<ProfilPersonnageView> profilsRoster() {
