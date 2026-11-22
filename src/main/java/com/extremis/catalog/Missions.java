@@ -20,59 +20,6 @@ import com.extremis.core.MissionEvent.EffetReussite;
 public final class Missions {
     private Missions() {}
 
-    public static Mission fousDeGotheim() {
-        return gotheim(Duration.ofHours(4), Duration.ofHours(6));
-    }
-
-    public static Mission fousDeGotheimRapide() {
-        return gotheim(Duration.ofSeconds(1), Duration.ofSeconds(1));
-    }
-
-    private static Mission gotheim(Duration delai2, Duration delai3) {
-        return new Mission(
-                "gotheim",
-                "Les fous de Gotheim",
-                "Une secte agite la ville de Gotheim. Les arrangeurs doivent infiltrer puis neutraliser ses meneurs.",
-                Lieu.PARIS_3E,
-                List.of(Competence.DISCRETION, Competence.ARMES_CORPS_A_CORPS),
-                List.of(
-                        MissionEvent.builder("arrivee", "Arrivee a Gotheim")
-                                .introduction("Les arrangeurs arrivent a Gotheim et reperent la secte.")
-                                .duree(Duration.ZERO)
-                                .succes(EffetReussite.builder()
-                                        .evenementSuivant("infiltration")
-                                        .build())
-                                .build(),
-                        MissionEvent.builder("infiltration", "Infiltration du meeting nocturne")
-                                .introduction("Les arrangeurs s'infiltrent dans le meeting nocturne de la secte.")
-                                .duree(delai2)
-                                .test(new SimpleTest(Competence.DISCRETION, -10))
-                                .succes(EffetReussite.builder()
-                                        .texteSimple("Les arrangeurs passent inapercus au milieu des sectateurs.")
-                                        .recompense("Toge de sectateur")
-                                        .evenementSuivant("confrontation")
-                                        .build())
-                                .echec(EffetEchec.builder()
-                                        .texteSimple("Les sectateurs repèrent les arrangeurs et les passent a tabac.")
-                                        .texteCritique("Repérés dès leur arrivee, les arrangeurs sont chasses a coups de pierre.")
-                                        .degats(2)
-                                        .evenementSuivant("confrontation")
-                                        .build())
-                                .build(),
-                        MissionEvent.builder("confrontation", "Confrontation avec les meneurs")
-                                .introduction("Les arrangeurs affrontent les meneurs de la secte.")
-                                .duree(delai3)
-                                .test(new SimpleTest(Competence.ARMES_CORPS_A_CORPS, -20))
-                                .succes(EffetReussite.builder()
-                                        .texteSimple("Les meneurs sont neutralises. La secte se disperse.")
-                                        .build())
-                                .echec(EffetEchec.builder()
-                                        .texteSimple("Les meneurs ont le dessus. Les arrangeurs battent en retraite.")
-                                        .degats(4)
-                                        .build())
-                                .build()));
-    }
-
     /**
      * "Rumeurs de possession demoniaque" (wiki, page du meme nom) :
      * une sonde espionne a rapporte des conversations contenant des

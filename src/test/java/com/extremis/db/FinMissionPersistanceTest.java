@@ -1,6 +1,7 @@
 package com.extremis.db;
 
 import com.extremis.core.Character;
+import com.extremis.core.Competence;
 import com.extremis.core.Mission;
 import com.extremis.core.MissionExecution;
 import com.extremis.core.MissionReport;
@@ -42,7 +43,7 @@ class FinMissionPersistanceTest {
     @Test
     @Transactional
     void finDeMissionRepercuteLaVitalitePerdueSurLeRoster() {
-        Mission mission = com.extremis.catalog.Missions.fousDeGotheimRapide();
+        Mission mission = com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         Character david = new Character("test-david", "David");
         game.saveQuickRecruit(david);
         int vitaliteDepart = david.vitalite();
@@ -66,8 +67,12 @@ class FinMissionPersistanceTest {
     @Test
     @Transactional
     void finDeMissionRepercuteLEtatFinalDeTouteLequipeSurLeRoster() {
-        Mission mission = com.extremis.catalog.Missions.fousDeGotheimRapide();
-        Character agent = new Character("test-fin", "Alice");
+        Mission mission = com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
+        Character agent = new Character("test-fin", "Alice")
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90)
+                .withSkill(Competence.FORCE_MENTALE, 90)
+                .withSpecialite("Exorcisme");
         game.saveQuickRecruit(agent);
 
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
@@ -91,7 +96,7 @@ class FinMissionPersistanceTest {
     static class MissionDeTestConfig {
         @Bean
         public Mission missionRapide() {
-            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+            return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 }

@@ -44,7 +44,7 @@ class PersonnageEnMissionTest {
     static class DeuxMissionsRapides {
         @Bean
         public Mission premiereMissionRapide() {
-            return Missions.fousDeGotheimRapide();
+            return Missions.constructionDeCheminDeFerRapide();
         }
 
         @Bean

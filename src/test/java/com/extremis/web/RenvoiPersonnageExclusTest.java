@@ -76,15 +76,19 @@ class RenvoiPersonnageExclusTest {
 
         @Bean
         public Mission missionRapide() {
-            return Missions.fousDeGotheimRapide();
+            return Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 
     private void recruterAliceEtBob() {
         game.saveQuickRecruit(new Character("test-alice", "Alice")
-                .withSkill(Competence.DISCRETION, 90));
+                .withSkill(Competence.DISCRETION, 90)
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90));
         game.saveQuickRecruit(new Character("test-bob", "Bob")
-                .withSkill(Competence.DISCRETION, 10));
+                .withSkill(Competence.DISCRETION, 10)
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90));
     }
 
     @Test
@@ -105,7 +109,7 @@ class RenvoiPersonnageExclusTest {
         assertThat(html).contains("value=\"test-alice\"");
         assertThat(html).doesNotContain("value=\"test-bob\"");
 
-        controller.lancerMission("gotheim", List.of("test-alice"));
+        controller.lancerMission("possession", List.of("test-alice"));
         assertThat(executions.count()).isEqualTo(2);
     }
 
@@ -114,7 +118,7 @@ class RenvoiPersonnageExclusTest {
     void unPersonnageRemplaceParJokerPeutEtreRenvoyeDansUneAutreMission() throws Exception {
         controller.reinitialiserUsine();
         recruterAliceEtBob();
-        controller.lancerMission("gotheim", List.of("test-alice"));
+        controller.lancerMission("possession", List.of("test-alice"));
         Long idA = executions.findAll().get(0).getId();
         controller.avancerMission(idA);
 

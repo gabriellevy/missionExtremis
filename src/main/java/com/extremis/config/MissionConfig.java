@@ -11,11 +11,6 @@ import org.springframework.context.annotation.Profile;
 public class MissionConfig {
 
     @Bean
-    public Mission fousDeGotheim() {
-        return Missions.fousDeGotheim();
-    }
-
-    @Bean
     public Mission rumeursDePossessionDemoniaque() {
         return Missions.rumeursDePossessionDemoniaque();
     }

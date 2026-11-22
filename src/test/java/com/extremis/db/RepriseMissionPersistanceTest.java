@@ -43,10 +43,13 @@ class RepriseMissionPersistanceTest {
     @Test
     @Transactional
     void apresRedemarrageLeJournalContinueSansDoublonNiDesordre() {
-        Mission mission = com.extremis.catalog.Missions.fousDeGotheimRapide();
+        Mission mission = com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         Character agent = new Character("test-reprise", "Alice")
-                .withSkill(Competence.DISCRETION, 90)
-                .withSkill(Competence.ARMES_CORPS_A_CORPS, 90);
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90)
+                .withSkill(Competence.FORCE_MENTALE, 90)
+                .withSpecialite("Exorcisme");
+        game.saveQuickRecruit(agent);
 
         // lancement + premier evenement resolu, persistes en base
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
@@ -84,10 +87,13 @@ class RepriseMissionPersistanceTest {
     @Test
     @Transactional
     void apresRedemarrageLaSequenceDeDesContinueSansRejouerLesMêmesJets() {
-        Mission mission = com.extremis.catalog.Missions.fousDeGotheimRapide();
+        Mission mission = com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         Character agent = new Character("test-seq", "Alice")
-                .withSkill(Competence.DISCRETION, 90)
-                .withSkill(Competence.ARMES_CORPS_A_CORPS, 90);
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90)
+                .withSkill(Competence.FORCE_MENTALE, 90)
+                .withSpecialite("Exorcisme");
+        game.saveQuickRecruit(agent);
 
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
         MissionExecution execution = game.rebuild(entity).orElseThrow();
@@ -117,7 +123,7 @@ class RepriseMissionPersistanceTest {
     static class MissionDeTestConfig {
         @Bean
         public Mission missionRapide() {
-            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+            return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 }

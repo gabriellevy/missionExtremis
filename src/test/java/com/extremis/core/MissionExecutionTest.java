@@ -17,26 +17,26 @@ class MissionExecutionTest {
 
     @Test
     void lIntroductionSAfficheDesLeDebutEtLEffetApresLaDuree() {
-        Mission mission = Missions.fousDeGotheimRapide();
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
         MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_HIGH, START);
 
         // premiere duree : l'introduction du premier evenement est publiee,
         // pas encore son effet
         assertThat(execution.advance(START)).isFalse();
-        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("=== Arrivee a Gotheim ==="));
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("=== Recherche du cas ==="));
         assertThat(textesDuJournal(execution)).noneMatch(l -> l.contains("tente le test"));
     }
 
     @Test
     void unTestNeSAfficheQuApresLaDureeDeLEvenement() {
-        Mission mission = Missions.fousDeGotheim();
+        Mission mission = Missions.rumeursDePossessionDemoniaque();
         MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_HIGH, START);
 
-        assertThat(execution.advance(START.plus(Duration.ofHours(4)).minusSeconds(1))).isFalse();
-        assertThat(textesDuJournal(execution)).noneMatch(l -> l.contains("tente le test de Discrétion"));
+        assertThat(execution.advance(START.plus(Duration.ofHours(6)).minusSeconds(1))).isFalse();
+        assertThat(textesDuJournal(execution)).noneMatch(l -> l.contains("tente le test de Ragot"));
 
-        assertThat(execution.advance(START.plus(Duration.ofHours(4)))).isFalse();
-        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("tente le test de Discrétion"));
+        assertThat(execution.advance(START.plus(Duration.ofHours(6)))).isFalse();
+        assertThat(textesDuJournal(execution)).anyMatch(l -> l.contains("tente le test de Ragot"));
     }
 
     @Test
@@ -119,7 +119,7 @@ class MissionExecutionTest {
 
     @Test
     void advanceEstIdempotentDansLeMemeTick() {
-        Mission mission = Missions.fousDeGotheimRapide();
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
         MissionExecution execution = MissionExecution.start(mission, List.of(agent()), ALWAYS_HIGH, START);
         execution.advance(START);
         int lignes = textesDuJournal(execution).size();
@@ -129,7 +129,7 @@ class MissionExecutionTest {
 
     @Test
     void laLigneDeTestPorteLeJetDeDeuxDes() {
-        Mission mission = Missions.fousDeGotheimRapide();
+        Mission mission = Missions.rumeursDePossessionDemoniaqueRapide();
         // jet fixe a 73 : dizaines 7, unites 3
         RandomSource deFixe = new RandomSource() {
             @Override
