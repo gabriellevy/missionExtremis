@@ -93,13 +93,16 @@ public class GameController {
         return Instant.now().plus(etat.decalageTemps);
     }
 
-    public static final String ONGLET_PERSONNAGES = "personnages";
-    public static final String ONGLET_MISSIONS = "missions";
+    public static final String ONGLET_EXTREMIS = "extremis";
     public static final String ONGLET_ACCUEIL = "accueil";
+    public static final String FILTRE_ARRANGEURS = "arrangeurs";
+    public static final String FILTRE_RECRUTEMENT = "recrutement";
+    public static final String FILTRE_MISSIONS = "missions";
 
     @GetMapping
     @Transactional
-    public String accueil(Model model, @RequestParam(required = false) String onglet) {
+    public String accueil(Model model, @RequestParam(required = false) String onglet,
+                          @RequestParam(required = false) String filtre) {
         game.gagnerJokerQuotidien(Instant.now());
         rechargerMissionsActives();
         List<OngletMissionView> onglets = new ArrayList<>();
@@ -122,23 +125,29 @@ public class GameController {
                     etat.execution.lieu().latitude(),
                     etat.execution.lieu().longitude()));
         }
+        boolean aliasPersonnages = "personnages".equals(onglet);
+        boolean aliasMissions = "missions".equals(onglet);
         OngletMissionView ongletMission = null;
-        if (onglet != null && !ONGLET_PERSONNAGES.equals(onglet) && !ONGLET_MISSIONS.equals(onglet)
-                && !ONGLET_ACCUEIL.equals(onglet)) {
+        if (onglet != null && !aliasPersonnages && !aliasMissions && !ONGLET_ACCUEIL.equals(onglet)) {
             try {
                 long id = Long.parseLong(onglet);
                 ongletMission = onglets.stream().filter(o -> o.id() == id).findFirst().orElse(null);
             } catch (NumberFormatException ignored) {
             }
         }
-        boolean ongletPersonnages = ONGLET_PERSONNAGES.equals(onglet);
-        boolean ongletMissions = ONGLET_MISSIONS.equals(onglet);
         boolean ongletAccueil = ONGLET_ACCUEIL.equals(onglet);
-        if (!ongletPersonnages && !ongletMissions && !ongletAccueil && ongletMission == null && onglet != null) {
-            ongletMissions = true;
+        boolean ongletExtremis = !ongletAccueil && ongletMission == null;
+        String filtreExtremis;
+        if (aliasPersonnages) {
+            filtreExtremis = FILTRE_RECRUTEMENT;
+        } else if (FILTRE_ARRANGEURS.equals(filtre) || FILTRE_RECRUTEMENT.equals(filtre)) {
+            filtreExtremis = filtre;
+        } else {
+            filtreExtremis = FILTRE_MISSIONS;
         }
-        model.addAttribute("ongletPersonnages", ongletPersonnages);
-        model.addAttribute("ongletMissions", ongletMissions);
+        model.addAttribute("ongletExtremis", ongletExtremis);
+        model.addAttribute("filtreExtremis", filtreExtremis);
+        model.addAttribute("categoriesCarte", categoriesVisibles(filtreExtremis));
         model.addAttribute("ongletAccueil", ongletAccueil);
         model.addAttribute("missionsAccueil", ongletAccueil ? missionsAccueil() : List.of());
         model.addAttribute("roster", game.roster());
@@ -161,6 +170,19 @@ public class GameController {
         model.addAttribute("portraitService", portraits);
         model.addAttribute("serviceDes", serviceDes);
         return "home";
+    }
+
+    /**
+     * Catégories de marqueurs visibles par défaut sur la carte selon
+     * le sous-onglet actif de l'onglet Extremis ; le joueur peut ensuite
+     * les contredire via l'interface en bas de carte.
+     */
+    private List<String> categoriesVisibles(String filtre) {
+        return switch (filtre) {
+            case FILTRE_ARRANGEURS -> List.of("recrute", "mort");
+            case FILTRE_RECRUTEMENT -> List.of("recrute", "recrutable", "mort");
+            default -> List.of("recrute", "mission", "mission-active");
+        };
     }
 
     @GetMapping("/wiki/liens")
@@ -395,7 +417,7 @@ public class GameController {
         } catch (IllegalStateException | java.util.NoSuchElementException e) {
             log.info("Recrutement refuse : {}", e.getMessage());
         }
-        return "redirect:/?onglet=" + ONGLET_PERSONNAGES;
+        return "redirect:/?onglet=" + ONGLET_EXTREMIS + "&filtre=" + FILTRE_RECRUTEMENT;
     }
 
     @PostMapping("/mission/run")

@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
         "spring.profiles.active=test-rapide"
 })
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-class OngletPersonnagesTest {
+class OngletExtremisTest {
 
     @Autowired
     private GameService game;
@@ -35,9 +35,14 @@ class OngletPersonnagesTest {
                         .param("onglet", "personnages"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
-                        .string(org.hamcrest.Matchers.containsString("Personnages recrut&#233;s")))
+                        .string(org.hamcrest.Matchers.containsString("Arrangeurs recrut&#233;s")))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
-                        .string(org.hamcrest.Matchers.containsString("Personnages recrutables")));
+                        .string(org.hamcrest.Matchers.containsString("Arrangeurs recrutables")));
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
+                        .param("onglet", "personnages"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("id=\"carte\"")));
     }
 
     @Test
@@ -73,7 +78,7 @@ class OngletPersonnagesTest {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/recruter")
                         .param("characterId", cible.getId()))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/?onglet=personnages"));
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/?onglet=extremis&filtre=recrutement"));
     }
 
     @Test

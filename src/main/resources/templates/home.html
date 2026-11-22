@@ -58,7 +58,7 @@
     .profil-panneau ul { margin: 0.2rem 0; padding-left: 1.2rem; }
     .profil-panneau .etat.mort { color: #c04040; font-weight: bold; }
     .profil-panneau .etat.vivant { color: #90c060; font-weight: bold; }
-    .carte { position: relative; z-index: 0; height: 480px; border: 1px solid #5a4a30; border-radius: 6px; overflow: hidden; background: #1a140d; margin-bottom: 0.4rem; font-family: Georgia, serif; }
+    .carte { position: relative; z-index: 0; height: 624px; border: 1px solid #5a4a30; border-radius: 6px; overflow: hidden; background: #1a140d; margin-bottom: 0.4rem; font-family: Georgia, serif; }
     .marqueur-xyz { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: auto; }
     .marqueur-carte .marqueur-icone { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 0.05rem 0.4rem; border-radius: 10px; border: 1px solid #8a744a; color: #14100c; cursor: pointer; }
     .marqueur-carte.personnage-recrute .marqueur-icone { background: #e0c060; }
@@ -75,6 +75,15 @@
     .accueil-missions { flex: 1; min-width: 0; }
     .accueil-wiki { flex: 0 0 250px; max-width: 250px; }
     .mission-carte.surbrillance { outline: 2px solid #e0c060; }
+    .sous-onglets { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .sous-onglets a { padding: 0.35rem 0.8rem; border: 1px solid #5a4a30; border-radius: 6px; background: #1c1710; color: #d8c7a8; }
+    .sous-onglets a.active { background: #2a2114; color: #e0c060; font-weight: bold; }
+    .extremis-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .extremis-carte-colonne { flex: 2; min-width: 0; }
+    .extremis-visualisation { flex: 1; min-width: 0; border-left: 1px solid #5a4a30; padding-left: 1.2rem; }
+    .carte-categories { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; font-size: 0.78rem; color: #bfae8d; background: rgba(20, 16, 12, 0.8); border: 1px solid #5a4a30; border-radius: 4px; padding: 0.45rem 0.6rem; margin-bottom: 1.2rem; }
+    .carte-categories label { cursor: pointer; white-space: nowrap; }
+    .carte-categories .titre-categories { color: #e0c060; font-variant: small-caps; }
   </style>
 </head>
 <body>
@@ -82,10 +91,8 @@
   <nav class="tabs">
     <a class="tab" th:classappend="${ongletAccueil} ? active"
        th:href="@{/(onglet='accueil')}">Accueil</a>
-    <a class="tab" th:classappend="${ongletPersonnages} ? active"
-       th:href="@{/(onglet='personnages')}">Personnages</a>
-    <a class="tab" th:classappend="${ongletMissions} ? active"
-       th:href="@{/(onglet='missions')}">Missions</a>
+    <a class="tab" th:classappend="${ongletExtremis} ? active"
+       th:href="@{/(onglet='extremis')}">Extremis</a>
     <a class="tab" th:each="m : ${missionsActives}"
        th:classappend="${ongletActif != null and ongletActif.id == m.id} ? active"
        th:href="@{/(onglet=${m.id})}"
@@ -99,82 +106,113 @@
   </div>
 </div>
 
-<section th:if="${ongletPersonnages}">
-  <div class="personnages-layout">
-    <div class="personnages-colonne">
-      <h2>Personnages recrut&#233;s</h2>
-      <p>
-        Simulations restantes : <span th:text="${simulations}"></span>
-      </p>
-      <ul class="roster-liste" th:if="${!roster.isEmpty()}">
-        <li th:each="c : ${roster}">
-          <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
-          <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
-          <span class="en-mission"
-                th:if="${rosterAvecMission.containsKey(c.name())}"
-                th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
-        </li>
-      </ul>
-      <p th:if="${roster.isEmpty()}"><em>Aucun personnage recrut&#233; pour le moment.</em></p>
-    </div>
-    <div class="personnages-colonne">
-      <h2>Personnages recrutables</h2>
-      <p><em>Un seul recrutement par jour.</em></p>
-      <ul class="roster-liste" th:if="${!disponibles.isEmpty()}">
-        <li th:each="c : ${disponibles}">
-          <span class="nom-personnage" th:attr="data-nom=${c.getName()}" th:text="${c.getName()}"></span>
-          <span th:if="${c.getLieu() != null}" th:text="'&#8212; ' + ${c.getLieu().label()}"></span>
-          <form method="post" action="/recruter" class="form-recruter">
-            <input type="hidden" name="characterId" th:value="${c.getId()}"/>
-            <button type="submit" th:disabled="${!recrutementDisponible}">Recruter</button>
-          </form>
-        </li>
-      </ul>
-      <p th:if="${disponibles.isEmpty()}"><em>Aucun personnage recrutable pour le moment.</em></p>
-    </div>
-  </div>
-</section>
-
-<section th:if="${ongletMissions}">
-  <h2>Carte</h2>
-  <div class="carte" id="carte"
-       th:attr="data-latitude-centre=${carteLatitudeCentre}, data-longitude-centre=${carteLongitudeCentre},
-                data-zoom-initial=${carteZoomInitial}, data-zoom-pas-leger=${carteZoomPasLeger}, data-zoom-pas-fort=${carteZoomPasFort}"></div>
-  <div class="carte-legende">
-    <span style="color:#e0c060">&#9679; recrut&#233;</span> &#8226;
-    <span style="color:#a89468">&#9675; recrutable</span> &#8226;
-    <span style="color:#c04040">&#9873; mission disponible</span> &#8226;
-    <span style="color:#50a060">&#9873; mission active</span> &#8226;
-    molette : zoom, glisser : d&#233;placer, clic : s&#233;lectionner, touches + et &#8722; : zoom l&#233;ger, Shift + et Shift &#8722; : zoom fort
-  </div>
-  <div class="marqueurs-donnees" id="marqueurs-donnees">
-    <span th:each="m : ${marqueursCarte}"
-          th:attr="data-type=${m.type}, data-nom=${m.nom}, data-cible=${m.cible}, data-titre=${m.titre},
-                   data-recrute=${m.recrute}, data-mort=${m.mort}, data-decalage=${m.decalage},
-                   data-latitude=${m.latitude}, data-longitude=${m.longitude}"></span>
-  </div>
-
-  <h2>Missions disponibles</h2>
-  <div th:if="${missions.isEmpty()}">
-    <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
-  </div>
-  <div class="mission-carte" th:each="m : ${missions}" th:attr="data-mission=${m.id()}">
-    <h3 th:text="${m.titre()}"></h3>
-    <p class="mission-lieu">Lieu : <span th:text="${m.lieu().label()}"/></p>
-    <p th:text="${m.brief()}"/>
-    <form method="post" action="/mission/run">
-      <input type="hidden" name="missionId" th:value="${m.id()}"/>
-      <p class="message-limite-equipe" style="display:none; color: #e07040;"></p>
-      <div class="champs-equipes">
-        <th:block th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
-          <label>
-            <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
-            <span class="nom-personnage nom-personnage-survol" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
-          </label>
-        </th:block>
+<section th:if="${ongletExtremis}">
+  <nav class="sous-onglets">
+    <a th:classappend="${filtreExtremis == 'arrangeurs'} ? active"
+       th:href="@{/(onglet='extremis', filtre='arrangeurs')}">Vos arrangeurs</a>
+    <a th:classappend="${filtreExtremis == 'recrutement'} ? active"
+       th:href="@{/(onglet='extremis', filtre='recrutement')}">Recrutement</a>
+    <a th:classappend="${filtreExtremis == 'missions'} ? active"
+       th:href="@{/(onglet='extremis', filtre='missions')}">Missions</a>
+  </nav>
+  <div class="extremis-layout">
+    <div class="extremis-carte-colonne">
+      <div class="carte" id="carte"
+           th:attr="data-latitude-centre=${carteLatitudeCentre}, data-longitude-centre=${carteLongitudeCentre},
+                    data-zoom-initial=${carteZoomInitial}, data-zoom-pas-leger=${carteZoomPasLeger}, data-zoom-pas-fort=${carteZoomPasFort}"></div>
+      <div class="carte-categories" id="carte-categories">
+        <span class="titre-categories">Points affich&#233;s :</span>
+        <label><input type="checkbox" data-categorie="recrute" th:checked="${categoriesCarte.contains('recrute')}"/> <span style="color:#e0c060">&#9679; recrut&#233;s</span></label>
+        <label><input type="checkbox" data-categorie="recrutable" th:checked="${categoriesCarte.contains('recrutable')}"/> <span style="color:#a89468">&#9675; recrutables</span></label>
+        <label><input type="checkbox" data-categorie="mort" th:checked="${categoriesCarte.contains('mort')}"/> <span style="color:#7a1f1f">&#9673; morts</span></label>
+        <label><input type="checkbox" data-categorie="mission" th:checked="${categoriesCarte.contains('mission')}"/> <span style="color:#c04040">&#9873; missions disponibles</span></label>
+        <label><input type="checkbox" data-categorie="mission-active" th:checked="${categoriesCarte.contains('mission-active')}"/> <span style="color:#50a060">&#9873; missions actives</span></label>
       </div>
-      <button type="submit">Lancer la mission</button>
-    </form>
+      <div class="carte-legende">
+        molette : zoom, glisser : d&#233;placer, clic : s&#233;lectionner, touches + et &#8722; : zoom l&#233;ger, Shift + et Shift &#8722; : zoom fort
+      </div>
+      <div class="marqueurs-donnees" id="marqueurs-donnees">
+        <span th:each="m : ${marqueursCarte}"
+              th:attr="data-type=${m.type}, data-nom=${m.nom}, data-cible=${m.cible}, data-titre=${m.titre},
+                       data-recrute=${m.recrute}, data-mort=${m.mort}, data-decalage=${m.decalage},
+                       data-latitude=${m.latitude}, data-longitude=${m.longitude}"></span>
+      </div>
+    </div>
+    <div class="extremis-visualisation">
+      <h2>Visualisation</h2>
+      <div th:if="${filtreExtremis == 'arrangeurs'}">
+        <h3>Vos arrangeurs</h3>
+        <ul class="roster-liste" th:if="${!roster.isEmpty()}">
+          <li th:each="c : ${roster}">
+            <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+            <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
+            <span class="en-mission"
+                  th:if="${rosterAvecMission.containsKey(c.name())}"
+                  th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
+          </li>
+        </ul>
+        <p th:if="${roster.isEmpty()}"><em>Aucun arrangeur recrut&#233; pour le moment.</em></p>
+        <p><em>Aucune action n'est possible depuis cet onglet.</em></p>
+      </div>
+      <div th:if="${filtreExtremis == 'recrutement'}">
+        <h3>Arrangeurs recrut&#233;s</h3>
+        <p>Simulations restantes : <span th:text="${simulations}"></span></p>
+        <ul class="roster-liste" th:if="${!roster.isEmpty()}">
+          <li th:each="c : ${roster}">
+            <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+            <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
+            <span class="en-mission"
+                  th:if="${rosterAvecMission.containsKey(c.name())}"
+                  th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
+          </li>
+        </ul>
+        <p th:if="${roster.isEmpty()}"><em>Aucun arrangeur recrut&#233; pour le moment.</em></p>
+        <h3>Arrangeurs recrutables</h3>
+        <p><em>Un seul recrutement par jour.</em></p>
+        <ul class="roster-liste" th:if="${!disponibles.isEmpty()}">
+          <li th:each="c : ${disponibles}">
+            <span class="nom-personnage" th:attr="data-nom=${c.getName()}" th:text="${c.getName()}"></span>
+            <span th:if="${c.getLieu() != null}" th:text="'&#8212; ' + ${c.getLieu().label()}"></span>
+            <form method="post" action="/recruter" class="form-recruter">
+              <input type="hidden" name="characterId" th:value="${c.getId()}"/>
+              <button type="submit" th:disabled="${!recrutementDisponible}">Recruter</button>
+            </form>
+          </li>
+        </ul>
+        <p th:if="${disponibles.isEmpty()}"><em>Aucun arrangeur recrutable pour le moment.</em></p>
+      </div>
+      <div th:if="${filtreExtremis == 'missions'}">
+        <h3>Missions disponibles</h3>
+        <div th:if="${missions.isEmpty()}">
+          <p><em>Aucune mission disponible : toutes sont en cours.</em></p>
+        </div>
+        <div class="mission-carte" th:each="m : ${missions}" th:attr="data-mission=${m.id()}">
+          <h4 th:text="${m.titre()}"></h4>
+          <p class="mission-lieu">Lieu : <span th:text="${m.lieu().label()}"/></p>
+          <p th:text="${m.brief()}"/>
+          <form method="post" action="/mission/run">
+            <input type="hidden" name="missionId" th:value="${m.id()}"/>
+            <p class="message-limite-equipe" style="display:none; color: #e07040;"></p>
+            <div class="champs-equipes">
+              <th:block th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
+                <label>
+                  <input type="checkbox" name="teamIds" th:value="${c.id()}"/>
+                  <span class="nom-personnage nom-personnage-survol" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+                </label>
+              </th:block>
+            </div>
+            <button type="submit">Lancer la mission</button>
+          </form>
+        </div>
+        <h3 th:if="${!roster.isEmpty()}">Arrangeurs envoyables</h3>
+        <ul class="roster-liste" th:if="${!roster.isEmpty()}">
+          <li th:each="c : ${roster}" th:if="${c.isAlive() and !rosterAvecMission.containsKey(c.name())}">
+            <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
+            <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -429,6 +467,7 @@
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', optionsTuiles).addTo(carte);
       }
     });
+    const marqueursParCategorie = new Map();
     const marqueurs = document.querySelectorAll('#marqueurs-donnees span');
     marqueurs.forEach(donnees => {
       const latitude = parseFloat(donnees.dataset.latitude);
@@ -459,6 +498,19 @@
           iconAnchor: [0, 0]
         })
       }).addTo(carte);
+      let categorie;
+      if (type === 'personnage') {
+        categorie = donnees.dataset.mort === 'true' ? 'mort'
+            : (donnees.dataset.recrute === 'true' ? 'recrute' : 'recrutable');
+      } else if (type === 'mission') {
+        categorie = 'mission';
+      } else {
+        categorie = 'mission-active';
+      }
+      if (!marqueursParCategorie.has(categorie)) {
+        marqueursParCategorie.set(categorie, []);
+      }
+      marqueursParCategorie.get(categorie).push(marqueur);
       marqueur.on('click', () => {
         if (type === 'personnage') {
           ouvrirProfil(donnees.dataset.nom);
@@ -474,6 +526,23 @@
         }
       });
     });
+    const casesCategories = document.querySelectorAll('#carte-categories input[data-categorie]');
+    function appliquerCategories() {
+      casesCategories.forEach(caseCategorie => {
+        const marqueursCategorie = marqueursParCategorie.get(caseCategorie.dataset.categorie) || [];
+        marqueursCategorie.forEach(marqueur => {
+          if (caseCategorie.checked) {
+            if (!carte.hasLayer(marqueur)) {
+              marqueur.addTo(carte);
+            }
+          } else if (carte.hasLayer(marqueur)) {
+            carte.removeLayer(marqueur);
+          }
+        });
+      });
+    }
+    casesCategories.forEach(caseCategorie => caseCategorie.addEventListener('change', appliquerCategories));
+    appliquerCategories();
     document.addEventListener('keydown', evenement => {
       if (evenement.target.closest('input, select, textarea, button')) {
         return;
