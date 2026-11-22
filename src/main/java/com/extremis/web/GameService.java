@@ -75,6 +75,12 @@ public class GameService {
         return dernier == null || !now.isBefore(dernier.plusSeconds(24 * 3600));
     }
 
+    @Transactional(readOnly = true)
+    public Instant prochainRecrutement() {
+        Instant dernier = consul().getLastRecruitment();
+        return dernier == null ? null : dernier.plusSeconds(24 * 3600);
+    }
+
     @Transactional
     public void recruit(String characterId, Instant now) {
         ConsulStateEntity state = consul();

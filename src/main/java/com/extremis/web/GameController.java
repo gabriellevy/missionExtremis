@@ -153,7 +153,13 @@ public class GameController {
         model.addAttribute("roster", game.roster());
         model.addAttribute("profils", profilsRoster());
         model.addAttribute("disponibles", game.availableCharacters());
-        model.addAttribute("recrutementDisponible", game.peutRecruter(Instant.now()));
+        boolean recrutementDisponible = game.peutRecruter(Instant.now());
+        model.addAttribute("recrutementDisponible", recrutementDisponible);
+        Instant prochainRecrutement = game.prochainRecrutement();
+        model.addAttribute("prochainRecrutement",
+                recrutementDisponible || prochainRecrutement == null
+                        ? null
+                        : heureFrancaise(prochainRecrutement));
         model.addAttribute("missions", missionsDisponibles());
         model.addAttribute("missionsActives", onglets);
         model.addAttribute("ongletActif", ongletMission);
