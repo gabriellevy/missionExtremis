@@ -49,6 +49,7 @@ class RepriseMissionPersistanceTest {
                 .withSkill(Competence.ELOQUENCE, 90)
                 .withSkill(Competence.FORCE_MENTALE, 90)
                 .withSpecialite("Exorcisme");
+        game.saveQuickRecruit(agent);
 
         // lancement + premier evenement resolu, persistes en base
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
@@ -92,6 +93,7 @@ class RepriseMissionPersistanceTest {
                 .withSkill(Competence.ELOQUENCE, 90)
                 .withSkill(Competence.FORCE_MENTALE, 90)
                 .withSpecialite("Exorcisme");
+        game.saveQuickRecruit(agent);
 
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
         MissionExecution execution = game.rebuild(entity).orElseThrow();
