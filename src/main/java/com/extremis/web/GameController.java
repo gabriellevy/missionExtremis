@@ -436,8 +436,9 @@ public class GameController {
         EtatMission etat = new EtatMission();
         etat.entity = entity;
         etat.execution = execution;
-        etat.journal.add(LigneJournalView.titre("=== " + mission.titre() + " ==="));
-        etat.journal.add(LigneJournalView.texte("Mission lancée à " + Instant.now() + ". Les événements suivront leur délai prévu."));
+        Instant maintenant = Instant.now();
+        etat.journal.add(LigneJournalView.texte(
+                "Lancée le " + FORMAT_DATE.format(maintenant) + " à " + FORMAT_HEURE.format(maintenant) + "."));
         missionsActives.put(entity.getId(), etat);
         tick();
         return "redirect:/?onglet=" + entity.getId();
