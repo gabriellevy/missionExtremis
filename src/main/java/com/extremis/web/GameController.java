@@ -179,9 +179,9 @@ public class GameController {
      */
     private List<String> categoriesVisibles(String filtre) {
         return switch (filtre) {
-            case FILTRE_ARRANGEURS -> List.of("recrute", "mort");
-            case FILTRE_RECRUTEMENT -> List.of("recrute", "recrutable", "mort");
-            default -> List.of("recrute", "mission", "mission-active");
+            case FILTRE_ARRANGEURS -> List.of("disponible", "en-mission", "mort");
+            case FILTRE_RECRUTEMENT -> List.of("disponible", "recrutable", "mort");
+            default -> List.of("disponible", "mission", "mission-active");
         };
     }
 
@@ -236,6 +236,7 @@ public class GameController {
             String titre,
             boolean recrute,
             boolean mort,
+            boolean enMission,
             int decalage,
             double latitude,
             double longitude) {}
@@ -248,6 +249,7 @@ public class GameController {
     private List<CarteMarqueurView> marqueursCarte() {
         List<CarteMarqueurView> marqueurs = new ArrayList<>();
 
+        Map<String, String> personnagesEnMission = rosterAvecMission();
         Map<Lieu, Integer> numerosAuMemeLieu = new EnumMap<>(Lieu.class);
         for (CharacterEntity entity : game.tousLesPersonnages()) {
             Lieu lieu = entity.getLieu();
@@ -262,6 +264,7 @@ public class GameController {
                     null,
                     entity.isRecrute(),
                     !entity.isAlive(),
+                    personnagesEnMission.containsKey(entity.getName()),
                     decalage,
                     lieu.latitude(),
                     lieu.longitude()));
@@ -274,6 +277,7 @@ public class GameController {
                     mission.titre(),
                     false,
                     false,
+                    false,
                     0,
                     mission.lieu().latitude(),
                     mission.lieu().longitude()));
@@ -284,6 +288,7 @@ public class GameController {
                     null,
                     String.valueOf(etat.entity.getId()),
                     etat.entity.getMissionTitle(),
+                    false,
                     false,
                     false,
                     0,

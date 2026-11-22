@@ -81,7 +81,8 @@
     .extremis-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
     .extremis-carte-colonne { flex: 2; min-width: 0; }
     .extremis-visualisation { flex: 1; min-width: 0; border-left: 1px solid #5a4a30; padding-left: 1.2rem; }
-    .carte-categories { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; font-size: 0.78rem; color: #bfae8d; background: rgba(20, 16, 12, 0.8); border: 1px solid #5a4a30; border-radius: 4px; padding: 0.45rem 0.6rem; margin-bottom: 1.2rem; }
+    .carte-categories { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; font-size: 0.78rem; color: #bfae8d; background: rgba(20, 16, 12, 0.8); border: 1px solid #5a4a30; border-radius: 4px; padding: 0.45rem 0.6rem; margin-bottom: 1.2rem; }
+    .ligne-categories { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; align-items: center; }
     .carte-categories label { cursor: pointer; white-space: nowrap; }
     .carte-categories .titre-categories { color: #e0c060; font-variant: small-caps; }
   </style>
@@ -121,12 +122,18 @@
            th:attr="data-latitude-centre=${carteLatitudeCentre}, data-longitude-centre=${carteLongitudeCentre},
                     data-zoom-initial=${carteZoomInitial}, data-zoom-pas-leger=${carteZoomPasLeger}, data-zoom-pas-fort=${carteZoomPasFort}"></div>
       <div class="carte-categories" id="carte-categories">
-        <span class="titre-categories">Points affich&#233;s :</span>
-        <label><input type="checkbox" data-categorie="recrute" th:checked="${categoriesCarte.contains('recrute')}"/> <span style="color:#e0c060">&#9679; recrut&#233;s</span></label>
-        <label><input type="checkbox" data-categorie="recrutable" th:checked="${categoriesCarte.contains('recrutable')}"/> <span style="color:#a89468">&#9675; recrutables</span></label>
-        <label><input type="checkbox" data-categorie="mort" th:checked="${categoriesCarte.contains('mort')}"/> <span style="color:#7a1f1f">&#9673; morts</span></label>
-        <label><input type="checkbox" data-categorie="mission" th:checked="${categoriesCarte.contains('mission')}"/> <span style="color:#c04040">&#9873; missions disponibles</span></label>
-        <label><input type="checkbox" data-categorie="mission-active" th:checked="${categoriesCarte.contains('mission-active')}"/> <span style="color:#50a060">&#9873; missions actives</span></label>
+        <div class="ligne-categories">
+          <span class="titre-categories">Arrangeurs :</span>
+          <label><input type="checkbox" data-categorie="disponible" th:checked="${categoriesCarte.contains('disponible')}"/> <span style="color:#e0c060">&#9679; disponibles</span></label>
+          <label><input type="checkbox" data-categorie="en-mission" th:checked="${categoriesCarte.contains('en-mission')}"/> <span style="color:#e07040">&#9679; en mission</span></label>
+          <label><input type="checkbox" data-categorie="recrutable" th:checked="${categoriesCarte.contains('recrutable')}"/> <span style="color:#a89468">&#9675; recrutables</span></label>
+          <label><input type="checkbox" data-categorie="mort" th:checked="${categoriesCarte.contains('mort')}"/> <span style="color:#7a1f1f">&#9673; morts</span></label>
+        </div>
+        <div class="ligne-categories">
+          <span class="titre-categories">Missions :</span>
+          <label><input type="checkbox" data-categorie="mission-active" th:checked="${categoriesCarte.contains('mission-active')}"/> <span style="color:#50a060">&#9873; en cours</span></label>
+          <label><input type="checkbox" data-categorie="mission" th:checked="${categoriesCarte.contains('mission')}"/> <span style="color:#c04040">&#9873; en attente</span></label>
+        </div>
       </div>
       <div class="carte-legende">
         molette : zoom, glisser : d&#233;placer, clic : s&#233;lectionner, touches + et &#8722; : zoom l&#233;ger, Shift + et Shift &#8722; : zoom fort
@@ -134,7 +141,7 @@
       <div class="marqueurs-donnees" id="marqueurs-donnees">
         <span th:each="m : ${marqueursCarte}"
               th:attr="data-type=${m.type}, data-nom=${m.nom}, data-cible=${m.cible}, data-titre=${m.titre},
-                       data-recrute=${m.recrute}, data-mort=${m.mort}, data-decalage=${m.decalage},
+                       data-recrute=${m.recrute}, data-mort=${m.mort}, data-en-mission=${m.enMission}, data-decalage=${m.decalage},
                        data-latitude=${m.latitude}, data-longitude=${m.longitude}"></span>
       </div>
     </div>
@@ -499,7 +506,8 @@
       let categorie;
       if (type === 'personnage') {
         categorie = donnees.dataset.mort === 'true' ? 'mort'
-            : (donnees.dataset.recrute === 'true' ? 'recrute' : 'recrutable');
+            : (donnees.dataset.enMission === 'true' ? 'en-mission'
+                : (donnees.dataset.recrute === 'true' ? 'disponible' : 'recrutable'));
       } else if (type === 'mission') {
         categorie = 'mission';
       } else {
