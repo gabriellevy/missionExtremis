@@ -18,10 +18,20 @@ class ServiceWikiNotionTest {
     private HttpServer serveur;
     private String baseUrl;
     private volatile String corpsReponse;
+    private volatile String corpsEnfants;
 
     @BeforeEach
     void demarrerFauxNotion() throws IOException {
         serveur = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        serveur.createContext("/v1/blocks/", echange -> {
+            String reponse = corpsEnfants;
+            byte[] octets = reponse.getBytes(StandardCharsets.UTF_8);
+            echange.getResponseHeaders().add("Content-Type", "application/json");
+            echange.sendResponseHeaders(200, octets.length);
+            try (OutputStream corps = echange.getResponseBody()) {
+                corps.write(octets);
+            }
+        });
         serveur.createContext("/v1/search", echange -> {
             String reponse = corpsReponse;
             byte[] octets = reponse.getBytes(StandardCharsets.UTF_8);
@@ -101,6 +111,44 @@ class ServiceWikiNotionTest {
         assertThat(second).hasSize(5);
         assertThat(premier.stream().map(LienWikiView::titre).toList())
                 .isNotEqualTo(second.stream().map(LienWikiView::titre).toList());
+    }
+
+    @Test
+    void laPageJeuDesTablesAleatoiresEtSesEnfantsSontExclues() {
+        String idRacine = "3a77e0b4-d004-804b-9afc-e12e1a83ae56";
+        String idEnfant = "11111111-2222-3333-4444-555555555555";
+        corpsReponse = reponse(
+                pageJson(idRacine, "Jeu des tables aléatoires"),
+                pageJson(idEnfant, "Table des rencontres"),
+                pageJson("cccccccc-0000-0000-0000-000000000000", "Page normale"));
+        corpsEnfants = "{\"results\": ["
+                + "{\"object\":\"block\",\"type\":\"child_page\",\"id\":\"" + idEnfant + "\"}"
+                + "], \"has_more\": false, \"next_cursor\": null}";
+        ServiceWikiNotion service = new ServiceWikiNotion("jeton-test", baseUrl);
+
+        List<LienWikiView> liens = service.liensAleatoires(5);
+
+        assertThat(liens)
+                .extracting(LienWikiView::titre)
+                .containsExactly("Page normale");
+    }
+
+    @Test
+    void siLesEnfantsDeLaPageExclueSontInaccessiblesSeuleLaPageRacineEstExclue() {
+        String idRacine = "3a77e0b4-d004-804b-9afc-e12e1a83ae56";
+        String idEnfant = "11111111-2222-3333-4444-555555555555";
+        corpsReponse = reponse(
+                pageJson(idRacine, "Jeu des tables aléatoires"),
+                pageJson(idEnfant, "Table des rencontres"),
+                pageJson("cccccccc-0000-0000-0000-000000000000", "Page normale"));
+        corpsEnfants = null;
+        ServiceWikiNotion service = new ServiceWikiNotion("jeton-test", baseUrl);
+
+        List<LienWikiView> liens = service.liensAleatoires(5);
+
+        assertThat(liens)
+                .extracting(LienWikiView::titre)
+                .containsExactlyInAnyOrder("Table des rencontres", "Page normale");
     }
 
     @Test
