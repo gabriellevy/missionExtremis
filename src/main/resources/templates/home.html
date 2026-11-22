@@ -31,6 +31,20 @@
     .portrait { height: 250px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; }
     .portrait.dead { filter: grayscale(1); border-color: #7a1f1f; }
     .portrait-name { text-align: center; font-size: 0.85rem; margin-top: 0.25rem; }
+    .arrangeurs-liste { display: flex; flex-direction: column; gap: 0.8rem; }
+    .arrangeur-carte { display: flex; gap: 0.9rem; align-items: flex-start; border: 1px solid #5a4a30; border-radius: 6px; padding: 0.6rem; background: linear-gradient(180deg, #241c10 0%, #1c1710 100%); }
+    .arrangeur-portrait { height: 200px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; cursor: pointer; }
+    .arrangeur-portrait.dead { filter: grayscale(1); border-color: #7a1f1f; }
+    .arrangeur-infos { min-width: 0; }
+    .arrangeur-nom { margin: 0 0 0.2rem; color: #e0c060; font-size: 1.05rem; }
+    .arrangeur-lieu { margin: 0.15rem 0; color: #bfae8d; }
+    .arrangeur-lieu.lieu-inconnu { font-style: italic; color: #8a744a; }
+    .arrangeur-etat { margin: 0.15rem 0; }
+    .arrangeur-etat .etat-disponible { color: #90c060; font-style: italic; }
+    .arrangeur-etat .etat-mort { color: #c04040; font-weight: bold; }
+    .arrangeur-blessures { margin: 0.15rem 0; }
+    .arrangeur-blessures .blessure { display: inline-block; margin-right: 0.5rem; color: #e07040; font-style: italic; }
+    .arrangeur-blessures .blessure.unique { display: inline; }
     .mission-log { background: linear-gradient(180deg, #221a10 0%, #191410 100%); border: 1px solid #8a744a; border-radius: 6px; padding: 1rem; min-height: 240px; font-family: "Courier New", monospace; font-size: 0.9rem; line-height: 1.25; box-shadow: inset 0 0 12px rgba(0,0,0,0.6); }
     .ligne-journal { white-space: pre-wrap; margin: 0.05rem 0; }
     .titre-log { font-size: 1rem; font-weight: bold; color: #e0c060; font-variant: small-caps; letter-spacing: 0.5px; margin: 0.3rem 0 0.05rem; }
@@ -156,16 +170,49 @@
     <div class="extremis-visualisation">
       <div th:if="${filtreExtremis == 'arrangeurs'}">
         <h3>Vos arrangeurs</h3>
-        <ul class="roster-liste" th:if="${!roster.isEmpty()}">
-          <li th:each="c : ${roster}">
-            <span class="nom-personnage" th:attr="data-nom=${c.name()}" th:text="${c.name()}"></span>
-            <span th:if="${c.lieu() != null}" th:text="'&#8212; ' + ${c.lieu().label()}"></span>
-            <span class="en-mission"
-                  th:if="${rosterAvecMission.containsKey(c.name())}"
-                  th:text="'&#8212; en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
-          </li>
-        </ul>
+        <div class="arrangeurs-liste" th:if="${!roster.isEmpty()}">
+          <div class="arrangeur-carte"
+               th:each="c : ${roster}"
+               th:with="enMission=${rosterAvecMission.containsKey(c.name())},
+                        vitaliteMax=${T(java.lang.Math).max(c.vitaliteDepart(), T(com.extremis.core.Character).VITALITE_DEFAUT)},
+                        sangFroidMax=${T(java.lang.Math).max(c.sangFroidDepart(), T(com.extremis.core.Character).SANG_FROID_DEFAUT)},
+                        blessureVitalite=${c.vitalite() &lt; vitaliteMax},
+                        blessureSangFroid=${c.sangFroid() &lt; sangFroidMax},
+                        categorie=${!c.isAlive() ? 'mort' : (enMission ? 'en-mission' : 'disponible')}"
+               th:attr="data-categorie=${categorie}">
+            <img class="arrangeur-portrait cible-profil"
+                 th:attr="data-nom=${c.name()}"
+                 th:src="${portraitService.dataUri(c.name(), c.isAlive())}"
+                 th:alt="${c.name()}"
+                 th:classappend="${c.isAlive()} ? '' : ' dead'"/>
+            <div class="arrangeur-infos">
+              <h4 class="arrangeur-nom nom-personnage cible-profil"
+                  th:attr="data-nom=${c.name()}"
+                  th:text="${c.name()}"></h4>
+              <p class="arrangeur-lieu"
+                 th:text="${c.lieu() != null} ? ${c.lieu().label()} : '&#8212;'"
+                 th:classappend="${c.lieu() == null} ? 'lieu-inconnu' : ''"></p>
+              <p class="arrangeur-etat">
+                <span th:if="${enMission}" class="en-mission"
+                      th:text="'en mission : ' + ${rosterAvecMission.get(c.name())}"></span>
+                <span th:if="${!enMission and !c.isAlive()}" class="etat-mort">mort</span>
+                <span th:if="${!enMission and c.isAlive()}" class="etat-disponible">disponible</span>
+              </p>
+              <p class="arrangeur-blessures">
+                <span th:if="${blessureVitalite}" class="blessure"
+                      th:text="'bless&#233; en vitalit&#233; (' + ${c.vitalite()} + ' / ' + ${vitaliteMax} + ')'"
+                      th:classappend="${blessureSangFroid} ? '' : ' unique'"></span>
+                <span th:if="${blessureSangFroid}" class="blessure"
+                      th:text="'bless&#233; en sang-froid (' + ${c.sangFroid()} + ' / ' + ${sangFroidMax} + ')'"
+                      th:classappend="${blessureVitalite} ? '' : ' unique'"></span>
+              </p>
+            </div>
+          </div>
+        </div>
         <p th:if="${roster.isEmpty()}"><em>Aucun arrangeur recrut&#233; pour le moment.</em></p>
+        <p th:if="${!roster.isEmpty()}" class="arrangeurs-message-vide" style="display:none">
+          <em>Aucun arrangeur ne correspond au filtre de la carte.</em>
+        </p>
       </div>
       <div th:if="${filtreExtremis == 'recrutement'}">
         <h3>Arrangeurs recrut&#233;s</h3>
@@ -455,6 +502,29 @@
           conteneurLiensWiki.replaceChildren();
           conteneurLiensWiki.appendChild(document.createElement('li')).textContent = conteneurLiensWiki.dataset.messageVide;
         });
+  }
+  const cartesArrangeurs = document.querySelectorAll('.arrangeur-carte[data-categorie]');
+  if (cartesArrangeurs.length) {
+    const messageVideArrangeurs = document.querySelector('.arrangeurs-message-vide');
+    const casesCategoriesCommunes = document.querySelectorAll('#carte-categories input[data-categorie]');
+    function appliquerFiltreArrangeurs() {
+      let cartesVisibles = 0;
+      cartesArrangeurs.forEach(carte => {
+        const caseCategorie = document.querySelector(
+            '#carte-categories input[data-categorie="' + carte.dataset.categorie + '"]');
+        const visible = caseCategorie != null && caseCategorie.checked;
+        carte.style.display = visible ? 'flex' : 'none';
+        if (visible) {
+          cartesVisibles++;
+        }
+      });
+      if (messageVideArrangeurs) {
+        messageVideArrangeurs.style.display = cartesVisibles > 0 ? 'none' : 'block';
+      }
+    }
+    casesCategoriesCommunes.forEach(caseCategorie =>
+        caseCategorie.addEventListener('change', appliquerFiltreArrangeurs));
+    appliquerFiltreArrangeurs();
   }
   const conteneurCarte = document.getElementById('carte');
   if (conteneurCarte && window.L) {
