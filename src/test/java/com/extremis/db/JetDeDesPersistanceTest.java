@@ -47,7 +47,10 @@ class JetDeDesPersistanceTest {
     void leJetDeDesEstPersistePuisReluDepuisLaBase() {
         Mission mission = missionDeTest();
         Character agent = new Character("test-jet", "Alice")
-                .withSkill(Competence.DISCRETION, 50);
+                .withSkill(Competence.RAGOT, 90)
+                .withSkill(Competence.ELOQUENCE, 90)
+                .withSkill(Competence.FORCE_MENTALE, 90)
+                .withSpecialite("Exorcisme");
         MissionExecutionEntity entity = game.startMission(mission, List.of(agent), START);
 
         MissionExecution execution = game.rebuild(entity).orElseThrow();
@@ -77,14 +80,14 @@ class JetDeDesPersistanceTest {
     }
 
     private Mission missionDeTest() {
-        return com.extremis.catalog.Missions.fousDeGotheimRapide();
+        return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
     }
 
     @TestConfiguration
     static class MissionDeTestConfig {
         @Bean
         public Mission missionRapide() {
-            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+            return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 }

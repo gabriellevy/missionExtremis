@@ -74,7 +74,7 @@ Ces données sont **temporaires** : à remplacer progressivement par le vrai cat
 Aujourd'hui `MissionExecution` (événements planifiés, curseur `nextEvent`, journal, équipe) vit dans un champ du contrôleur. À persister :
 
 - `MissionExecutionEntity`
-  - `id` (PK auto), `mission_id` (VARCHAR, référence l'id de la mission en code, ex. `gotheim`)
+  - `id` (PK auto), `mission_id` (VARCHAR, référence l'id de la mission en code, ex. `possession`)
   - `status` (enum `IN_PROGRESS`, `FINISHED`, `ABANDONED`)
   - `start_time` (Instant), `current_time` — remplacer `timeOffset` du contrôleur par un `game_time` persisté
   - `next_event_index` (int) : curseur d'avancement, `scheduled_times` sérialisés (une colonne par événement ou JSON)

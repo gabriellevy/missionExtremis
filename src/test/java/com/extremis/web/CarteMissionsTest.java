@@ -35,7 +35,7 @@ class CarteMissionsTest {
     static class MissionsRapides {
         @org.springframework.context.annotation.Bean
         public Mission missionRapide() {
-            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+            return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 

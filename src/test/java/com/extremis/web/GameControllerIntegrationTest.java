@@ -68,7 +68,7 @@ class GameControllerIntegrationTest {
         controller.lancementRapide();
         controller.avancerMissionJusquAuBout();
 
-        assertThat(controller.journal()).contains("Infiltration du meeting nocturne");
+        assertThat(controller.journal()).contains("Recherche du cas");
         assertThat(controller.journal()).containsAnyOf("Mission réussie", "Mission terminée en échec", "Équipe éliminée");
     }
 
@@ -89,14 +89,14 @@ class GameControllerIntegrationTest {
 
         // le journal rechargé contient exactement les lignes persistées,
         // sans répéter les événements déjà affichés avant le redémarrage
-        assertThat(apres).isEqualTo(avant.substring(avant.indexOf("=== Arrivee")));
+        assertThat(apres).isEqualTo(avant.substring(avant.indexOf("=== Recherche")));
     }
 
     @TestConfiguration
     static class FastMissions {
         @Bean
         public Mission missionRapide() {
-            return com.extremis.catalog.Missions.fousDeGotheimRapide();
+            return com.extremis.catalog.Missions.rumeursDePossessionDemoniaqueRapide();
         }
     }
 }

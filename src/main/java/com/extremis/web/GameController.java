@@ -702,7 +702,9 @@ public class GameController {
         game.viderRoster();
         game.saveQuickRecruit(new Character("test-" + name, name)
                 .withSkill(Competence.DISCRETION, 30)
-                .withSkill(Competence.ARMES_CORPS_A_CORPS, 30));
+                .withSkill(Competence.ARMES_CORPS_A_CORPS, 30)
+                .withSkill(Competence.RAGOT, 30)
+                .withSkill(Competence.ELOQUENCE, 30));
         missionsActives.clear();
     }
 
