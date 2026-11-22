@@ -33,7 +33,7 @@
     .portrait-name { text-align: center; font-size: 0.85rem; margin-top: 0.25rem; }
     .arrangeurs-liste { display: flex; flex-direction: column; gap: 0.8rem; }
     .arrangeur-carte { display: flex; gap: 0.9rem; align-items: flex-start; border: 1px solid #5a4a30; border-radius: 6px; padding: 0.6rem; background: linear-gradient(180deg, #241c10 0%, #1c1710 100%); }
-    .arrangeur-portrait { height: 200px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; cursor: pointer; }
+    .arrangeur-portrait { height: 150px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; cursor: pointer; }
     .arrangeur-portrait.dead { filter: grayscale(1); border-color: #7a1f1f; }
     .arrangeur-infos { min-width: 0; }
     .arrangeur-nom { margin: 0 0 0.2rem; color: #e0c060; font-size: 1.05rem; }
@@ -421,6 +421,9 @@
   function ouvrirProfil(nom) {
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
         panneau.classList.toggle('ouvert', panneau.dataset.nom === nom));
+    if (window.centrerSurPersonnage) {
+      window.centrerSurPersonnage(nom);
+    }
   }
   function fermerProfils() {
     document.querySelectorAll('.profil-panneau').forEach(panneau =>
@@ -552,6 +555,7 @@
     });
     const marqueursParCategorie = new Map();
     const marqueurs = document.querySelectorAll('#marqueurs-donnees span');
+    const positionsParNom = new Map();
     marqueurs.forEach(donnees => {
       const latitude = parseFloat(donnees.dataset.latitude);
       const longitude = parseFloat(donnees.dataset.longitude) + (parseInt(donnees.dataset.decalage || '0', 10) * 0.003);
@@ -595,6 +599,9 @@
         marqueursParCategorie.set(categorie, []);
       }
       marqueursParCategorie.get(categorie).push(marqueur);
+      if (type === 'personnage' && donnees.dataset.nom) {
+        positionsParNom.set(donnees.dataset.nom, [latitude, longitude]);
+      }
       marqueur.on('click', () => {
         if (type === 'personnage') {
           ouvrirProfil(donnees.dataset.nom);
@@ -610,6 +617,12 @@
         }
       });
     });
+    window.centrerSurPersonnage = nom => {
+      const position = positionsParNom.get(nom);
+      if (position) {
+        carte.panTo(position);
+      }
+    };
     const casesCategories = document.querySelectorAll('#carte-categories input[data-categorie]');
     function appliquerCategories() {
       casesCategories.forEach(caseCategorie => {
