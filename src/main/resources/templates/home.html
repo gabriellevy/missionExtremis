@@ -277,7 +277,10 @@
                   th:text="${c.getName()}"></h4>
               <form method="post" action="/recruter" class="form-recruter-carte">
                 <input type="hidden" name="characterId" th:value="${c.getId()}"/>
-                <button type="submit" class="bouton-recruter" th:disabled="${!recrutementDisponible}">Recruter</button>
+                <button type="submit" class="bouton-recruter" th:disabled="${!recrutementDisponible}"
+                        th:attr="title=${!recrutementDisponible and prochainRecrutement != null}
+                                ? 'Prochain recrutement possible : ' + ${prochainRecrutement}
+                                : null">Recruter</button>
               </form>
               <p class="arrangeur-lieu"
                  th:text="${c.getLieu() != null} ? ${c.getLieu().label()} : '&#8212;'"
