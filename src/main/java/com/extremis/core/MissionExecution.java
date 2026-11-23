@@ -208,6 +208,10 @@ public final class MissionExecution {
         return mission.lieu();
     }
 
+    public void ajouterLigne(LigneJournal ligne) {
+        logLines.add(ligne);
+    }
+
     public List<LigneJournal> logLines() {
         return List.copyOf(logLines);
     }

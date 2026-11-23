@@ -469,9 +469,10 @@ public class GameController {
         EtatMission etat = new EtatMission();
         etat.entity = entity;
         etat.execution = execution;
-        Instant maintenant = Instant.now();
-        etat.journal.add(LigneJournalView.texte(
+        Instant maintenant = entity.getStartedAt();
+        execution.ajouterLigne(new LigneJournal(
                 "Lancée le " + FORMAT_DATE.format(maintenant) + " à " + FORMAT_HEURE.format(maintenant) + "."));
+        synchroniserJournal(etat);
         missionsActives.put(entity.getId(), etat);
         tick();
         return "redirect:/?onglet=" + entity.getId();
