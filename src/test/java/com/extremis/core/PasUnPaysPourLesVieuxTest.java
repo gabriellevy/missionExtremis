@@ -31,13 +31,14 @@ class PasUnPaysPourLesVieuxTest {
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
         assertThat(textesDuJournal(execution))
-                .anyMatch(l -> l.contains("Loreline se rend et vous avez r\u00e9cup\u00e9r\u00e9 "
-                        + "l'argent du cartel."));
+                .anyMatch(l -> l.contains("Loreline se rend et l'argent du cartel est "
+                        + "r\u00e9cup\u00e9r\u00e9."));
         assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Les arrangeurs abattent Chigur."));
         assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("la mission est accomplie."));
-        assertThat(agent.inventory()).contains("L'argent du cartel (+10 Richesse)");
+        // l'argent a ete restitue, pas vole : pas de butin dans les poches
+        assertThat(agent.inventory()).isEmpty();
     }
 
     @Test
@@ -55,7 +56,8 @@ class PasUnPaysPourLesVieuxTest {
                 .anyMatch(l -> l.contains("Vous abattez le tueur Chigur."));
         assertThat(textesDuJournal(execution))
                 .anyMatch(l -> l.contains("Chigur et Loreline sont neutralis\u00e9s : victoire."));
-        assertThat(agent.inventory()).contains("L'argent du cartel (+10 Richesse)");
+        // reddition de Loreline : l'argent du cartel est restitue, pas garde
+        assertThat(agent.inventory()).isEmpty();
     }
 
     @Test

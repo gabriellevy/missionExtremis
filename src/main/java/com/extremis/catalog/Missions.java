@@ -437,9 +437,8 @@ public final class Missions {
                                         + "Loreline : les arrangeurs le lui expliquent.")
                                 .test(new SimpleTest(Competence.ELOQUENCE, 0))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Loreline se rend et vous avez r\u00e9cup\u00e9r\u00e9 "
-                                                + "l'argent du cartel.")
-                                        .recompense("L'argent du cartel (+10 Richesse)")
+                                        .texteSimple("Loreline se rend et l'argent du cartel est "
+                                                + "r\u00e9cup\u00e9r\u00e9.")
                                         .evenementSuivant("poursuivis-par-chigur")
                                         .build())
                                 .echec(EffetEchec.builder()
@@ -453,9 +452,8 @@ public final class Missions {
                                 .test(new SimpleTest(Competence.TIR, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Vous le couvrez avant qu'il n'atteigne la "
-                                                + "porte : Loreline se rend et vous avez r\u00e9cup\u00e9r\u00e9 "
-                                                + "l'argent du cartel.")
-                                        .recompense("L'argent du cartel (+10 Richesse)")
+                                                + "porte : Loreline se rend et l'argent du cartel est "
+                                                + "r\u00e9cup\u00e9r\u00e9.")
                                         .evenementSuivant("poursuivis-par-chigur")
                                         .build())
                                 .echec(EffetEchec.builder()
@@ -494,9 +492,8 @@ public final class Missions {
                                 .introduction("Les arrangeurs ont sem\u00e9 le tueur\u2026 mais celui-ci "
                                         + "a surv\u00e9cu.")
                                 .duree(Duration.ZERO)
-                                .effet("Le tueur a surv\u00e9cu : les arrangeurs ont \u00e9chou\u00e9, m\u00eame "
-                                        + "s'ils repartent avec l'argent du cartel (+10 "
-                                        + "Richesse).")
+                                .effet("Le tueur a surv\u00e9cu : les arrangeurs ont \u00e9chou\u00e9. "
+                                        + "Seul un butin vol\u00e9 rapporte un +10 Richesse.")
                                 .build(),
                         MissionEvent.builder("attaque-de-chigur", "Attaque de Chigur")
                                 .introduction("Chigur surgit de nulle part et ouvre le feu.")
@@ -658,10 +655,9 @@ public final class Missions {
                                         + "de rendre l'argent et de se rendre.")
                                 .test(new SimpleTest(Competence.ELOQUENCE, 0))
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Loreline se rend et vous avez r\u00e9cup\u00e9r\u00e9 "
-                                                + "l'argent du cartel. Chigur et Loreline sont "
+                                        .texteSimple("Loreline se rend et l'argent du cartel est "
+                                                + "r\u00e9cup\u00e9r\u00e9. Chigur et Loreline sont "
                                                 + "neutralis\u00e9s : victoire.")
-                                        .recompense("L'argent du cartel (+10 Richesse)")
                                         .evenementSuivant(null)
                                         .build())
                                 .echec(EffetEchec.builder()
@@ -675,10 +671,9 @@ public final class Missions {
                                 .test(new SimpleTest(Competence.TIR, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Vous le couvrez avant qu'il n'atteigne la "
-                                                + "porte : Loreline se rend et vous avez r\u00e9cup\u00e9r\u00e9 "
-                                                + "l'argent du cartel. Chigur et Loreline sont "
+                                                + "porte : Loreline se rend et l'argent du cartel est "
+                                                + "r\u00e9cup\u00e9r\u00e9. Chigur et Loreline sont "
                                                 + "neutralis\u00e9s : victoire.")
-                                        .recompense("L'argent du cartel (+10 Richesse)")
                                         .evenementSuivant(null)
                                         .build())
                                 .echec(EffetEchec.builder()
