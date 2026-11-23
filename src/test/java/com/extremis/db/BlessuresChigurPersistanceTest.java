@@ -72,13 +72,17 @@ class BlessuresChigurPersistanceTest {
         assertThat(journal).anyMatch(l -> l.contains("subit 3D10 degats"));
         // en cours de mission, la blessure est deja visible cote execution
         assertThat(entity.getTeam().get(0).getVitalite()).isLessThan(18);
+        // et elle est aussi repercutee en temps reel sur la fiche du perso
+        CharacterEntity enCours = characters.findById("test-blesse-par-chigur").orElseThrow();
+        assertThat(enCours.getVitalite()).isEqualTo(entity.getTeam().get(0).getVitalite());
+        assertThat(enCours.getVitalite()).isLessThan(18);
 
         MissionReport report = execution.report();
         game.finish(entity, report, START);
 
         CharacterEntity apres = characters.findById("test-blesse-par-chigur").orElseThrow();
         // les blessures de Chigur ont reelement reduit la vitalite du roster
-        assertThat(apres.getVitalite()).isEqualTo(0);
+        assertThat(apres.getVitalite()).isEqualTo(execution.teamSnapshot().get(0).vitalite());
         assertThat(apres.isAlive()).isFalse();
         // l'arrangeur a bien subi plusieurs attaques avant de succomber
         assertThat(journal.stream().filter(l -> l.contains("subit 3D10")).count()).isGreaterThanOrEqualTo(1);

@@ -170,6 +170,10 @@ public class GameService {
     @Transactional
     public void saveProgress(MissionExecutionEntity entity, MissionExecution execution, Instant now) {
         syncProgress(entity, execution);
+        // les blessures et pertes de sang-froid sont repercutees sur le
+        // roster en temps reel, des le tick, et pas seulement en fin de
+        // mission : la fiche du personnage suit l'etat courant de la mission
+        syncEquipeRoster(entity);
         executions.save(entity);
     }
 
