@@ -22,10 +22,11 @@ class PasUnPaysPourLesVieuxTest {
     @Test
     void laMissionReussitSiLorelineSeRendPuisSiChigurEstAbattu() {
         Character agent = agent();
-        // ragot, interrogation, localisation, eloquence, discretion et tir reussissent
+        // ragot, interrogation, localisation et reddition reussissent,
+        // discretions ratees : Chigur attaque et le tir l'abat
         Mission mission = Missions.pasUnPaysPourLesVieuxRapide();
         MissionExecution execution = MissionExecution.start(mission, List.of(agent),
-                script(1, 1, 1, 1, 1, 1), START);
+                script(1, 1, 1, 1, 100, 1), START);
 
         assertThat(execution.advance(START.plus(Duration.ofDays(1)))).isTrue();
         assertThat(execution.isReussie()).isTrue();
