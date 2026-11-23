@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +88,11 @@ class JetonsJokerWebTest {
     @org.springframework.transaction.annotation.Transactional
     void gainQuotidienEtPlafondATroisJokers() {
         controller.reinitialiserUsine();
-        Instant maintenant = Instant.now();
+        // ancre a midi heure de Paris pour que les derives horaires du test
+        // ne traversent jamais minuit au changement de jour
+        ZoneId fuseau = ZoneId.of("Europe/Paris");
+        Instant maintenant = LocalDate.now(fuseau).atStartOfDay(fuseau)
+                .plusHours(12).toInstant();
         assertThat(game.jokers()).isEqualTo(1);
         assertThat(game.gagnerJokerQuotidien(maintenant)).isEqualTo(2);
         assertThat(game.gagnerJokerQuotidien(maintenant.plusSeconds(3600))).isEqualTo(2);

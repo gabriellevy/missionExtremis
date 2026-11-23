@@ -19,4 +19,9 @@ public class MissionConfig {
     public Mission constructionDeCheminDeFer() {
         return Missions.constructionDeCheminDeFer();
     }
+
+    @Bean
+    public Mission pasUnPaysPourLesVieux() {
+        return Missions.pasUnPaysPourLesVieux();
+    }
 }
