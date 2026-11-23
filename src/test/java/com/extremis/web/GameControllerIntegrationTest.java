@@ -88,8 +88,10 @@ class GameControllerIntegrationTest {
         String apres = controller.journal();
 
         // le journal rechargé contient exactement les lignes persistées,
-        // sans répéter les événements déjà affichés avant le redémarrage
-        assertThat(apres).isEqualTo(avant.substring(avant.indexOf("=== Recherche")));
+        // y compris la ligne d'heure de lancement, sans répéter les
+        // événements déjà affichés avant le redémarrage
+        assertThat(avant).contains("Lancée le");
+        assertThat(apres).isEqualTo(avant);
     }
 
     @TestConfiguration
