@@ -66,6 +66,10 @@
     .en-mission { color: #e07040; font-style: italic; }
     .mission-carte { border: 1px solid #5a4a30; border-left: 4px solid #8a6a2e; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 1rem; background: linear-gradient(180deg, #241c10 0%, #1c1710 100%); }
     .mission-carte:hover { border-left-color: #e0c060; }
+    .mission-entete { display: flex; gap: 1rem; align-items: flex-start; }
+    .illustration-mission { height: 150px; width: auto; display: block; border: 2px solid #5a4a30; border-radius: 6px; flex-shrink: 0; }
+    .mission-lieu .cible-carte-mission { cursor: pointer; text-decoration: underline dotted; }
+    .mission-lieu .cible-carte-mission:hover { color: #e0c060; }
     .champs-equipes label { display: inline-block; margin-right: 0.8rem; }
     .roster-liste { list-style: none; padding: 0; }
     .roster-liste li { margin: 0.2rem 0; }
@@ -303,8 +307,13 @@
         </div>
         <div class="mission-carte" th:each="m : ${missions}" th:attr="data-mission=${m.id()}">
           <h4 th:text="${m.titre()}"></h4>
-          <p class="mission-lieu">Lieu : <span th:text="${m.lieu().label()}"/></p>
-          <p th:text="${m.brief()}"/>
+          <div class="mission-entete" th:with="illustration=${illustrationsMissions.dataUri(m.id())}">
+            <img th:if="${illustration != null}" class="illustration-mission" th:src="${illustration}" th:alt="${m.titre()}"/>
+            <div>
+              <p class="mission-lieu">Lieu : <span class="cible-carte-mission" th:attr="data-cible=${m.id()}" th:text="${m.lieu().label()}"/></p>
+              <p th:text="${m.brief()}"/>
+            </div>
+          </div>
           <form method="post" action="/mission/run">
             <input type="hidden" name="missionId" th:value="${m.id()}"/>
             <p class="message-limite-equipe" style="display:none; color: #e07040;"></p>
@@ -505,6 +514,12 @@
         ? jours + 'j' + pad(heures) + 'h' + pad(minutes) + 'mn' + pad(secondes) + 's'
         : heures + 'h' + pad(minutes) + 'mn' + pad(secondes) + 's';
   }
+  document.querySelectorAll('.cible-carte-mission').forEach(el =>
+      el.addEventListener('click', () => {
+        if (window.centrerSurMission) {
+          window.centrerSurMission(el.dataset.cible);
+        }
+      }));
   document.querySelectorAll('.decompte').forEach(el => {
     let restant = parseInt(el.dataset.secondes, 10);
     setInterval(() => {
@@ -619,6 +634,7 @@
     const marqueursParCategorie = new Map();
     const marqueurs = document.querySelectorAll('#marqueurs-donnees span');
     const positionsParNom = new Map();
+    const positionsParCible = new Map();
     marqueurs.forEach(donnees => {
       const latitude = parseFloat(donnees.dataset.latitude);
       const longitude = parseFloat(donnees.dataset.longitude) + (parseInt(donnees.dataset.decalage || '0', 10) * 0.003);
@@ -665,6 +681,9 @@
       if (type === 'personnage' && donnees.dataset.nom) {
         positionsParNom.set(donnees.dataset.nom, [latitude, longitude]);
       }
+      if (type !== 'personnage' && donnees.dataset.cible) {
+        positionsParCible.set(donnees.dataset.cible, [latitude, longitude]);
+      }
       marqueur.on('click', () => {
         if (type === 'personnage') {
           ouvrirProfil(donnees.dataset.nom);
@@ -682,6 +701,12 @@
     });
     window.centrerSurPersonnage = nom => {
       const position = positionsParNom.get(nom);
+      if (position) {
+        carte.panTo(position);
+      }
+    };
+    window.centrerSurMission = cible => {
+      const position = positionsParCible.get(cible);
       if (position) {
         carte.panTo(position);
       }
