@@ -154,7 +154,7 @@ public final class Missions {
                                                 + "Votre \u00e9quipe n\u2019a pas de quoi remplir la mission "
                                                 + "mais vous pouvez en renvoyer une autre.")
                                         .degatsAleatoires(2, 10)
-                                        .evenementSuivant(null)
+                                        .evenementSuivant("abandon")
                                         .build())
                                 .build(),
                         MissionEvent.builder("abandon", "Abandon")
@@ -182,13 +182,13 @@ public final class Missions {
     }
 
     private static Mission cheminDeFer(Duration dMarche, Duration dSite, Duration dDesertion,
-                                       Duration dTravailSupplementaire) {
+                                       Duration dTravail) {
         Boite marche = BoitesEvenementsGeneriques.marcheEpuisante("marche", "site-atteint");
         Boite travailSupplementaire = BoitesEvenementsGeneriques.travailEpuisant("travail-supplementaire",
-                dTravailSupplementaire, "au-boulot");
+                Duration.ofHours(4), "au-boulot");
         Boite travailDesertion = BoitesEvenementsGeneriques.travailEpuisant("travail-desertion",
-                Duration.ofHours(4), travailSupplementaire.entree());
-        Boite travail = BoitesEvenementsGeneriques.travailEpuisant("travail", Duration.ofHours(4),
+                dDesertion, travailSupplementaire.entree());
+        Boite travail = BoitesEvenementsGeneriques.travailEpuisant("travail", dTravail,
                 "surveillance-bandits");
         Boite escarmouche = BoitesEvenementsGeneriques.escarmouchesDeBandits("escarmouche", "victoire");
 
@@ -224,7 +224,7 @@ public final class Missions {
                 .build());
         evenements.add(MissionEvent.builder("desertion", "D\u00e9sertion des ouvriers")
                 .introduction("De nombreux ouvriers ont d\u00e9sert\u00e9 le chantier.")
-                .duree(dDesertion)
+                .duree(Duration.ZERO)
                 .succes(EffetReussite.builder()
                         .evenementSuivant(travailDesertion.entree())
                         .build())
@@ -270,7 +270,8 @@ public final class Missions {
                 "construction-chemin-de-fer",
                 "Construction de chemin de fer",
                 "Les villages de zaporogues dans les plaines d'Ukraine ont un besoin urgent de bois "
-                        + "pour passer l'hiver mais les travaux n'en finissent pas. Allez mettre de l'ordre "
+                        + "pour passer l'hiver mais les travaux de pose des rails de chemin de fer qui "
+                        + "devraient les approvisionner n'en finissent pas. Allez mettre de l'ordre "
                         + "sur le chantier. Attention, les conditions sont rudes : pas d'\u00e9lectricit\u00e9, "
                         + "pas d'engins de chantier et la neige commence \u00e0 tomber. Il y a m\u00eame des "
                         + "rumeurs de bandits en maraude.",
@@ -327,11 +328,11 @@ public final class Missions {
         return new Mission(
                 "pas-un-pays-pour-les-vieux",
                 "Pas un pays pour les vieux",
-                "Plusieurs meurtres et r\u00e8glements de compte ont eu lieu et la police semble "
-                        + "impuissante. Un nomm\u00e9 Loreline a pris l'argent d'une bande de "
-                        + "narcotrafiquants et des tueurs, dont le redoutable Chigur, sont \u00e0 sa "
-                        + "poursuite. La mission n'est r\u00e9ussie que si Chigur et Loreline sont "
-                        + "abattus ou arr\u00eat\u00e9s tous les deux.",
+                "Plusieurs meurtres et r\u00e8glements de compte ont eu lieu successivement et la "
+                        + "police semble impuissante \u00e0 arr\u00eater qui que ce soit. La mission n'est "
+                        + "r\u00e9ussie que si Chigur et Loreline sont abattus ou arr\u00eat\u00e9s tous les "
+                        + "deux ; sinon c'est un \u00e9chec m\u00eame si les arrangeurs survivent et "
+                        + "r\u00e9cup\u00e8rent l'argent.",
                 Lieu.SAINT_DENIS,
                 List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.EVALUATION,
                         Competence.TIR, Competence.DISCRETION),
@@ -381,9 +382,9 @@ public final class Missions {
                                         .evenementSuivant("la-tentation-du-butin")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Loreline est introuvable. Recommencer \u00e0 "
-                                                + "\"Retrouver Loreline\".")
-                                        .evenementSuivant("localiser-lorelime")
+                                        .texteSimple("Loreline est introuvable : il ne reste plus qu'\u00e0 tenter "
+                                                + "de retrouver les tueurs.")
+                                        .evenementSuivant("piste-du-tueur-1")
                                         .build())
                                 .build(),
                         MissionEvent.builder("la-tentation-du-butin", "Une vraie fortune")

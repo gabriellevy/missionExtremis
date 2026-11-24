@@ -41,17 +41,20 @@ public class GameController {
     private final GameService game;
     private final List<Mission> missions;
     private final PortraitService portraits;
+    private final IllustrationsMissions illustrationsMissions;
     private final ServiceDes serviceDes;
     private final ServiceWikiNotion serviceWiki;
     private final boolean modeDebug;
     private final Map<Long, EtatMission> missionsActives = new LinkedHashMap<>();
 
     public GameController(GameService game, List<Mission> missions, PortraitService portraits,
-                          ServiceDes serviceDes, ServiceWikiNotion serviceWiki,
+                          IllustrationsMissions illustrationsMissions, ServiceDes serviceDes,
+                          ServiceWikiNotion serviceWiki,
                           @Value("${extremis.debug:false}") boolean modeDebug) {
         this.game = game;
         this.missions = missions;
         this.portraits = portraits;
+        this.illustrationsMissions = illustrationsMissions;
         this.serviceDes = serviceDes;
         this.serviceWiki = serviceWiki;
         this.modeDebug = modeDebug;
@@ -173,6 +176,7 @@ public class GameController {
         model.addAttribute("jokers", game.jokers());
         model.addAttribute("modeDebug", modeDebug);
         model.addAttribute("portraitService", portraits);
+        model.addAttribute("illustrationsMissions", illustrationsMissions);
         model.addAttribute("serviceDes", serviceDes);
         return "home";
     }
