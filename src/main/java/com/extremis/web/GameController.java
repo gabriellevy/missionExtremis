@@ -171,7 +171,6 @@ public class GameController {
         model.addAttribute("carteZoomPasLeger", Lieu.ZOOM_PAS_LEGER);
         model.addAttribute("carteZoomPasFort", Lieu.ZOOM_PAS_FORTE);
         model.addAttribute("jokers", game.jokers());
-        model.addAttribute("simulations", game.simulationsLeft());
         model.addAttribute("modeDebug", modeDebug);
         model.addAttribute("portraitService", portraits);
         model.addAttribute("serviceDes", serviceDes);
@@ -186,7 +185,7 @@ public class GameController {
     private List<String> categoriesVisibles(String filtre) {
         return switch (filtre) {
             case FILTRE_ARRANGEURS -> List.of("disponible", "en-mission", "mort");
-            case FILTRE_RECRUTEMENT -> List.of("disponible", "recrutable", "mort");
+            case FILTRE_RECRUTEMENT -> List.of("recrutable");
             default -> List.of("disponible", "mission", "mission-active");
         };
     }

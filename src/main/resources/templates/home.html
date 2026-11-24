@@ -221,8 +221,7 @@
         </p>
       </div>
       <div th:if="${filtreExtremis == 'recrutement'}">
-        <h3>Arrangeurs recrut&#233;s</h3>
-        <p>Simulations restantes : <span th:text="${simulations}"></span></p>
+        <h3 class="titre-arrangeurs-recrutes">Arrangeurs recrut&#233;s</h3>
         <div class="arrangeurs-liste" th:if="${!roster.isEmpty()}">
           <div class="arrangeur-carte"
                th:each="c : ${roster}"
@@ -566,8 +565,10 @@
   if (cartesArrangeurs.length) {
     const messageVideArrangeurs = document.querySelector('.arrangeurs-message-vide');
     const casesCategoriesCommunes = document.querySelectorAll('#carte-categories input[data-categorie]');
+    const titreArrangeursRecrutes = document.querySelector('.titre-arrangeurs-recrutes');
     function appliquerFiltreArrangeurs() {
       let cartesVisibles = 0;
+      let recrutesVisibles = 0;
       cartesArrangeurs.forEach(carte => {
         const caseCategorie = document.querySelector(
             '#carte-categories input[data-categorie="' + carte.dataset.categorie + '"]');
@@ -575,10 +576,16 @@
         carte.style.display = visible ? 'flex' : 'none';
         if (visible) {
           cartesVisibles++;
+          if (carte.dataset.categorie !== 'recrutable') {
+            recrutesVisibles++;
+          }
         }
       });
       if (messageVideArrangeurs) {
         messageVideArrangeurs.style.display = cartesVisibles > 0 ? 'none' : 'block';
+      }
+      if (titreArrangeursRecrutes) {
+        titreArrangeursRecrutes.style.display = recrutesVisibles > 0 ? 'block' : 'none';
       }
     }
     casesCategoriesCommunes.forEach(caseCategorie =>
