@@ -11,6 +11,7 @@ import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
 import com.extremis.core.EvtMission;
 import com.extremis.core.SimpleTest;
+import com.extremis.core.TestAide;
 import com.extremis.core.EvtMission.EffetEchec;
 import com.extremis.core.EvtMission.EffetReussite;
 
@@ -700,6 +701,129 @@ public final class Missions {
                                         .degatsAleatoiresMembreAuHasard(2, 10)
                                         .evenementSuivant("abattre-le-fugitif")
                                         .build())
+                                .build()));
+    }
+
+    /**
+     * "Congrès Komsomol houleux" (wiki, page du même nom) : un congrès
+     * politique de jeunes communistes tourne mal, des courants rivaux
+     * s'entredéchirent. Les arrangeurs prennent la température (test de
+     * ragot aidé) puis tentent successivement un discours apaisant, un
+     * jeu d'influence et, s'il faut, la bagarre. Une bonne prise de
+     * température (+20 aux tests suivants) peut seule sauver le congrès.
+     */
+    public static Mission congresKomsomolHouleux() {
+        return congresKomsomol(DureesMissionCongres.normales());
+    }
+
+    public static Mission congresKomsomolHouleuxRapide() {
+        return congresKomsomol(DureesMissionCongres.rapides());
+    }
+
+    /**
+     * Durées des événements de la mission "Congrès Komsomol houleux",
+     * raccourcissables pour les tests rapides.
+     */
+    private record DureesMissionCongres(Duration priseDeTemperature, Duration discours,
+                                         Duration influence, Duration bagarre) {
+        static DureesMissionCongres normales() {
+            return new DureesMissionCongres(Duration.ofHours(6), Duration.ofHours(2),
+                    Duration.ofHours(2), Duration.ofHours(2));
+        }
+
+        static DureesMissionCongres rapides() {
+            return new DureesMissionCongres(Duration.ofSeconds(1), Duration.ofSeconds(1),
+                    Duration.ofSeconds(1), Duration.ofSeconds(1));
+        }
+    }
+
+    private static Mission congresKomsomol(DureesMissionCongres d) {
+        return new Mission(
+                "congres-komsomol-houleux",
+                "Congrès Komsomol houleux",
+                "Un congrès politique de jeunes communistes tourne mal. "
+                        + "Des courants rivaux vont s’entredéchirer.",
+                Lieu.UKRAINE,
+                List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.INTIMIDATION,
+                        Competence.BAGARRE),
+                List.of(
+                        EvtMission.builder("prise-de-temperature", "Prise de température")
+                                .introduction("Les arrangeurs prennent la température du congrès "
+                                        + "et cherchent à comprendre ce qui se passe mal.")
+                                .duree(d.priseDeTemperature())
+                                .test(new TestAide(Competence.RAGOT, 0))
+                                .succes(EffetReussite.builder()
+                                        .texteSimple("Vous parvenez à comprendre les bases des courants, "
+                                                + "leurs divergences et les fauteurs de trouble.")
+                                        .ajustementDifficulte(20, "discours", "jeu-d-influence",
+                                                "bagarre-generale")
+                                        .evenementSuivant("discours")
+                                        .build())
+                                .echec(EffetEchec.builder()
+                                        .texteSimple("Impossible de s’y retrouver dans ces gens "
+                                                + "énervés et obtus.")
+                                        .evenementSuivant("discours")
+                                        .build())
+                                .build(),
+                        EvtMission.builder("discours", "Discours apaisant")
+                                .introduction("Les arrangeurs vont tenter de les convaincre de "
+                                        + "continuer à débattre dans le calme et le respect.")
+                                .duree(d.discours())
+                                .test(new SimpleTest(Competence.ELOQUENCE, -10))
+                                .succes(EffetReussite.builder()
+                                        .texteSimple("Vous avez réussi à calmer le jeu : les choses "
+                                                + "se passent calmement dans le respect de la "
+                                                + "constitution.")
+                                        .evenementSuivant(null)
+                                        .build())
+                                .echec(EffetEchec.builder()
+                                        .texteSimple("Votre discours les laisse froids. Peut-être que "
+                                                + "mettre en avant votre statut d’envoyé du consul "
+                                                + "les impressionnera ?")
+                                        .evenementSuivant("jeu-d-influence")
+                                        .build())
+                                .build(),
+                        EvtMission.builder("jeu-d-influence", "Statut d’envoyé du consul")
+                                .introduction("Un arrangeur va mettre en avant son statut d’envoyé "
+                                        + "du consul pour impressionner l’assemblée.")
+                                .duree(d.influence())
+                                .test(new TestAide(Competence.INTIMIDATION, -10))
+                                .succes(EffetReussite.builder()
+                                        .texteSimple("Votre statut d’envoyé du consul les impressionne : "
+                                                + "les choses se passent calmement dans le respect "
+                                                + "de la constitution.")
+                                        .evenementSuivant(null)
+                                        .build())
+                                .echec(EffetEchec.builder()
+                                        .texteSimple("Non seulement ils ne sont pas impressionnés mais "
+                                                + "certains tentent de vous agresser.")
+                                        .evenementSuivant("bagarre-generale")
+                                        .build())
+                                .build(),
+                        EvtMission.builder("bagarre-generale", "Bagarre générale")
+                                .introduction("Certains congressistes agressent les arrangeurs : "
+                                        + "chacun tente de quitter la salle sans dommage.")
+                                .duree(d.bagarre())
+                                .test(new SimpleTest(Competence.BAGARRE, 0))
+                                .testPourTous()
+                                .succes(EffetReussite.builder()
+                                        .texteSimple("Cet arrangeur parvient à quitter la salle "
+                                                + "sans dommage.")
+                                        .evenementSuivant("echec-du-congres")
+                                        .build())
+                                .echec(EffetEchec.builder()
+                                        .texteSimple("Cet arrangeur prend des coups. Il subit 1D10 de "
+                                                + "dégâts de vitalité.")
+                                        .degatsAleatoires(1, 10)
+                                        .evenementSuivant("echec-du-congres")
+                                        .build())
+                                .build(),
+                        EvtMission.builder("echec-du-congres", "Échec du congrès")
+                                .introduction("Les arrangeurs n’ont pas réussi à éviter les "
+                                        + "débordements.")
+                                .duree(Duration.ZERO)
+                                .effet("Il y a eu de nombreux blessés et le congrès est un échec "
+                                        + "complet.")
                                 .build()));
     }
 

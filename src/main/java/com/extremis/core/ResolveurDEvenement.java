@@ -126,15 +126,15 @@ public final class ResolveurDEvenement {
         });
         if (jet != null) {
             journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                    + " (cible " + testAjuste.target(joueur) + " sur D100) et obtient un " + jet.valeur()
+                    + " (cible " + testAjuste.target(joueur, equipe) + " sur D100) et obtient un " + jet.valeur()
                     + " : " + libelle(resultat) + ".", jet));
         } else {
             journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                    + " (cible " + testAjuste.target(joueur) + " sur D100) : " + libelle(resultat)
+                    + " (cible " + testAjuste.target(joueur, equipe) + " sur D100) : " + libelle(resultat)
                     + " (co\u00efncidence calcul\u00e9e)."));
         }
         if (resultat.estReussite()) {
-            ResultatEvenement r = appliquerReussite(evenement, resultat, joueur, journal);
+            ResultatEvenement r = appliquerReussite(evenement, resultat, joueur, etat, journal);
             return new ResultatEvenement(r.evenementSuivant(), r.victoire(), resultat, joueur.id());
         }
         ResultatEvenement r = appliquerEchec(evenement, resultat, joueur, equipe, etat, journal);
@@ -194,7 +194,8 @@ public final class ResolveurDEvenement {
     }
 
     private ResultatEvenement appliquerReussite(EvtMission evenement, ResultatTest resultat,
-                                                Character joueur, Consumer<LigneJournal> journal) {
+                                                Character joueur, EtatMission etat,
+                                                Consumer<LigneJournal> journal) {
         EffetReussite succes = evenement.succes().orElse(null);
         String suivant = null;
         if (succes != null) {
@@ -206,6 +207,15 @@ public final class ResolveurDEvenement {
             if (succes.recompense() != null) {
                 joueur.addItem(succes.recompense());
                 journal.accept(new LigneJournal(joueur.name() + " obtient : " + succes.recompense()));
+            }
+            if (succes.ajustementDifficulte() != null) {
+                List<String> cibles = succes.evenementsAjustes().isEmpty()
+                        ? List.of(evenement.id()) : succes.evenementsAjustes();
+                for (String cible : cibles) {
+                    etat.appliquerAjustement(cible, succes.ajustementDifficulte());
+                    journal.accept(new LigneJournal("La difficulté du test de l'événement " + cible
+                            + " sera baissée de " + Math.abs(succes.ajustementDifficulte()) + "."));
+                }
             }
             suivant = succes.evenementSuivant();
         } else if (evenement.effet() != null) {
@@ -249,15 +259,15 @@ public final class ResolveurDEvenement {
             });
             if (jet != null) {
                 journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                        + " (cible " + test.target(joueur) + " sur D100) et obtient un " + jet.valeur()
+                        + " (cible " + test.target(joueur, equipe) + " sur D100) et obtient un " + jet.valeur()
                         + " : " + libelle(resultat) + ".", jet));
             } else {
                 journal.accept(new LigneJournal(joueur.name() + " tente le test de " + test.skill().label()
-                        + " (cible " + test.target(joueur) + " sur D100) : " + libelle(resultat)
+                        + " (cible " + test.target(joueur, equipe) + " sur D100) : " + libelle(resultat)
                         + " (co\u00efncidence calcul\u00e9e)."));
             }
             if (resultat.estReussite()) {
-                appliquerReussite(evenement, resultat, joueur, journal);
+                appliquerReussite(evenement, resultat, joueur, etat, journal);
             } else {
                 auMoinsUnEchec = true;
                 if (premierTesteurEnEchec == null) {
@@ -386,6 +396,11 @@ public final class ResolveurDEvenement {
         @Override
         public int difficulty() {
             return test.difficulty() + ajustement;
+        }
+
+        @Override
+        public int target(Character character, List<Character> equipe) {
+            return test.target(character, equipe) + ajustement;
         }
     }
 }
