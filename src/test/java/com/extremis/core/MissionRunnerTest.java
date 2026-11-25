@@ -1,6 +1,5 @@
 package com.extremis.core;
 
-import com.extremis.catalog.Missions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -86,27 +85,27 @@ class MissionRunnerTest {
                 "Brief",
                 Lieu.PARIS_1ER,
                 List.of(Competence.DISCRETION),
-                List.of(MissionEvent.builder("e1", "Infiltration")
+                List.of(EvtMission.builder("e1", "Infiltration")
                         .introduction("Les arrangeurs s'infiltrent.")
                         .test(new SimpleTest(Competence.DISCRETION, 0))
-                        .succes(MissionEvent.EffetReussite.builder()
+                        .succes(EvtMission.EffetReussite.builder()
                                 .texteSimple("Les arrangeurs passent inapercus.")
                                 .recompense("Toge de sectateur")
                                 .evenementSuivant("e2")
                                 .build())
-                        .echec(MissionEvent.EffetEchec.builder()
+                        .echec(EvtMission.EffetEchec.builder()
                                 .texteSimple("Les gardes reparent les arrangeurs.")
                                 .degats(3)
                                 .evenementSuivant("e2")
                                 .build())
                         .build(),
-                        MissionEvent.builder("e2", "Confrontation")
+                        EvtMission.builder("e2", "Confrontation")
                                 .introduction("Les arrangeurs affrontent les meneurs.")
                                 .test(new SimpleTest(Competence.ARMES_CORPS_A_CORPS, 0))
-                                .succes(MissionEvent.EffetReussite.builder()
+                                .succes(EvtMission.EffetReussite.builder()
                                         .texteSimple("Les meneurs sont neutralises.")
                                         .build())
-                                .echec(MissionEvent.EffetEchec.builder()
+                                .echec(EvtMission.EffetEchec.builder()
                                         .texteSimple("Les meneurs ont le dessus.")
                                         .degats(3)
                                         .build())

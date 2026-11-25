@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.extremis.core.MissionEvent.EffetEchec;
-import com.extremis.core.MissionEvent.EffetReussite;
+import com.extremis.core.EvtMission.EffetEchec;
+import com.extremis.core.EvtMission.EffetReussite;
 
 /**
  * Moteur de resolution des evenements de mission (wiki, page
@@ -68,17 +68,17 @@ public final class ResolveurDEvenement {
         }
     }
 
-    public ResultatEvenement resoudre(MissionEvent evenement, List<Character> equipe,
+    public ResultatEvenement resoudre(EvtMission evenement, List<Character> equipe,
                                       EtatMission etat, Consumer<LigneJournal> journal) {
         return resoudreInterne(evenement, equipe, etat, journal, null);
     }
 
-    public ResultatEvenement resoudreAvecReussiteForcee(MissionEvent evenement, List<Character> equipe,
-                                                         EtatMission etat, Consumer<LigneJournal> journal) {
+    public ResultatEvenement resoudreAvecReussiteForcee(EvtMission evenement, List<Character> equipe,
+                                                        EtatMission etat, Consumer<LigneJournal> journal) {
         return resoudreInterne(evenement, equipe, etat, journal, ResultatTest.REUSSITE);
     }
 
-    private ResultatEvenement resoudreInterne(MissionEvent evenement, List<Character> equipe,
+    private ResultatEvenement resoudreInterne(EvtMission evenement, List<Character> equipe,
                                               EtatMission etat, Consumer<LigneJournal> journal,
                                               ResultatTest reussiteForcee) {
         Optional<SkillTest> testOpt = evenement.test();
@@ -154,8 +154,8 @@ public final class ResolveurDEvenement {
      * Applique les effets portant sur toute l'equipe (wiki, page
      * "Missions") : pertes de sang-froid ou degats collectifs.
      */
-    private void appliquerEffetsEquipe(MissionEvent evenement, List<Character> equipe,
-                                           Consumer<LigneJournal> journal) {
+    private void appliquerEffetsEquipe(EvtMission evenement, List<Character> equipe,
+                                       Consumer<LigneJournal> journal) {
         evenement.perteSangFroidEquipe().ifPresent(perte -> {
             for (Character membre : equipe) {
                 if (membre.isActif()) {
@@ -179,9 +179,9 @@ public final class ResolveurDEvenement {
         });
     }
 
-    private Optional<String> premiereBrancheRemplie(MissionEvent evenement, List<Character> equipe,
-                                                     Consumer<LigneJournal> journal) {
-        for (MissionEvent.Branche branche : evenement.branches()) {
+    private Optional<String> premiereBrancheRemplie(EvtMission evenement, List<Character> equipe,
+                                                    Consumer<LigneJournal> journal) {
+        for (EvtMission.Branche branche : evenement.branches()) {
             List<Character> actifs = equipe.stream().filter(Character::isActif).toList();
             if (branche.condition().test(actifs)) {
                 if (branche.texte() != null) {
@@ -193,7 +193,7 @@ public final class ResolveurDEvenement {
         return Optional.empty();
     }
 
-    private ResultatEvenement appliquerReussite(MissionEvent evenement, ResultatTest resultat,
+    private ResultatEvenement appliquerReussite(EvtMission evenement, ResultatTest resultat,
                                                 Character joueur, Consumer<LigneJournal> journal) {
         EffetReussite succes = evenement.succes().orElse(null);
         String suivant = null;
@@ -220,7 +220,7 @@ public final class ResolveurDEvenement {
      * reussite ou d'echec. L'evenement suivant est celui de l'echec si
      * au moins un personnage a echoue, celui de la reussite sinon.
      */
-    private ResultatEvenement resoudreTestPourTous(MissionEvent evenement, SkillTest test,
+    private ResultatEvenement resoudreTestPourTous(EvtMission evenement, SkillTest test,
                                                    List<Character> equipe, EtatMission etat,
                                                    Consumer<LigneJournal> journal,
                                                    ResultatTest reussiteForcee) {
@@ -286,7 +286,7 @@ public final class ResolveurDEvenement {
                 auMoinsUnEchec ? ResultatTest.ECHEC : ResultatTest.REUSSITE, premierTesteurEnEchec);
     }
 
-    private ResultatEvenement appliquerEchec(MissionEvent evenement, ResultatTest resultat,
+    private ResultatEvenement appliquerEchec(EvtMission evenement, ResultatTest resultat,
                                              Character joueur, List<Character> equipe, EtatMission etat,
                                              Consumer<LigneJournal> journal) {
         EffetEchec echec = evenement.echec().orElse(null);
@@ -304,7 +304,7 @@ public final class ResolveurDEvenement {
         return new ResultatEvenement(suivant, false);
     }
 
-    private void appliquerEchecIndividuel(MissionEvent evenement, ResultatTest resultat,
+    private void appliquerEchecIndividuel(EvtMission evenement, ResultatTest resultat,
                                           Character joueur, List<Character> equipe,
                                           Consumer<LigneJournal> journal) {
         EffetEchec echec = evenement.echec().orElse(null);
@@ -365,7 +365,7 @@ public final class ResolveurDEvenement {
             }
     }
 
-    private int lancerDes(MissionEvent.DesDegats des) {
+    private int lancerDes(EvtMission.DesDegats des) {
         int total = 0;
         for (int i = 0; i < des.nombreDeDes(); i++) {
             total += random.roll() % des.faces() + 1;

@@ -5,7 +5,7 @@ import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
-import com.extremis.core.MissionEvent;
+import com.extremis.core.EvtMission;
 import com.extremis.core.SimpleTest;
 import com.extremis.db.MissionExecutionRepository;
 import org.junit.jupiter.api.Test;
@@ -51,24 +51,24 @@ class RenvoiPersonnageExclusTest {
             return new Mission("mission-exclusion", "Mission exclusion", "brief", Lieu.PARIS_1ER,
                     List.of(Competence.DISCRETION),
                     List.of(
-                            MissionEvent.builder("e1", "Epreuve")
+                            EvtMission.builder("e1", "Epreuve")
                                     .introduction("Une épreuve.")
                                     .duree(Duration.ofSeconds(1))
                                     .test(new SimpleTest(Competence.DISCRETION, -200))
-                                    .succes(MissionEvent.EffetReussite.builder()
+                                    .succes(EvtMission.EffetReussite.builder()
                                             .texteSimple("Epreuve réussie.")
                                             .evenementSuivant("fin")
                                             .build())
-                                    .echec(MissionEvent.EffetEchec.builder()
+                                    .echec(EvtMission.EffetEchec.builder()
                                             .texteSimple("Epreuve échouée.")
                                             .exclureJoueur()
                                             .evenementSuivant("e1")
                                             .build())
                                     .build(),
-                            MissionEvent.builder("fin", "Fin")
+                            EvtMission.builder("fin", "Fin")
                                     .duree(Duration.ZERO)
                                     .effet("Mission accomplie.")
-                                    .succes(MissionEvent.EffetReussite.builder()
+                                    .succes(EvtMission.EffetReussite.builder()
                                             .evenementSuivant(null)
                                             .build())
                                     .build()));
