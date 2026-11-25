@@ -9,10 +9,10 @@ import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
-import com.extremis.core.MissionEvent;
+import com.extremis.core.EvtMission;
 import com.extremis.core.SimpleTest;
-import com.extremis.core.MissionEvent.EffetEchec;
-import com.extremis.core.MissionEvent.EffetReussite;
+import com.extremis.core.EvtMission.EffetEchec;
+import com.extremis.core.EvtMission.EffetReussite;
 
 /**
  * Catalogue des missions du wiki (page "Missions").
@@ -49,8 +49,8 @@ public final class Missions {
                 Lieu.SURESNES,
                 List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.FORCE_MENTALE),
                 List.of(
-                        MissionEvent.builder("recherche-du-cas", "Recherche du cas")
-                                .introduction("Les arrangeurs s\u2019enqui\u00e8rent discr\u00e8tement autour d\u2019eux.")
+                        EvtMission.builder("recherche-du-cas", "Recherche du cas")
+                                .introduction("Les arrangeurs s\u2019enquièrent discrètement autour d\u2019eux.")
                                 .duree(dRecherche)
                                 .test(new SimpleTest(Competence.RAGOT, 20))
                                 .succes(EffetReussite.builder()
@@ -60,15 +60,15 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("Les arrangeurs ne trouvent aucune piste fiable. "
-                                                + "Recommencer \u00e0 \"Recherche du cas\".")
+                                                + "Recommencer à \"Recherche du cas\".")
                                         .texteCritique("Le personnage qui a échoué au test s\u2019est fait "
                                                 + "détester par tout le voisinage avec ses questions. Il a été "
-                                                + "chassé du quartier. Recommencer \u00e0 \"Recherche du cas\".")
+                                                + "chassé du quartier. Recommencer à \"Recherche du cas\".")
                                         .exclureJoueur()
                                         .evenementSuivant("recherche-du-cas")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("convaincre-la-famille", "Convaincre la famille")
+                        EvtMission.builder("convaincre-la-famille", "Convaincre la famille")
                                 .introduction("La famille de la victime refuse de laisser des étrangers s\u2019approcher.")
                                 .duree(dConvaincre)
                                 .test(new SimpleTest(Competence.ELOQUENCE, 20))
@@ -77,16 +77,16 @@ public final class Missions {
                                         .evenementSuivant("choix-du-traitement")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("La famille reste hermétique. Recommencer \u00e0 "
+                                        .texteSimple("La famille reste hermétique. Recommencer à "
                                                 + "\"Convaincre la famille\".")
                                         .evenementSuivant("convaincre-la-famille")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("choix-du-traitement", "L\u2019horrible victime")
+                        EvtMission.builder("choix-du-traitement", "L\u2019horrible victime")
                                 .introduction("L\u2019apparence horrible de la victime possédée glace le sang des arrangeurs.")
                                 .duree(Duration.ZERO)
                                 .effet("L\u2019apparence horrible de la victime possédée co\u00fbte 2 de sang-froid "
-                                        + "\u00e0 chaque personnage.")
+                                        + "à chaque personnage.")
                                 .perteSangFroidEquipe(2)
                                 .branche("Un arrangeur sait pratiquer un exorcisme.",
                                         equipe -> equipe.stream().anyMatch(Missions::saitExorciser),
@@ -104,9 +104,9 @@ public final class Missions {
                                         equipe -> true,
                                         "abandon")
                                 .build(),
-                        MissionEvent.builder("exorcisme", "Exorcisme")
+                        EvtMission.builder("exorcisme", "Exorcisme")
                                 .introduction("Un arrangeur va tenter un exorcisme pendant que la créature se débat. "
-                                        + "Sa force mentale est mise \u00e0 rude épreuve (-2 sang-froid).")
+                                        + "Sa force mentale est mise à rude épreuve (-2 sang-froid).")
                                 .duree(dExorcisme)
                                 .coutSangFroidTesteur(2)
                                 .testeurFiltre(Missions::saitExorciser)
@@ -117,13 +117,13 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("Le rituel échoue. Le démon se manifeste avec rage. "
-                                                + "Recommencer \u00e0 \"Exorcisme\".")
+                                                + "Recommencer à \"Exorcisme\".")
                                         .evenementSuivant("exorcisme")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("psychiatrie", "Psychiatrie")
+                        EvtMission.builder("psychiatrie", "Psychiatrie")
                                 .introduction("Un arrangeur va soigner la victime en la faisant interner. "
-                                        + "La sc\u00e8ne éprouve ses nerfs (-4 sang-froid).")
+                                        + "La scène éprouve ses nerfs (-4 sang-froid).")
                                 .duree(dPsychiatrie)
                                 .coutSangFroidTesteur(4)
                                 .testeurFiltre(c -> aLaSpecialite(c, "psychiatre"))
@@ -134,11 +134,11 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("L\u2019internement échoue : la famille refuse de laisser "
-                                                + "emmener la victime. Recommencer \u00e0 \"Psychiatrie\".")
+                                                + "emmener la victime. Recommencer à \"Psychiatrie\".")
                                         .evenementSuivant("psychiatrie")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("tentative-de-meurtre", "Tentative de meurtre")
+                        EvtMission.builder("tentative-de-meurtre", "Tentative de meurtre")
                                 .introduction("Un arrangeur cruel va tenter d\u2019assassiner la victime "
                                         + "possédée pour chasser le démon.")
                                 .duree(Duration.ZERO)
@@ -157,7 +157,7 @@ public final class Missions {
                                         .evenementSuivant("abandon")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("abandon", "Abandon")
+                        EvtMission.builder("abandon", "Abandon")
                                 .introduction("Votre équipe n\u2019a pas de quoi remplir la mission.")
                                 .duree(Duration.ZERO)
                                 .build()));
@@ -192,24 +192,24 @@ public final class Missions {
                 "surveillance-bandits");
         Boite escarmouche = BoitesEvenementsGeneriques.escarmouchesDeBandits("escarmouche", "victoire");
 
-        List<MissionEvent> evenements = new ArrayList<>();
-        evenements.add(MissionEvent.builder("atteindre-le-site", "Atteindre le site")
+        List<EvtMission> evenements = new ArrayList<>();
+        evenements.add(EvtMission.builder("atteindre-le-site", "Atteindre le site")
                 .introduction("Les arrangeurs partent pour le chantier de chemin de fer, "
-                        + "\u00e0 travers les plaines enneigées.")
+                        + "à travers les plaines enneigées.")
                 .duree(dMarche)
                 .succes(EffetReussite.builder()
                         .evenementSuivant(marche.entree())
                         .build())
                 .build());
         evenements.addAll(marche.evenements());
-        evenements.add(MissionEvent.builder("site-atteint", "Vous avez atteint le chantier")
+        evenements.add(EvtMission.builder("site-atteint", "Vous avez atteint le chantier")
                 .introduction("Vous avez atteint le chantier.")
                 .duree(dSite)
                 .succes(EffetReussite.builder()
                         .evenementSuivant("commandement")
                         .build())
                 .build());
-        evenements.add(MissionEvent.builder("commandement", "Test de commandement")
+        evenements.add(EvtMission.builder("commandement", "Test de commandement")
                 .introduction("Il faut mener les ouvriers du chantier d'une main de fer.")
                 .test(new SimpleTest(Competence.COMMANDEMENT, 0))
                 .succes(EffetReussite.builder()
@@ -218,11 +218,11 @@ public final class Missions {
                         .build())
                 .echec(EffetEchec.builder()
                         .texteSimple("De nombreux ouvriers ont déserté, ce qui va retarder le travail "
-                                + "et obliger les arrangeurs \u00e0 participer.")
+                                + "et obliger les arrangeurs à participer.")
                         .evenementSuivant("desertion")
                         .build())
                 .build());
-        evenements.add(MissionEvent.builder("desertion", "Désertion des ouvriers")
+        evenements.add(EvtMission.builder("desertion", "Désertion des ouvriers")
                 .introduction("De nombreux ouvriers ont déserté le chantier.")
                 .duree(Duration.ZERO)
                 .succes(EffetReussite.builder()
@@ -231,23 +231,23 @@ public final class Missions {
                 .build());
         evenements.addAll(travailDesertion.evenements());
         evenements.addAll(travailSupplementaire.evenements());
-        evenements.add(MissionEvent.builder("au-boulot", "Au boulot")
-                .introduction("La neige commence \u00e0 tomber et le sol \u00e0 geler, "
+        evenements.add(EvtMission.builder("au-boulot", "Au boulot")
+                .introduction("La neige commence à tomber et le sol à geler, "
                         + "rendant le travail encore plus épuisant.")
                 .succes(EffetReussite.builder()
                         .evenementSuivant(travail.entree())
                         .build())
                 .build());
         evenements.addAll(travail.evenements());
-        evenements.add(MissionEvent.builder("surveillance-bandits", "Surveillance des environs")
+        evenements.add(EvtMission.builder("surveillance-bandits", "Surveillance des environs")
                 .introduction("Il faut sans cesse surveiller les environs pour prévenir "
                         + "les attaques de bandits.")
                 .succes(EffetReussite.builder()
                         .evenementSuivant("vigilance")
                         .build())
                 .build());
-        evenements.add(MissionEvent.builder("vigilance", "Test de vigilance")
-                .introduction("Les arrangeurs scrutent les environs \u00e0 la recherche de bandits.")
+        evenements.add(EvtMission.builder("vigilance", "Test de vigilance")
+                .introduction("Les arrangeurs scrutent les environs à la recherche de bandits.")
                 .test(new SimpleTest(Competence.VIGILANCE, 0))
                 .succes(EffetReussite.builder()
                         .texteSimple("Les environs sont s\u00fbrs pour l'instant.")
@@ -259,8 +259,8 @@ public final class Missions {
                         .build())
                 .build());
         evenements.addAll(escarmouche.evenements());
-        evenements.add(MissionEvent.builder("victoire", "Victoire")
-                .effet("Le chantier a été mené \u00e0 son terme.")
+        evenements.add(EvtMission.builder("victoire", "Victoire")
+                .effet("Le chantier a été mené à son terme.")
                 .succes(EffetReussite.builder()
                         .evenementSuivant(null)
                         .build())
@@ -273,7 +273,7 @@ public final class Missions {
                         + "pour passer l'hiver mais les travaux de pose des rails de chemin de fer qui "
                         + "devraient les approvisionner n'en finissent pas. Allez mettre de l'ordre "
                         + "sur le chantier. Attention, les conditions sont rudes : pas d'électricité, "
-                        + "pas d'engins de chantier et la neige commence \u00e0 tomber. Il y a m\u00eame des "
+                        + "pas d'engins de chantier et la neige commence à tomber. Il y a m\u00eame des "
                         + "rumeurs de bandits en maraude.",
                 Lieu.UKRAINE,
                 List.of(Competence.PERIPLE, Competence.COMMANDEMENT, Competence.ENDURANCE,
@@ -334,26 +334,26 @@ public final class Missions {
                 List.of(Competence.RAGOT, Competence.ELOQUENCE, Competence.EVALUATION,
                         Competence.TIR, Competence.DISCRETION),
                 List.of(
-                        MissionEvent.builder("enquete-de-quartier", "Interroger les témoins")
-                                .introduction("Plusieurs meurtres et r\u00e8glements de compte ont eu "
+                        EvtMission.builder("enquete-de-quartier", "Interroger les témoins")
+                                .introduction("Plusieurs meurtres et règlements de compte ont eu "
                                         + "lieu dans le quartier et la police semble impuissante. "
-                                        + "Les arrangeurs interrogent discr\u00e8tement les témoins.")
+                                        + "Les arrangeurs interrogent discrètement les témoins.")
                                 .duree(d.enqueteTemoins())
                                 .test(new SimpleTest(Competence.RAGOT, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Un nommé Loreline a pris l'argent d'une bande "
                                                 + "de narcotrafiquants et des tueurs sont lancés "
-                                                + "\u00e0 sa poursuite.")
+                                                + "à sa poursuite.")
                                         .evenementSuivant("interroger-la-femme")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Personne ne veut parler. Recommencer \u00e0 "
+                                        .texteSimple("Personne ne veut parler. Recommencer à "
                                                 + "\"Interroger les témoins\".")
                                         .evenementSuivant("enquete-de-quartier")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("interroger-la-femme", "Interrogatoire de sa femme")
-                                .introduction("La femme de Loreline pourrait révéler o\u00f9 il se "
+                        EvtMission.builder("interroger-la-femme", "Interrogatoire de la femme de Loreline")
+                                .introduction("La femme de Loreline pourrait révéler où il se "
                                         + "terre.")
                                 .duree(d.interrogationFemme())
                                 .test(new SimpleTest(Competence.ELOQUENCE, -20))
@@ -364,12 +364,12 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("Elle se mure dans le silence : il ne reste "
-                                                + "plus qu'\u00e0 tenter de retrouver les tueurs.")
+                                                + "plus qu'à tenter de retrouver les tueurs.")
                                         .evenementSuivant("piste-du-tueur-1")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("localiser-lorelime", "Retrouver Loreline")
-                                .introduction("La piste m\u00e8ne \u00e0 Loreline, l'homme qui a pris "
+                        EvtMission.builder("localiser-lorelime", "Retrouver Loreline")
+                                .introduction("La piste mène à Loreline, l'homme qui a pris "
                                         + "l'argent du cartel.")
                                 .duree(d.recherche())
                                 .test(new SimpleTest(Competence.EVALUATION, 0))
@@ -379,15 +379,15 @@ public final class Missions {
                                         .evenementSuivant("la-tentation-du-butin")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Loreline est introuvable : il ne reste plus qu'\u00e0 tenter "
+                                        .texteSimple("Loreline est introuvable : il ne reste plus qu'à tenter "
                                                 + "de retrouver les tueurs.")
                                         .evenementSuivant("piste-du-tueur-1")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("la-tentation-du-butin", "Une vraie fortune")
-                                .introduction("Loreline et sa fortune sont \u00e0 portée de main.")
+                        EvtMission.builder("la-tentation-du-butin", "Une vraie fortune")
+                                .introduction("Loreline et sa fortune sont à portée de main.")
                                 .duree(Duration.ZERO)
-                                .branche("Un arrangeur cupide ou impulsif n'arrive pas \u00e0 quitter "
+                                .branche("Un arrangeur cupide ou impulsif n'arrive pas à quitter "
                                         + "la mallette des yeux.",
                                         equipe -> equipe.stream().anyMatch(Missions::estCupideOuImpulsif),
                                         "resister-a-la-tentation")
@@ -396,22 +396,22 @@ public final class Missions {
                                         equipe -> true,
                                         "convaincre-lorelime")
                                 .build(),
-                        MissionEvent.builder("resister-a-la-tentation", "Résister \u00e0 la tentation")
-                                .introduction("Il faut tenir bon face \u00e0 un pareil butin.")
+                        EvtMission.builder("resister-a-la-tentation", "Résister à la tentation")
+                                .introduction("Il faut tenir bon face à un pareil butin.")
                                 .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("L'envie de s'emparer de l'argent est "
-                                                + "ma\u00eetrisée : les arrangeurs tendent la main \u00e0 "
+                                                + "ma\u00eetrisée : les arrangeurs tendent la main à "
                                                 + "Loreline.")
                                         .evenementSuivant("convaincre-lorelime")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Les arrangeurs c\u00e8dent \u00e0 la tentation : ils "
+                                        .texteSimple("Les arrangeurs cèdent à la tentation : ils "
                                                 + "décident de voler l'argent.")
                                         .evenementSuivant("voler-le-butin")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("voler-le-butin", "Voler l'argent")
+                        EvtMission.builder("voler-le-butin", "Voler l'argent")
                                 .introduction("Les arrangeurs braquent leurs armes sur Loreline "
                                         + "et sa fortune.")
                                 .duree(d.vol())
@@ -424,13 +424,13 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("La fusillade tourne mal : un personnage au "
-                                                + "hasard subit 2D10 de dég\u00e2ts. Recommencer \u00e0 "
+                                                + "hasard subit 2D10 de dég\u00e2ts. Recommencer à "
                                                 + "\"Voler l'argent\".")
                                         .degatsAleatoiresMembreAuHasard(2, 10)
                                         .evenementSuivant("voler-le-butin")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("convaincre-lorelime", "Convaincre Loreline")
+                        EvtMission.builder("convaincre-lorelime", "Convaincre Loreline")
                                 .introduction("Se rendre est la seule chance de survie de "
                                         + "Loreline : les arrangeurs le lui expliquent.")
                                 .test(new SimpleTest(Competence.ELOQUENCE, 0))
@@ -445,7 +445,7 @@ public final class Missions {
                                         .evenementSuivant("la-riposte-de-lorelime")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("la-riposte-de-lorelime", "Riposte de Loreline")
+                        EvtMission.builder("la-riposte-de-lorelime", "Riposte de Loreline")
                                 .introduction("Loreline dégaine et tire avant de tenter de fuir.")
                                 .test(new SimpleTest(Competence.TIR, 0))
                                 .succes(EffetReussite.builder()
@@ -462,17 +462,17 @@ public final class Missions {
                                         .evenementSuivant("piste-du-tueur-1")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("poursuivis-par-chigur", "Poursuivis par le tueur")
-                                .introduction("Le cartel a lancé son tueur \u00e0 vos trousses : "
+                        EvtMission.builder("poursuivis-par-chigur", "Poursuivis par le tueur")
+                                .introduction("Le cartel a lancé son tueur à vos trousses : "
                                         + "Chigur traque désormais les arrangeurs et leur argent.")
                                 .duree(d.poursuite())
                                 .succes(EffetReussite.builder()
-                                        .texteSimple("Apr\u00e8s un jour de fuite, les arrangeurs "
+                                        .texteSimple("Après un jour de fuite, les arrangeurs "
                                                 + "tentent de semer le tueur.")
                                         .evenementSuivant("rester-discrets")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("rester-discrets", "Se cacher du tueur")
+                        EvtMission.builder("rester-discrets", "Se cacher du tueur")
                                 .introduction("Chigur est aux aguets : chaque arrangeur tente "
                                         + "de rester discret.")
                                 .test(new SimpleTest(Competence.DISCRETION, -10))
@@ -486,20 +486,20 @@ public final class Missions {
                                         .evenementSuivant("attaque-de-chigur")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("fin-de-la-traque", "Fin de la traque")
+                        EvtMission.builder("fin-de-la-traque", "Fin de la traque")
                                 .introduction("Les arrangeurs ont semé le tueur\u2026 mais celui-ci "
                                         + "a survécu.")
                                 .duree(Duration.ZERO)
                                 .effet("Le tueur a survécu : les arrangeurs ont échoué. "
                                         + "Seul un butin volé rapporte un +10 Richesse.")
                                 .build(),
-                        MissionEvent.builder("attaque-de-chigur", "Attaque de Chigur")
+                        EvtMission.builder("attaque-de-chigur", "Attaque de Chigur")
                                 .introduction("Chigur surgit de nulle part et ouvre le feu.")
                                 .duree(d.tir())
                                 .test(new SimpleTest(Competence.TIR, -20))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("Les arrangeurs abattent Chigur. Loreline "
-                                                + "est déj\u00e0 neutralisé : la mission est "
+                                                + "est déjà neutralisé : la mission est "
                                                 + "accomplie.")
                                         .evenementSuivant(null)
                                         .build())
@@ -510,7 +510,7 @@ public final class Missions {
                                         .evenementSuivant("poursuivis-par-chigur")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("piste-du-tueur-1", "Piste du tueur")
+                        EvtMission.builder("piste-du-tueur-1", "Piste du tueur")
                                 .introduction("Les arrangeurs analysent les indices pour "
                                         + "retrouver le tueur Chigur.")
                                 .duree(d.traqueTueur())
@@ -526,7 +526,7 @@ public final class Missions {
                                         .evenementSuivant("piste-du-tueur-2")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("piste-du-tueur-2", "La piste se refroidit")
+                        EvtMission.builder("piste-du-tueur-2", "La piste se refroidit")
                                 .introduction("Les arrangeurs reprennent la traque du tueur "
                                         + "Chigur.")
                                 .duree(d.traqueTueur())
@@ -537,13 +537,13 @@ public final class Missions {
                                         .evenementSuivant("confrontation-avec-chigur")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Chigur est encore passé par l\u00e0, mais la "
+                                        .texteSimple("Chigur est encore passé par là, mais la "
                                                 + "chance de le retrouver s'amenuise.")
                                         .evenementSuivant("piste-du-tueur-3")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("piste-du-tueur-3", "Derni\u00e8re piste")
-                                .introduction("C'est la derni\u00e8re chance de remonter jusqu'au "
+                        EvtMission.builder("piste-du-tueur-3", "Dernière piste")
+                                .introduction("C'est la dernière chance de remonter jusqu'au "
                                         + "tueur Chigur.")
                                 .duree(d.traqueTueur())
                                 .test(new SimpleTest(Competence.EVALUATION, -20))
@@ -557,14 +557,14 @@ public final class Missions {
                                         .evenementSuivant("chigur-echappe")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("chigur-echappe", "Chigur vous a échappé")
+                        EvtMission.builder("chigur-echappe", "Chigur vous a échappé")
                                 .introduction("Le tueur et Loreline ont disparu sans laisser de "
                                         + "traces.")
                                 .duree(Duration.ZERO)
-                                .effet("Plus rien \u00e0 faire : Chigur vous a échappé, la mission "
+                                .effet("Plus rien à faire : Chigur vous a échappé, la mission "
                                         + "échoue.")
                                 .build(),
-                        MissionEvent.builder("confrontation-avec-chigur", "Confrontation avec "
+                        EvtMission.builder("confrontation-avec-chigur", "Confrontation avec "
                                 + "Chigur")
                                 .introduction("Vous avez retrouvé le tueur et il ne compte pas "
                                         + "vous laisser vivants.")
@@ -579,7 +579,7 @@ public final class Missions {
                                         .evenementSuivant("la-fusillade-de-chigur")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("la-fusillade-de-chigur", "Fusillade de Chigur")
+                        EvtMission.builder("la-fusillade-de-chigur", "Fusillade de Chigur")
                                 .introduction("Le tueur canarde tout ce qui bouge : chaque "
                                         + "arrangeur tente sa chance.")
                                 .test(new SimpleTest(Competence.CHANCE, 0))
@@ -595,16 +595,16 @@ public final class Missions {
                                         .evenementSuivant("interroger-la-femme")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("chigur-abattu", "Chigur est abattu")
+                        EvtMission.builder("chigur-abattu", "Chigur est abattu")
                                 .introduction("Le tueur du cartel g\u00eet au sol.")
                                 .duree(Duration.ZERO)
-                                .effet("Le tueur Chigur est neutralisé. Reste \u00e0 retrouver "
+                                .effet("Le tueur Chigur est neutralisé. Reste à retrouver "
                                         + "Loreline et l'argent pour accomplir la mission.")
                                 .succes(EffetReussite.builder()
                                         .evenementSuivant("retrouver-le-fugitif")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("retrouver-le-fugitif", "Retrouver le fugitif")
+                        EvtMission.builder("retrouver-le-fugitif", "Retrouver le fugitif")
                                 .introduction("Loreline se terre quelque part avec la fortune du "
                                         + "cartel.")
                                 .duree(d.recherche())
@@ -615,40 +615,40 @@ public final class Missions {
                                         .evenementSuivant("le-butin-sans-menace")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Loreline est introuvable. Recommencer \u00e0 "
+                                        .texteSimple("Loreline est introuvable. Recommencer à "
                                                 + "\"Retrouver le fugitif\".")
                                         .evenementSuivant("retrouver-le-fugitif")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("le-butin-sans-menace", "Le butin sans menace")
+                        EvtMission.builder("le-butin-sans-menace", "Le butin sans menace")
                                 .introduction("Plus personne ne menace les arrangeurs : il ne "
-                                        + "reste qu'\u00e0 décider du sort de Loreline.")
+                                        + "reste qu'à décider du sort de Loreline.")
                                 .duree(Duration.ZERO)
-                                .branche("Un arrangeur cupide ou impulsif n'arrive pas \u00e0 quitter "
+                                .branche("Un arrangeur cupide ou impulsif n'arrive pas à quitter "
                                         + "la mallette des yeux.",
                                         equipe -> equipe.stream().anyMatch(Missions::estCupideOuImpulsif),
                                         "resister-malgre-le-butin")
-                                .branche("Les arrangeurs tentent d'amener Loreline \u00e0 se rendre.",
+                                .branche("Les arrangeurs tentent d'amener Loreline à se rendre.",
                                         equipe -> true,
                                         "sommation-a-lorelime")
                                 .build(),
-                        MissionEvent.builder("resister-malgre-le-butin", "Résister malgré le "
+                        EvtMission.builder("resister-malgre-le-butin", "Résister malgré le "
                                 + "butin")
-                                .introduction("Il faut tenir bon face \u00e0 un pareil butin.")
+                                .introduction("Il faut tenir bon face à un pareil butin.")
                                 .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
                                 .succes(EffetReussite.builder()
                                         .texteSimple("L'envie de s'emparer de l'argent est "
-                                                + "ma\u00eetrisée : les arrangeurs tendent la main \u00e0 "
+                                                + "ma\u00eetrisée : les arrangeurs tendent la main à "
                                                 + "Loreline.")
                                         .evenementSuivant("sommation-a-lorelime")
                                         .build())
                                 .echec(EffetEchec.builder()
-                                        .texteSimple("Les arrangeurs c\u00e8dent \u00e0 la tentation : ils "
+                                        .texteSimple("Les arrangeurs cèdent à la tentation : ils "
                                                 + "décident de voler l'argent.")
                                         .evenementSuivant("abattre-le-fugitif")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("sommation-a-lorelime", "Sommation \u00e0 Loreline")
+                        EvtMission.builder("sommation-a-lorelime", "Sommation à Loreline")
                                 .introduction("Chigur est mort : les arrangeurs somment Loreline "
                                         + "de rendre l'argent et de se rendre.")
                                 .test(new SimpleTest(Competence.ELOQUENCE, 0))
@@ -664,7 +664,7 @@ public final class Missions {
                                         .evenementSuivant("la-riposte-du-fugitif")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("la-riposte-du-fugitif", "Riposte du fugitif")
+                        EvtMission.builder("la-riposte-du-fugitif", "Riposte du fugitif")
                                 .introduction("Loreline dégaine et tire avant de tenter de fuir.")
                                 .test(new SimpleTest(Competence.TIR, 0))
                                 .succes(EffetReussite.builder()
@@ -681,7 +681,7 @@ public final class Missions {
                                         .evenementSuivant("retrouver-le-fugitif")
                                         .build())
                                 .build(),
-                        MissionEvent.builder("abattre-le-fugitif", "Abattre le fugitif")
+                        EvtMission.builder("abattre-le-fugitif", "Abattre le fugitif")
                                 .introduction("Les arrangeurs décident d'abattre Loreline pour "
                                         + "prendre l'argent.")
                                 .duree(d.vol())
@@ -695,7 +695,7 @@ public final class Missions {
                                         .build())
                                 .echec(EffetEchec.builder()
                                         .texteSimple("La fusillade tourne mal : un personnage au "
-                                                + "hasard subit 2D10 de dég\u00e2ts. Recommencer \u00e0 "
+                                                + "hasard subit 2D10 de dég\u00e2ts. Recommencer à "
                                                 + "\"Abattre le fugitif\".")
                                         .degatsAleatoiresMembreAuHasard(2, 10)
                                         .evenementSuivant("abattre-le-fugitif")

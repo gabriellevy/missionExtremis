@@ -4,7 +4,7 @@ import com.extremis.core.Character;
 import com.extremis.core.Competence;
 import com.extremis.core.Lieu;
 import com.extremis.core.Mission;
-import com.extremis.core.MissionEvent;
+import com.extremis.core.EvtMission;
 import com.extremis.core.SimpleTest;
 import com.extremis.db.ExecutionTeamMemberEntity;
 import com.extremis.db.MissionExecutionEntity;
@@ -55,24 +55,24 @@ class JetonsJokerWebTest {
             return new Mission("mission-joker", "Mission joker", "brief", Lieu.PARIS_1ER,
                     List.of(Competence.DISCRETION),
                     List.of(
-                            MissionEvent.builder("epreuve", "Epreuve")
+                            EvtMission.builder("epreuve", "Epreuve")
                                     .introduction("Une épreuve.")
                                     .duree(Duration.ofSeconds(1))
                                     .test(new SimpleTest(Competence.DISCRETION, -100))
-                                    .succes(MissionEvent.EffetReussite.builder()
+                                    .succes(EvtMission.EffetReussite.builder()
                                             .texteSimple("Epreuve réussie.")
                                             .evenementSuivant("fin")
                                             .build())
-                                    .echec(MissionEvent.EffetEchec.builder()
+                                    .echec(EvtMission.EffetEchec.builder()
                                             .texteSimple("Epreuve échouée.")
                                             .degats(2)
                                             .evenementSuivant("epreuve")
                                             .build())
                                     .build(),
-                            MissionEvent.builder("fin", "Fin")
+                            EvtMission.builder("fin", "Fin")
                                     .duree(Duration.ZERO)
                                     .effet("Mission accomplie.")
-                                    .succes(MissionEvent.EffetReussite.builder()
+                                    .succes(EvtMission.EffetReussite.builder()
                                             .evenementSuivant(null)
                                             .build())
                                     .build()));

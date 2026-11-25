@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.extremis.core.Character;
 import com.extremis.core.Competence;
-import com.extremis.core.MissionEvent;
+import com.extremis.core.EvtMission;
 import com.extremis.core.SimpleTest;
-import com.extremis.core.MissionEvent.EffetEchec;
-import com.extremis.core.MissionEvent.EffetReussite;
+import com.extremis.core.EvtMission.EffetEchec;
+import com.extremis.core.EvtMission.EffetReussite;
 
 /**
  * Boites d'evenements generiques du wiki (page "Boite evenements
@@ -28,7 +28,7 @@ public final class BoitesEvenementsGeneriques {
      * Une boite d'evenements generiques : les evenements a integrer
      * dans la mission appelante et l'id de son point d'entree.
      */
-    public record Boite(List<MissionEvent> evenements, String entree) {
+    public record Boite(List<EvtMission> evenements, String entree) {
         public Boite {
             evenements = List.copyOf(evenements);
         }
@@ -44,7 +44,7 @@ public final class BoitesEvenementsGeneriques {
         String endurance = prefixe + "-endurance";
         String forceMentale = prefixe + "-force-mentale";
         return new Boite(List.of(
-                MissionEvent.builder(periple, "Test de p\u00e9riple")
+                EvtMission.builder(periple, "Test de p\u00e9riple")
                         .introduction("La marche vers le chantier \u00e0 travers la for\u00eat glaciale.")
                         .duree(Duration.ofHours(4))
                         .test(new SimpleTest(Competence.PERIPLE, 0))
@@ -60,7 +60,7 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(endurance)
                                 .build())
                         .build(),
-                MissionEvent.builder(endurance, "Souffrance (endurance, pour tous les personnages)")
+                EvtMission.builder(endurance, "Souffrance (endurance, pour tous les personnages)")
                         .introduction("Le froid et la fatigue p\u00e8sent sur chaque arrangeur.")
                         .duree(Duration.ofHours(2))
                         .test(new SimpleTest(Competence.ENDURANCE, 0))
@@ -75,7 +75,7 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(forceMentale)
                                 .build())
                         .build(),
-                MissionEvent.builder(forceMentale, "Souffrance (force mentale, pour tous les personnages)")
+                EvtMission.builder(forceMentale, "Souffrance (force mentale, pour tous les personnages)")
                         .introduction("La peur de se perdre glace le sang de chaque arrangeur.")
                         .duree(Duration.ofHours(2))
                         .test(new SimpleTest(Competence.FORCE_MENTALE, 0))
@@ -100,7 +100,7 @@ public final class BoitesEvenementsGeneriques {
     public static Boite travailEpuisant(String prefixe, Duration duree, String evenementEnCasDeReussite) {
         String travail = prefixe + "-travail";
         return new Boite(List.of(
-                MissionEvent.builder(travail, "Travail \u00e9puisant (pour tous les personnages)")
+                EvtMission.builder(travail, "Travail \u00e9puisant (pour tous les personnages)")
                         .introduction("Chaque arrangeur travaille sur le chantier, dans le froid.")
                         .duree(duree)
                         .test(new SimpleTest(Competence.ENDURANCE, 0))
@@ -133,7 +133,7 @@ public final class BoitesEvenementsGeneriques {
         String protection = prefixe + "-protection";
         String corpsACorps = prefixe + "-corps-a-corps";
         return new Boite(List.of(
-                MissionEvent.builder(attaque, "Attaque de bandits")
+                EvtMission.builder(attaque, "Attaque de bandits")
                         .introduction("Des bandits attaquent !")
                         .duree(Duration.ofHours(1))
                         .branche("Un arrangeur poss\u00e8de une arme de tir : il tente d'abattre les bandits.",
@@ -144,7 +144,7 @@ public final class BoitesEvenementsGeneriques {
                                 equipe -> true,
                                 protection)
                         .build(),
-                MissionEvent.builder(tir, "\u00c9change de tir")
+                EvtMission.builder(tir, "\u00c9change de tir")
                         .introduction("L'arrangeur arm\u00e9 tente d'abattre les bandits.")
                         .testeurFiltre(BoitesEvenementsGeneriques::aUneArmeDeTir)
                         .test(new SimpleTest(Competence.TIR, 0))
@@ -157,7 +157,7 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(corpsACorps)
                                 .build())
                         .build(),
-                MissionEvent.builder(protection, "Protection du consul")
+                EvtMission.builder(protection, "Protection du consul")
                         .introduction("Sans arme de tir, il faut prot\u00e9ger le consul des assauts.")
                         .test(new SimpleTest(Competence.PROTECTION_DU_CONSUL, 0))
                         .succes(EffetReussite.builder()
@@ -170,7 +170,7 @@ public final class BoitesEvenementsGeneriques {
                                 .evenementSuivant(corpsACorps)
                                 .build())
                         .build(),
-                MissionEvent.builder(corpsACorps, "Corps \u00e0 corps")
+                EvtMission.builder(corpsACorps, "Corps \u00e0 corps")
                         .introduction("Les arrangeurs affrontent les bandits au corps \u00e0 corps.")
                         .test(new SimpleTest(Competence.ARMES_CORPS_A_CORPS, 0))
                         .succes(EffetReussite.builder()

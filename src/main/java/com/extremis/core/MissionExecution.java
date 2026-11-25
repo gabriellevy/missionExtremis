@@ -70,7 +70,7 @@ public final class MissionExecution {
      */
     public boolean advance(Instant now) {
         while (!finished) {
-            MissionEvent evenement = mission.evenement(evenementCourant);
+            EvtMission evenement = mission.evenement(evenementCourant);
             publierIntroduction(evenement);
             if (heureEffetCourant.isAfter(now)) {
                 return false;
@@ -109,7 +109,7 @@ public final class MissionExecution {
                 }
                 evenementCourant = suivant;
                 passagesIntroduction++;
-                MissionEvent prochain = mission.evenement(suivant);
+                EvtMission prochain = mission.evenement(suivant);
                 heureEffetCourant = heureEffetCourant.plus(prochain.duree());
                 attenteEffet = true;
             } else {
@@ -119,7 +119,7 @@ public final class MissionExecution {
         return true;
     }
 
-    private void publierIntroduction(MissionEvent evenement) {
+    private void publierIntroduction(EvtMission evenement) {
         // chaque nouveau passage sur l'evenement republie son titre
         // (balise "aller a") et son introduction
         String cle = evenement.id() + "#" + passagesIntroduction;
@@ -262,7 +262,7 @@ public final class MissionExecution {
         return s;
     }
 
-    private void enregistrerDernierTest(MissionEvent evenement,
+    private void enregistrerDernierTest(EvtMission evenement,
                                         ResolveurDEvenement.ResultatEvenement resultat,
                                         SnapshotTest snapshot) {
         if (resultat.resultatTest() != null && !resultat.resultatTest().estReussite()) {

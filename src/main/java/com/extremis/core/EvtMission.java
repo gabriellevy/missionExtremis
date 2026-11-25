@@ -9,12 +9,12 @@ import java.util.function.Predicate;
 /**
  * Un evenement de mission (wiki, page "Missions") : une succession
  * d'evenements dont les reussites ou echecs menent a d'autres evenements.
- *
+ *  ------------
  * Chaque evenement a une duree avant d'etre realise. Au debut son texte
  * d'introduction s'affiche, et seulement une fois la duree ecoulee son
  * effet s'affiche, y compris les resultats des tests de caracteristiques.
  */
-public final class MissionEvent {
+public final class EvtMission {
     private final String id;
     private final String titre;
     private final String introduction;
@@ -177,7 +177,7 @@ public final class MissionEvent {
         }
     }
 
-    private MissionEvent(Builder builder) {
+    private EvtMission(Builder builder) {
         this.id = builder.id;
         this.titre = builder.titre;
         this.introduction = builder.introduction;
@@ -301,8 +301,8 @@ public final class MissionEvent {
             return this;
         }
 
-        public MissionEvent build() {
-            return new MissionEvent(this);
+        public EvtMission build() {
+            return new EvtMission(this);
         }
     }
 }
