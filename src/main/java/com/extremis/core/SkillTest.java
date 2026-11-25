@@ -21,6 +21,15 @@ public interface SkillTest {
     }
 
     /**
+     * Cible du test pour un personnage au sein d'une équipe : par défaut
+     * la même que la cible individuelle (les tests "aidés", wiki, page
+     * "Tests de caracs", en dépendent).
+     */
+    default int target(Character character, List<Character> equipe) {
+        return target(character);
+    }
+
+    /**
      * Le PJ du groupe qui a la plus haute valeur de la competence
      * concernee tente le test (wiki, page "Missions"), sauf exclusion.
      */

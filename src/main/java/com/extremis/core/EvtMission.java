@@ -46,7 +46,14 @@ public final class EvtMission {
             String texteCritique,
             String texteSimple,
             String recompense,
+            Integer ajustementDifficulte,
+            List<String> evenementsAjustes,
             String evenementSuivant) {
+
+        public EffetReussite(String texteCritique, String texteSimple, String recompense,
+                             String evenementSuivant) {
+            this(texteCritique, texteSimple, recompense, null, List.of(), evenementSuivant);
+        }
 
         public static Builder builder() {
             return new Builder();
@@ -56,6 +63,8 @@ public final class EvtMission {
             private String texteCritique;
             private String texteSimple;
             private String recompense;
+            private Integer ajustementDifficulte;
+            private List<String> evenementsAjustes = new ArrayList<>();
             private String evenementSuivant;
 
             public Builder texteCritique(String texte) {
@@ -73,13 +82,25 @@ public final class EvtMission {
                 return this;
             }
 
+            /**
+             * Ajuste la difficulté d'autres événements (par exemple un
+             * +20 aux tests suivants) ; sans evenementsAjustes,
+             * l'événement courant est la cible.
+             */
+            public Builder ajustementDifficulte(int ajustement, String... evenementsAjustes) {
+                this.ajustementDifficulte = ajustement;
+                this.evenementsAjustes = List.of(evenementsAjustes);
+                return this;
+            }
+
             public Builder evenementSuivant(String id) {
                 this.evenementSuivant = id;
                 return this;
             }
 
             public EffetReussite build() {
-                return new EffetReussite(texteCritique, texteSimple, recompense, evenementSuivant);
+                return new EffetReussite(texteCritique, texteSimple, recompense,
+                        ajustementDifficulte, List.copyOf(evenementsAjustes), evenementSuivant);
             }
         }
     }

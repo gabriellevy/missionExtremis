@@ -24,4 +24,9 @@ public class MissionConfig {
     public Mission pasUnPaysPourLesVieux() {
         return Missions.pasUnPaysPourLesVieux();
     }
+
+    @Bean
+    public Mission congresKomsomolHouleux() {
+        return Missions.congresKomsomolHouleux();
+    }
 }
